@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     outputs:
       image: ghcr.io/${{ github.repository_owner }}/frontend-platform:${{ steps.sha.outputs.short }}
     steps:
