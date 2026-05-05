@@ -46,3 +46,6 @@ vitest.config.*.timestamp*
 
 # Kiro specs
 .kiro/specs/
+
+# Dev mode backup — created/removed by dev.sh, never commit
+apps/cyberrangecz-platform/public/config.json.bak
