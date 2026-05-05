@@ -63,7 +63,7 @@ _in_vm() {
 
 # Load image vào k3s containerd của VM
 echo "==> Loading image vào k3s containerd..."
-docker save "$IMAGE" | _in_vm "sudo k3s ctr images import -"
+docker save "$IMAGE" | _in_vm "sudo /usr/local/bin/k3s ctr images import -"
 
 # Patch imagePullPolicy + cập nhật image + rollout
 echo "==> Deploying..."
