@@ -52,3 +52,14 @@ _in_vm "
 
 echo ""
 echo "==> Deploy thành công: $IMAGE"
+
+# Cập nhật CUSTOM_FRONTEND_IMAGE và CUSTOM_FRONTEND_TAG trong 03-infrastructure-deploy.sh
+# để lần rebuild tiếp theo dùng đúng image đã deploy gần nhất.
+DEPLOY_SCRIPT="/home/ubuntu/kypo-sp26/scripts/03-infrastructure-deploy.sh"
+if [ -f "$DEPLOY_SCRIPT" ]; then
+    TAG="${IMAGE##*:}"
+    REPO="${IMAGE%:*}"
+    sed -i "s|^CUSTOM_FRONTEND_IMAGE=.*|CUSTOM_FRONTEND_IMAGE=\"${REPO}\"|" "$DEPLOY_SCRIPT"
+    sed -i "s|^CUSTOM_FRONTEND_TAG=.*|CUSTOM_FRONTEND_TAG=\"${TAG}\"|" "$DEPLOY_SCRIPT"
+    echo "==> 03-infrastructure-deploy.sh updated: image=${REPO} tag=${TAG}"
+fi
