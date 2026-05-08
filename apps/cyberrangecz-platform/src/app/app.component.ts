@@ -66,7 +66,72 @@ export class AppComponent implements OnInit, AfterViewInit {
     ngAfterViewInit(): void {
         this.router.events
             .pipe(filter((event) => event instanceof NavigationEnd))
-            .subscribe();
+            .subscribe((event: NavigationEnd) => {
+                this.updateActiveNavItem(event.urlAfterRedirects);
+            });
+
+        // Apply on initial load
+        this.updateActiveNavItem(this.router.url);
+    }
+
+    /**
+     * Marks the nav button matching the current route as fctf-active.
+     * @sentinel/layout does not expose an active class, so we inject it manually.
+     */
+    private updateActiveNavItem(currentUrl: string): void {
+        setTimeout(() => {
+            const navDrawer = document.querySelector('.nav-drawer');
+            if (!navDrawer) return;
+
+            // Remove all existing active marks
+            navDrawer.querySelectorAll('.fctf-active').forEach((el) => {
+                el.classList.remove('fctf-active');
+            });
+
+            const urlLower = currentUrl.toLowerCase().split('?')[0];
+
+            // Map URL segments → { section, label } to activate
+            const segmentMap: Array<{ segment: string; items: Array<{ section: string; label: string }> }> = [
+                { segment: 'adaptive-definition', items: [{ section: 'trainings', label: 'definition' }] },
+                { segment: 'linear-definition', items: [{ section: 'trainings', label: 'definition' }] },
+                { segment: 'adaptive-instance', items: [{ section: 'trainings', label: 'instance' }] },
+                { segment: 'linear-instance', items: [{ section: 'trainings', label: 'instance' }] },
+                { segment: 'run', items: [{ section: 'trainings', label: 'run' }] },
+                { segment: 'sandbox-definition', items: [{ section: 'sandboxes', label: 'definition' }] },
+                { segment: 'pool', items: [{ section: 'sandboxes', label: 'pool' }] },
+                { segment: 'sandbox-image', items: [{ section: 'sandboxes', label: 'images' }] },
+                { segment: 'user', items: [{ section: 'administration', label: 'user' }] },
+                { segment: 'group', items: [{ section: 'administration', label: 'group' }] },
+                { segment: 'microservice', items: [{ section: 'administration', label: 'microservice' }] },
+            ];
+
+            // Find best match (longest segment wins)
+            let matchedItems: Array<{ section: string; label: string }> = [];
+            let bestLen = 0;
+            for (const { segment, items } of segmentMap) {
+                if (urlLower.includes(segment) && segment.length > bestLen) {
+                    matchedItems = items;
+                    bestLen = segment.length;
+                }
+            }
+
+            if (!matchedItems.length) return;
+
+            // For each section in nav, find and activate matching buttons
+            const sections = navDrawer.querySelectorAll<HTMLElement>('sentinel-root-agenda-container');
+            sections.forEach((section) => {
+                const sectionText = section.querySelector('.container')?.textContent?.trim().toLowerCase() ?? '';
+                section.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((btn) => {
+                    const label = btn.querySelector('.mdc-button__label')?.textContent?.trim().toLowerCase() ?? '';
+                    const shouldActivate = matchedItems.some(
+                        item => sectionText.includes(item.section) && label === item.label
+                    );
+                    if (shouldActivate) {
+                        btn.classList.add('fctf-active');
+                    }
+                });
+            });
+        }, 150);
     }
 
     onLogin(): void {
