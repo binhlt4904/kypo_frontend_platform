@@ -42,6 +42,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Deploy to K8s
         uses: appleboy/ssh-action@v1
         with:
@@ -51,3 +53,51 @@ jobs:
           command_timeout: 5m
           script: |
             /home/ubuntu/frontend-platform/build-deploy.sh "${{ needs.build.outputs.image }}"
+
+      - name: Copy Keycloak theme to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "keycloak-theme/"
+          target: "/tmp/kypo-theme-ci/"
+
+      - name: Deploy Keycloak theme
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 5m
+          script: |
+            KC_POD=keycloak-0
+            KC_NS=crczp
+            THEME=kypo-anim
+            SRC="/tmp/kypo-theme-ci/keycloak-theme"
+
+            kubectl exec -n $KC_NS $KC_POD -- \
+              mkdir -p /opt/keycloak/themes/$THEME/login/resources/css \
+                       /opt/keycloak/themes/$THEME/login/resources/js
+
+            cat $SRC/login/theme.properties | base64 | \
+              kubectl exec -i -n $KC_NS $KC_POD -- \
+              /bin/bash -c "base64 -d > /opt/keycloak/themes/$THEME/login/theme.properties"
+
+            cat $SRC/login/resources/css/login.css | base64 | \
+              kubectl exec -i -n $KC_NS $KC_POD -- \
+              /bin/bash -c "base64 -d > /opt/keycloak/themes/$THEME/login/resources/css/login.css"
+
+            cat $SRC/login/resources/js/cyber-bg.js | base64 | \
+              kubectl exec -i -n $KC_NS $KC_POD -- \
+              /bin/bash -c "base64 -d > /opt/keycloak/themes/$THEME/login/resources/js/cyber-bg.js"
+
+            kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c "
+              /opt/keycloak/bin/kcadm.sh config credentials \
+                --server http://localhost:8080/keycloak \
+                --realm master \
+                --user \$KEYCLOAK_ADMIN \
+                --password \$KEYCLOAK_ADMIN_PASSWORD 2>/dev/null && \
+              /opt/keycloak/bin/kcadm.sh update realms/crczp \
+                -s loginTheme=$THEME 2>/dev/null || true
+            "
