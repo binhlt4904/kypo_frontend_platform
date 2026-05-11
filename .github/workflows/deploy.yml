@@ -76,23 +76,21 @@ jobs:
             THEME=kypo-anim
             SRC="/tmp/kypo-theme-ci/keycloak-theme"
 
-            kubectl exec -n $KC_NS $KC_POD -- \
-              mkdir -p /opt/keycloak/themes/$THEME/login/resources/css \
-                       /opt/keycloak/themes/$THEME/login/resources/js
+            # Try kubectl, fallback to k3s kubectl
+            KC=$(which kubectl 2>/dev/null || which k3s 2>/dev/null && echo "k3s kubectl" || echo "sudo kubectl")
+
+            $KC exec -n $KC_NS $KC_POD -- \
+              mkdir -p /opt/keycloak/themes/$THEME/login/resources/css
 
             cat $SRC/login/theme.properties | base64 | \
-              kubectl exec -i -n $KC_NS $KC_POD -- \
+              $KC exec -i -n $KC_NS $KC_POD -- \
               /bin/bash -c "base64 -d > /opt/keycloak/themes/$THEME/login/theme.properties"
 
             cat $SRC/login/resources/css/login.css | base64 | \
-              kubectl exec -i -n $KC_NS $KC_POD -- \
+              $KC exec -i -n $KC_NS $KC_POD -- \
               /bin/bash -c "base64 -d > /opt/keycloak/themes/$THEME/login/resources/css/login.css"
 
-            cat $SRC/login/resources/js/cyber-bg.js | base64 | \
-              kubectl exec -i -n $KC_NS $KC_POD -- \
-              /bin/bash -c "base64 -d > /opt/keycloak/themes/$THEME/login/resources/js/cyber-bg.js"
-
-            kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c "
+            $KC exec -n $KC_NS $KC_POD -- /bin/bash -c "
               /opt/keycloak/bin/kcadm.sh config credentials \
                 --server http://localhost:8080/keycloak \
                 --realm master \
