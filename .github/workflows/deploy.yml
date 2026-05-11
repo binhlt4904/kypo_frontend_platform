@@ -110,3 +110,6 @@ jobs:
 
             echo "=== Set theme via kcadm ==="
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '/opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/keycloak --realm master --user \$KEYCLOAK_ADMIN --password \$KEYCLOAK_ADMIN_PASSWORD 2>/dev/null && /opt/keycloak/bin/kcadm.sh update realms/crczp -s loginTheme=$THEME 2>/dev/null || true'"
+
+            echo "=== Restart Keycloak pod ==="
+            _in_vm "sudo kubectl rollout restart statefulset/keycloak -n $KC_NS && sudo kubectl rollout status statefulset/keycloak -n $KC_NS --timeout=120s"
