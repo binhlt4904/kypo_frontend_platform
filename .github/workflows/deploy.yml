@@ -129,5 +129,5 @@ jobs:
                 vagrantlibvirt/vagrant-libvirt:latest \
                 vagrant ssh -- "$@"
             }
-            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- /bin/bash -c 'unzip -l /opt/keycloak/lib/lib/main/org.keycloak.keycloak-themes-25.0.1.jar | grep .ftl'"
+            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- python3 -c \"import zipfile; [print(f) for f in zipfile.ZipFile('/opt/keycloak/lib/lib/main/org.keycloak.keycloak-themes-25.0.1.jar').namelist() if '.ftl' in f]\""
             _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=30 | grep -i 'theme\|template\|ftl'"
