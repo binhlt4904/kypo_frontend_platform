@@ -1,41 +1,45 @@
-<#import "template.ftl" as layout>
-<@layout.registrationLayout; section>
-    <#if section = "header">
-        ${msg("doLogIn")}
-    <#elseif section = "form">
+<!DOCTYPE html>
+<html class="login-pf">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${msg("loginTitle",(realm.displayName!''))}</title>
+    <link rel="stylesheet" href="${url.resourcesPath}/css/login.css"/>
+</head>
+<body class="login-pf">
+<div class="login-pf-page">
+    <div id="kc-header">
+        <div id="kc-header-wrapper">
+            ${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}
+        </div>
+    </div>
+    <div class="card-pf">
+        <#if message?has_content>
+            <div class="alert alert-${message.type}">
+                <span>${kcSanitize(message.summary)?no_esc}</span>
+            </div>
+        </#if>
+        <h1 id="kc-page-title">${msg("loginAccountTitle")}</h1>
         <form id="kc-form-login"
               onsubmit="login.disabled = true; return true;"
               action="${url.loginAction}"
               method="post">
-
             <div class="form-group">
                 <label for="username">
                     <#if !realm.loginWithEmailAllowed>${msg("username")}
                     <#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}
                     <#else>${msg("email")}</#if>
                 </label>
-                <input tabindex="1"
-                       id="username"
-                       class="pf-c-form-control"
-                       name="username"
-                       value="${(login.username!'')}"
-                       type="text"
-                       autofocus
-                       autocomplete="off"/>
+                <input tabindex="1" id="username" class="pf-c-form-control"
+                       name="username" value="${(login.username!'')}"
+                       type="text" autofocus autocomplete="off"/>
             </div>
-
             <div class="form-group">
                 <label for="password">${msg("password")}</label>
                 <div class="pf-c-input-group">
-                    <input tabindex="2"
-                           id="password"
-                           class="pf-c-form-control"
-                           name="password"
-                           type="password"
-                           autocomplete="current-password"/>
-                    <button class="pf-c-button pf-m-control"
-                            type="button"
-                            aria-label="${msg('showPassword')}"
+                    <input tabindex="2" id="password" class="pf-c-form-control"
+                           name="password" type="password" autocomplete="current-password"/>
+                    <button class="pf-c-button pf-m-control" type="button"
                             onclick="var p=document.getElementById('password');p.type=p.type==='password'?'text':'password'">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2">
@@ -45,15 +49,13 @@
                     </button>
                 </div>
             </div>
-
             <div class="form-group">
-                <input tabindex="4"
-                       class="pf-c-button pf-m-primary pf-m-block"
-                       name="login"
-                       id="kc-login"
-                       type="submit"
+                <input tabindex="4" class="pf-c-button pf-m-primary pf-m-block"
+                       name="login" id="kc-login" type="submit"
                        value="${msg('doLogIn')}"/>
             </div>
         </form>
-    </#if>
-</@layout.registrationLayout>
+    </div>
+</div>
+</body>
+</html>
