@@ -110,3 +110,24 @@ jobs:
               /opt/keycloak/bin/kcadm.sh update realms/crczp \
                 -s loginTheme=$THEME 2>/dev/null || true
             '"
+
+      - name: Debug JAR
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
+            _in_vm() {
+              docker run --rm \
+                -e LIBVIRT_DEFAULT_URI \
+                -v /var/run/libvirt/:/var/run/libvirt/ \
+                -v ~/.vagrant.d:/.vagrant.d \
+                -v "$KYPO_DIR":"$KYPO_DIR" \
+                -w "$KYPO_DIR" --network host \
+                vagrantlibvirt/vagrant-libvirt:latest \
+                vagrant ssh -- "$@"
+            }
+            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- find /opt/keycloak/lib -name '*theme*' 2>/dev/null"
+            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- ls /opt/keycloak/themes/"
