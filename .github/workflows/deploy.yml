@@ -88,17 +88,6 @@ jobs:
                 vagrant ssh -- "$@"
             }
 
-            # Update ConfigMap với nội dung theme mới
-            THEME_PROPS=$(cat $SRC/login/theme.properties | base64 -w 0)
-            LOGIN_CSS=$(cat $SRC/login/resources/css/login.css | base64 -w 0)
-
-            _in_vm "
-              sudo kubectl create configmap $THEME \
-                --from-literal=theme.properties=\$(echo '$THEME_PROPS' | base64 -d) \
-                --from-literal=login.css=\$(echo '$LOGIN_CSS' | base64 -d) \
-                -n $KC_NS --dry-run=client -o yaml | sudo kubectl apply -f -
-            "
-
             # Copy vào pod đang chạy
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
 
