@@ -74,9 +74,16 @@ jobs:
           script: |
             KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
             SRC="/tmp/kypo-theme-ci/keycloak-theme"
+
+            echo "=== Check source files exist ==="
+            ls -la $SRC/login/
+            ls -la $SRC/login/resources/css/
+            echo "=== File sizes ==="
+            wc -c $SRC/login/login.ftl
+            wc -c $SRC/login/theme.properties
             KC_POD=keycloak-0
             KC_NS=crczp
-            THEME=kypo-v2
+            THEME=kypo-v3
 
             _in_vm() {
               docker run --rm \
@@ -166,7 +173,7 @@ jobs:
             }
             _in_vm "sudo kubectl exec -n crczp keycloak-0 -- find /opt/keycloak/themes/kypo-anim -type f"
 
-      - name: Verify kypo-v2
+      - name: Verify kypo-v3
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
