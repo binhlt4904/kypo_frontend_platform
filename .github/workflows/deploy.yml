@@ -3,6 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches: [master]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -69,7 +70,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 5m
+          command_timeout: 10m
           script: |
             KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
             SRC="/tmp/kypo-theme-ci/keycloak-theme"
@@ -88,26 +89,32 @@ jobs:
                 vagrant ssh -- "$@"
             }
 
-            # Tạo thư mục trong pod
+            _copy_file() {
+              local src=$1
+              local dst=$2
+              cat $src | base64 | \
+                _in_vm "base64 -d > /tmp/kc-upload && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > $dst' < /tmp/kc-upload"
+            }
+
+            # Tạo thư mục
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
 
-            # Copy theme.properties
-            cat $SRC/login/theme.properties | base64 | \
-              _in_vm "base64 -d > /tmp/kc-theme.properties && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/theme.properties' < /tmp/kc-theme.properties"
+            # Copy tất cả file
+            _copy_file $SRC/login/theme.properties          /opt/keycloak/themes/$THEME/login/theme.properties
+            _copy_file $SRC/login/template.ftl              /opt/keycloak/themes/$THEME/login/template.ftl
+            _copy_file $SRC/login/login.ftl                 /opt/keycloak/themes/$THEME/login/login.ftl
+            _copy_file $SRC/login/error.ftl                 /opt/keycloak/themes/$THEME/login/error.ftl
+            _copy_file $SRC/login/info.ftl                  /opt/keycloak/themes/$THEME/login/info.ftl
+            _copy_file $SRC/login/login-reset-password.ftl  /opt/keycloak/themes/$THEME/login/login-reset-password.ftl
+            _copy_file $SRC/login/login-verify-email.ftl    /opt/keycloak/themes/$THEME/login/login-verify-email.ftl
+            _copy_file $SRC/login/login-page-expired.ftl    /opt/keycloak/themes/$THEME/login/login-page-expired.ftl
+            _copy_file $SRC/login/login-update-password.ftl /opt/keycloak/themes/$THEME/login/login-update-password.ftl
+            _copy_file $SRC/login/resources/css/login.css   /opt/keycloak/themes/$THEME/login/resources/css/login.css
 
-            # Copy login.css
-            cat $SRC/login/resources/css/login.css | base64 | \
-              _in_vm "base64 -d > /tmp/kc-login.css && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/resources/css/login.css' < /tmp/kc-login.css"
+            # Clear cache
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c 'rm -rf /opt/keycloak/data/tmp/kc-gzip-cache 2>/dev/null || true'"
 
-            # Copy error.ftl
-            cat $SRC/login/error.ftl | base64 | \
-              _in_vm "base64 -d > /tmp/kc-error.ftl && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/error.ftl' < /tmp/kc-error.ftl"
-
-            # Copy template.ftl
-            cat $SRC/login/template.ftl | base64 | \
-              _in_vm "base64 -d > /tmp/kc-template.ftl && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/template.ftl' < /tmp/kc-template.ftl"
-
-            # Set theme via kcadm
+            # Set theme
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
               /opt/keycloak/bin/kcadm.sh config credentials \
                 --server http://localhost:8080/keycloak \
@@ -116,11 +123,6 @@ jobs:
                 --password \$KEYCLOAK_ADMIN_PASSWORD 2>/dev/null && \
               /opt/keycloak/bin/kcadm.sh update realms/crczp \
                 -s loginTheme=$THEME 2>/dev/null || true
-            '"
-
-            # Clear Keycloak theme cache
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
-              rm -rf /opt/keycloak/data/tmp/kc-gzip-cache 2>/dev/null || true
             '"
 
       - name: Check new Keycloak logs
@@ -143,3 +145,4 @@ jobs:
             }
             _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=10"
             _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=50 | grep -A5 'TemplateNotFound\|Caused by\|ERROR'"
+
