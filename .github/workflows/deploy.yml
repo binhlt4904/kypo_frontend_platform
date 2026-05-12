@@ -99,8 +99,9 @@ jobs:
             _copy_file() {
               local src=$1
               local dst=$2
-              cat $src | base64 | \
-                _in_vm "base64 -d > /tmp/kc-upload && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > $dst' < /tmp/kc-upload"
+              local b64
+              b64=$(base64 < "$src" | tr -d '\n')
+              _in_vm "echo '$b64' | base64 -d | sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > $dst'"
             }
 
             # Tạo thư mục
@@ -131,6 +132,9 @@ jobs:
               /opt/keycloak/bin/kcadm.sh update realms/CRCZP \
                 -s loginTheme=$THEME 2>/dev/null || true
             '"
+            # Restart để reload theme
+            _in_vm "sudo kubectl rollout restart statefulset/keycloak -n crczp"
+            _in_vm "sudo kubectl rollout status statefulset/keycloak -n crczp --timeout=120s"
 
       - name: Check new Keycloak logs
         uses: appleboy/ssh-action@v1
