@@ -88,25 +88,22 @@ jobs:
                 vagrant ssh -- "$@"
             }
 
-            # Copy vào pod đang chạy
+            # Tạo thư mục trong pod
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
 
-            # Copy FTL templates từ keycloak theme gốc
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
-              for f in error.ftl login.ftl login-page-expired.ftl login-reset-password.ftl login-verify-email.ftl; do
-                if [ -f /opt/keycloak/themes/keycloak/login/\$f ]; then
-                  cp /opt/keycloak/themes/keycloak/login/\$f /opt/keycloak/themes/$THEME/login/\$f
-                fi
-              done
-            '"
-
+            # Copy theme.properties
             cat $SRC/login/theme.properties | base64 | \
               _in_vm "base64 -d > /tmp/kc-theme.properties && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/theme.properties' < /tmp/kc-theme.properties"
 
+            # Copy login.css
             cat $SRC/login/resources/css/login.css | base64 | \
               _in_vm "base64 -d > /tmp/kc-login.css && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/resources/css/login.css' < /tmp/kc-login.css"
 
-            # Set theme
+            # Copy error.ftl
+            cat $SRC/login/error.ftl | base64 | \
+              _in_vm "base64 -d > /tmp/kc-error.ftl && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/error.ftl' < /tmp/kc-error.ftl"
+
+            # Set theme via kcadm
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
               /opt/keycloak/bin/kcadm.sh config credentials \
                 --server http://localhost:8080/keycloak \
@@ -116,23 +113,3 @@ jobs:
               /opt/keycloak/bin/kcadm.sh update realms/crczp \
                 -s loginTheme=$THEME 2>/dev/null || true
             '"
-
-      - name: Debug Keycloak version
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
-            _in_vm() {
-              docker run --rm \
-                -e LIBVIRT_DEFAULT_URI \
-                -v /var/run/libvirt/:/var/run/libvirt/ \
-                -v ~/.vagrant.d:/.vagrant.d \
-                -v "$KYPO_DIR":"$KYPO_DIR" \
-                -w "$KYPO_DIR" --network host \
-                vagrantlibvirt/vagrant-libvirt:latest \
-                vagrant ssh -- "$@"
-            }
-            _in_vm "sudo kubectl get pod keycloak-0 -n crczp -o jsonpath='{.spec.containers[0].image}'"
