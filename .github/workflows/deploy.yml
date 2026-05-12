@@ -121,7 +121,7 @@ jobs:
                 --realm master \
                 --user \$KEYCLOAK_ADMIN \
                 --password \$KEYCLOAK_ADMIN_PASSWORD 2>/dev/null && \
-              /opt/keycloak/bin/kcadm.sh update realms/crczp \
+              /opt/keycloak/bin/kcadm.sh update realms/CRCZP \
                 -s loginTheme=$THEME 2>/dev/null || true
             '"
 
