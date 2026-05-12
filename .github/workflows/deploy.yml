@@ -165,3 +165,23 @@ jobs:
                 vagrant ssh -- "$@"
             }
             _in_vm "sudo kubectl exec -n crczp keycloak-0 -- find /opt/keycloak/themes/kypo-anim -type f"
+
+      - name: Verify kypo-v2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
+            _in_vm() {
+              docker run --rm \
+                -e LIBVIRT_DEFAULT_URI \
+                -v /var/run/libvirt/:/var/run/libvirt/ \
+                -v ~/.vagrant.d:/.vagrant.d \
+                -v "$KYPO_DIR":"$KYPO_DIR" \
+                -w "$KYPO_DIR" --network host \
+                vagrantlibvirt/vagrant-libvirt:latest \
+                vagrant ssh -- "$@"
+            }
+            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- cat /opt/keycloak/themes/kypo-v2/login/login.ftl | head -10"
