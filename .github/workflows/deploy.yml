@@ -71,9 +71,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           command_timeout: 5m
           script: |
-            set -x
             KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
-            echo "KYPO_DIR=$KYPO_DIR"
             SRC="/tmp/kypo-theme-ci/keycloak-theme"
             KC_POD=keycloak-0
             KC_NS=crczp
@@ -90,26 +88,33 @@ jobs:
                 vagrant ssh -- "$@"
             }
 
-            echo "=== Checking SRC files ==="
-            ls -la $SRC/login/
-            ls -la $SRC/login/resources/css/
+            # Update ConfigMap với nội dung theme mới
+            THEME_PROPS=$(cat $SRC/login/theme.properties | base64 -w 0)
+            LOGIN_CSS=$(cat $SRC/login/resources/css/login.css | base64 -w 0)
 
-            echo "=== Creating dirs in pod ==="
+            _in_vm "
+              sudo kubectl create configmap $THEME \
+                --from-literal=theme.properties=\$(echo '$THEME_PROPS' | base64 -d) \
+                --from-literal=login.css=\$(echo '$LOGIN_CSS' | base64 -d) \
+                -n $KC_NS --dry-run=client -o yaml | sudo kubectl apply -f -
+            "
+
+            # Copy vào pod đang chạy
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
 
-            echo "=== Copying theme.properties ==="
             cat $SRC/login/theme.properties | base64 | \
               _in_vm "base64 -d > /tmp/kc-theme.properties && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/theme.properties' < /tmp/kc-theme.properties"
 
-            echo "=== Copying login.css ==="
             cat $SRC/login/resources/css/login.css | base64 | \
               _in_vm "base64 -d > /tmp/kc-login.css && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/resources/css/login.css' < /tmp/kc-login.css"
 
-            echo "=== Verify files in pod ==="
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- ls /opt/keycloak/themes/$THEME/login/"
-
-            echo "=== Set theme via kcadm ==="
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '/opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080/keycloak --realm master --user \$KEYCLOAK_ADMIN --password \$KEYCLOAK_ADMIN_PASSWORD 2>/dev/null && /opt/keycloak/bin/kcadm.sh update realms/crczp -s loginTheme=$THEME 2>/dev/null || true'"
-
-            echo "=== Restart Keycloak pod ==="
-            _in_vm "sudo kubectl rollout restart statefulset/keycloak -n $KC_NS && sudo kubectl rollout status statefulset/keycloak -n $KC_NS --timeout=120s"
+            # Set theme
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
+              /opt/keycloak/bin/kcadm.sh config credentials \
+                --server http://localhost:8080/keycloak \
+                --realm master \
+                --user \$KEYCLOAK_ADMIN \
+                --password \$KEYCLOAK_ADMIN_PASSWORD 2>/dev/null && \
+              /opt/keycloak/bin/kcadm.sh update realms/crczp \
+                -s loginTheme=$THEME 2>/dev/null || true
+            '"
