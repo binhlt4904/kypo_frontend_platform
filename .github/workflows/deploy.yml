@@ -103,6 +103,9 @@ jobs:
             cat $SRC/login/error.ftl | base64 | \
               _in_vm "base64 -d > /tmp/kc-error.ftl && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/error.ftl' < /tmp/kc-error.ftl"
 
+            cat $SRC/login/template.ftl | base64 | \
+              _in_vm "base64 -d > /tmp/kc-template.ftl && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > /opt/keycloak/themes/$THEME/login/template.ftl' < /tmp/kc-template.ftl"
+
             # Set theme via kcadm
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
               /opt/keycloak/bin/kcadm.sh config credentials \
