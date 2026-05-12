@@ -76,7 +76,7 @@ jobs:
             SRC="/tmp/kypo-theme-ci/keycloak-theme"
             KC_POD=keycloak-0
             KC_NS=crczp
-            THEME=kypo-v3
+            THEME=kypo-v5
 
             _in_vm() {
               docker run --rm \
@@ -96,25 +96,11 @@ jobs:
                 _in_vm "base64 -d > /tmp/kc-upload && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > $dst' < /tmp/kc-upload"
             }
 
-            # Tạo thư mục
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
 
-            # Copy tất cả file
-            _copy_file $SRC/login/theme.properties          /opt/keycloak/themes/$THEME/login/theme.properties
-            _copy_file $SRC/login/template.ftl              /opt/keycloak/themes/$THEME/login/template.ftl
-            _copy_file $SRC/login/login.ftl                 /opt/keycloak/themes/$THEME/login/login.ftl
-            _copy_file $SRC/login/error.ftl                 /opt/keycloak/themes/$THEME/login/error.ftl
-            _copy_file $SRC/login/info.ftl                  /opt/keycloak/themes/$THEME/login/info.ftl
-            _copy_file $SRC/login/login-reset-password.ftl  /opt/keycloak/themes/$THEME/login/login-reset-password.ftl
-            _copy_file $SRC/login/login-verify-email.ftl    /opt/keycloak/themes/$THEME/login/login-verify-email.ftl
-            _copy_file $SRC/login/login-page-expired.ftl    /opt/keycloak/themes/$THEME/login/login-page-expired.ftl
-            _copy_file $SRC/login/login-update-password.ftl /opt/keycloak/themes/$THEME/login/login-update-password.ftl
-            _copy_file $SRC/login/resources/css/login.css   /opt/keycloak/themes/$THEME/login/resources/css/login.css
+            _copy_file $SRC/login/theme.properties        /opt/keycloak/themes/$THEME/login/theme.properties
+            _copy_file $SRC/login/resources/css/login.css /opt/keycloak/themes/$THEME/login/resources/css/login.css
 
-            # Clear cache
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c 'rm -rf /opt/keycloak/data/tmp/kc-gzip-cache 2>/dev/null || true'"
-
-            # Set theme
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
               /opt/keycloak/bin/kcadm.sh config credentials \
                 --server http://localhost:8080/keycloak \
