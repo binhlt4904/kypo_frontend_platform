@@ -1,91 +1,71 @@
-<#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password') displayInfo=realm.password && realm.registrationAllowed && !registrationDisabled??; section>
-    <#if section = "header">
-        ${msg("loginAccountTitle")}
-    <#elseif section = "form">
-        <div id="kc-form">
-            <div id="kc-form-wrapper">
-                <#if realm.password>
-                    <form id="kc-form-login" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post">
-                        <#if !usernameHidden??>
-                            <div class="${properties.kcFormGroupClass!}">
-                                <label for="username" class="${properties.kcLabelClass!}">
-                                    <#if !realm.loginWithEmailAllowed>${msg("username")}
-                                    <#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}
-                                    <#else>${msg("email")}</#if>
-                                </label>
-                                <input tabindex="1" id="username" class="${properties.kcInputClass!}" name="username"
-                                    value="${(login.username!'')}" type="text" autofocus autocomplete="off"
-                                    aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"
-                                />
-                                <#if messagesPerField.existsError('username','password')>
-                                    <span id="input-error" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
-                                        ${kcSanitize(messagesPerField.getFirstError('username','password'))?no_esc}
-                                    </span>
-                                </#if>
-                            </div>
-                        </#if>
-                        <div class="${properties.kcFormGroupClass!}">
-                            <label for="password" class="${properties.kcLabelClass!}">${msg("password")}</label>
-                            <div class="${properties.kcInputGroup!}">
-                                <input tabindex="2" id="password" class="${properties.kcInputClass!}" name="password"
-                                    type="password" autocomplete="current-password"
-                                    aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"
-                                />
-                                <button class="${properties.kcFormPasswordVisibilityButtonClass!}" type="button"
-                                    aria-label="${msg('showPassword')}"
-                                    aria-controls="password"
-                                    data-password-toggle
-                                    data-icon-show="${properties.kcFormPasswordVisibilityIconShow!}"
-                                    data-icon-hide="${properties.kcFormPasswordVisibilityIconHide!}"
-                                    data-label-show="${msg('showPassword')}"
-                                    data-label-hide="${msg('hidePassword')}">
-                                    <i class="${properties.kcFormPasswordVisibilityIconShow!}" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                            <#if usernameHidden?? && messagesPerField.existsError('username','password')>
-                                <span id="input-error" class="${properties.kcInputErrorMessageClass!}" aria-live="polite">
-                                    ${kcSanitize(messagesPerField.getFirstError('username','password'))?no_esc}
-                                </span>
-                            </#if>
-                        </div>
-                        <div class="${properties.kcFormGroupClass!} ${properties.kcFormSettingClass!}">
-                            <div id="kc-form-options">
-                                <#if realm.rememberMe && !usernameHidden??>
-                                    <div class="checkbox">
-                                        <label>
-                                            <#if login.rememberMe??>
-                                                <input tabindex="3" id="rememberMe" name="rememberMe" type="checkbox" checked> ${msg("rememberMe")}
-                                            <#else>
-                                                <input tabindex="3" id="rememberMe" name="rememberMe" type="checkbox"> ${msg("rememberMe")}
-                                            </#if>
-                                        </label>
-                                    </div>
-                                </#if>
-                            </div>
-                            <div class="${properties.kcFormOptionsWrapperClass!}">
-                                <#if realm.resetPasswordAllowed>
-                                    <span><a tabindex="5" href="${url.loginResetCredentialsUrl}">${msg("doForgotPassword")}</a></span>
-                                </#if>
-                            </div>
-                        </div>
-                        <div id="kc-form-buttons" class="${properties.kcFormGroupClass!}">
-                            <input type="hidden" id="id-hidden-input" name="credentialId"
-                                <#if auth.selectedCredential?has_content>value="${auth.selectedCredential}"</#if>/>
-                            <input tabindex="4" class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
-                                name="login" id="kc-login" type="submit" value="${msg("doLogIn")}"/>
-                        </div>
-                    </form>
-                </#if>
-            </div>
+<!DOCTYPE html>
+<html lang="${locale.currentLanguageTag}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>${msg("loginTitle",(realm.displayName!''))}</title>
+    <link rel="icon" href="${url.resourcesPath}/img/favicon.ico"/>
+    <#if properties.stylesCommon?has_content>
+        <#list properties.stylesCommon?split(' ') as style>
+            <link href="${url.resourcesCommonPath}/${style}" rel="stylesheet"/>
+        </#list>
+    </#if>
+    <#if properties.styles?has_content>
+        <#list properties.styles?split(' ') as style>
+            <link href="${url.resourcesPath}/${style}" rel="stylesheet"/>
+        </#list>
+    </#if>
+</head>
+<body class="login-pf">
+<div class="login-pf-page">
+    <div id="kc-header">
+        <div id="kc-header-wrapper">
+            ${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}
         </div>
-    <#elseif section = "info">
-        <#if realm.password && realm.registrationAllowed && !registrationDisabled??>
-            <div id="kc-registration-container">
-                <div id="kc-registration">
-                    <span>${msg("noAccount")} <a tabindex="6" href="${url.registrationUrl}">${msg("doRegister")}</a></span>
-                </div>
+    </div>
+    <div class="card-pf">
+        <#if message?has_content>
+            <div class="alert alert-${message.type}">
+                <span>${kcSanitize(message.summary)?no_esc}</span>
             </div>
         </#if>
-    </#if>
-</@layout.registrationLayout>
+        <h1 id="kc-page-title">${msg("loginAccountTitle")}</h1>
+        <form id="kc-form-login" onsubmit="login.disabled = true; return true;"
+              action="${url.loginAction}" method="post">
+            <div class="form-group">
+                <label for="username">
+                    <#if !realm.loginWithEmailAllowed>${msg("username")}
+                    <#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}
+                    <#else>${msg("email")}</#if>
+                </label>
+                <input tabindex="1" id="username" class="pf-c-form-control"
+                       name="username" value="${(login.username!'')}"
+                       type="text" autofocus autocomplete="off"/>
+            </div>
+            <div class="form-group">
+                <label for="password">${msg("password")}</label>
+                <div class="pf-c-input-group">
+                    <input tabindex="2" id="password" class="pf-c-form-control"
+                           name="password" type="password" autocomplete="current-password"/>
+                    <button class="pf-c-button pf-m-control" type="button"
+                            aria-label="${msg('showPassword')}"
+                            onclick="var p=document.getElementById('password');p.type=p.type==='password'?'text':'password'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <input tabindex="4" class="pf-c-button pf-m-primary pf-m-block"
+                       name="login" id="kc-login" type="submit"
+                       value="${msg('doLogIn')}"/>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
