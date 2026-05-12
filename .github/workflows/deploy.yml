@@ -74,16 +74,13 @@ jobs:
           script: |
             KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
             SRC="/tmp/kypo-theme-ci/keycloak-theme"
-
-            echo "=== Check source files exist ==="
-            ls -la $SRC/login/
-            ls -la $SRC/login/resources/css/
-            echo "=== File sizes ==="
-            wc -c $SRC/login/login.ftl
-            wc -c $SRC/login/theme.properties
             KC_POD=keycloak-0
             KC_NS=crczp
             THEME=kypo-v3
+
+            echo "=== Check source files ==="
+            ls -la $SRC/login/
+            ls -la $SRC/login/resources/css/
 
             _in_vm() {
               docker run --rm \
@@ -96,47 +93,44 @@ jobs:
                 vagrant ssh -- "$@"
             }
 
-            _copy_file() {
-              local src=$1
-              local dst=$2
-              local b64
-              b64=$(base64 < "$src" | tr -d '\n')
-              _in_vm "echo '$b64' | base64 -d | sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > $dst'"
-            }
-
-            # Tạo thư mục
+            # Tạo thư mục trong pod
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
 
-            # Copy tất cả file
-            _copy_file $SRC/login/theme.properties          /opt/keycloak/themes/$THEME/login/theme.properties
-            _copy_file $SRC/login/template.ftl              /opt/keycloak/themes/$THEME/login/template.ftl
-            _copy_file $SRC/login/login.ftl                 /opt/keycloak/themes/$THEME/login/login.ftl
-            _copy_file $SRC/login/error.ftl                 /opt/keycloak/themes/$THEME/login/error.ftl
-            _copy_file $SRC/login/info.ftl                  /opt/keycloak/themes/$THEME/login/info.ftl
-            _copy_file $SRC/login/login-reset-password.ftl  /opt/keycloak/themes/$THEME/login/login-reset-password.ftl
-            _copy_file $SRC/login/login-verify-email.ftl    /opt/keycloak/themes/$THEME/login/login-verify-email.ftl
-            _copy_file $SRC/login/login-page-expired.ftl    /opt/keycloak/themes/$THEME/login/login-page-expired.ftl
-            _copy_file $SRC/login/login-update-password.ftl /opt/keycloak/themes/$THEME/login/login-update-password.ftl
-            _copy_file $SRC/login/resources/css/login.css   /opt/keycloak/themes/$THEME/login/resources/css/login.css
+            # Copy từng file bằng kubectl cp (không cần stdin/pipe)
+            _in_vm "sudo kubectl cp $SRC/login/theme.properties           $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/theme.properties"
+            _in_vm "sudo kubectl cp $SRC/login/template.ftl               $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/template.ftl"
+            _in_vm "sudo kubectl cp $SRC/login/login.ftl                  $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/login.ftl"
+            _in_vm "sudo kubectl cp $SRC/login/error.ftl                  $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/error.ftl"
+            _in_vm "sudo kubectl cp $SRC/login/info.ftl                   $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/info.ftl"
+            _in_vm "sudo kubectl cp $SRC/login/login-reset-password.ftl   $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/login-reset-password.ftl"
+            _in_vm "sudo kubectl cp $SRC/login/login-verify-email.ftl     $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/login-verify-email.ftl"
+            _in_vm "sudo kubectl cp $SRC/login/login-page-expired.ftl     $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/login-page-expired.ftl"
+            _in_vm "sudo kubectl cp $SRC/login/login-update-password.ftl  $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/login-update-password.ftl"
+            _in_vm "sudo kubectl cp $SRC/login/resources/css/login.css    $KC_NS/$KC_POD:/opt/keycloak/themes/$THEME/login/resources/css/login.css"
+
+            echo "=== Verify files in pod ==="
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- find /opt/keycloak/themes/$THEME -type f"
 
             # Clear cache
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c 'rm -rf /opt/keycloak/data/tmp/kc-gzip-cache 2>/dev/null || true'"
 
-            # Set theme
+            # Set theme cho realm CRCZP
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
               /opt/keycloak/bin/kcadm.sh config credentials \
                 --server http://localhost:8080/keycloak \
                 --realm master \
                 --user \$KEYCLOAK_ADMIN \
-                --password \$KEYCLOAK_ADMIN_PASSWORD 2>/dev/null && \
+                --password \$KEYCLOAK_ADMIN_PASSWORD && \
               /opt/keycloak/bin/kcadm.sh update realms/CRCZP \
-                -s loginTheme=$THEME 2>/dev/null || true
+                -s loginTheme=$THEME
             '"
-            # Restart để reload theme
-            _in_vm "sudo kubectl rollout restart statefulset/keycloak -n crczp"
-            _in_vm "sudo kubectl rollout status statefulset/keycloak -n crczp --timeout=120s"
 
-      - name: Check new Keycloak logs
+            # Restart Keycloak để reload theme
+            echo "=== Restarting Keycloak ==="
+            _in_vm "sudo kubectl rollout restart statefulset/keycloak -n $KC_NS"
+            _in_vm "sudo kubectl rollout status statefulset/keycloak -n $KC_NS --timeout=120s"
+
+      - name: Check Keycloak logs
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -154,28 +148,8 @@ jobs:
                 vagrantlibvirt/vagrant-libvirt:latest \
                 vagrant ssh -- "$@"
             }
-            _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=10"
-            _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=50 | grep -A5 'TemplateNotFound\|Caused by\|ERROR'"
-
-      - name: Verify theme files
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
-            _in_vm() {
-              docker run --rm \
-                -e LIBVIRT_DEFAULT_URI \
-                -v /var/run/libvirt/:/var/run/libvirt/ \
-                -v ~/.vagrant.d:/.vagrant.d \
-                -v "$KYPO_DIR":"$KYPO_DIR" \
-                -w "$KYPO_DIR" --network host \
-                vagrantlibvirt/vagrant-libvirt:latest \
-                vagrant ssh -- "$@"
-            }
-            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- find /opt/keycloak/themes/kypo-anim -type f"
+            _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=20"
+            _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=100 | grep -A5 'TemplateNotFound\|Caused by\|ERROR' || true"
 
       - name: Verify kypo-v3
         uses: appleboy/ssh-action@v1
@@ -195,9 +169,9 @@ jobs:
                 vagrantlibvirt/vagrant-libvirt:latest \
                 vagrant ssh -- "$@"
             }
-            echo "=== List all files in kypo-v2 ==="
-            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- find /opt/keycloak/themes/kypo-v2 -type f"
-            echo "=== Content of login.ftl ==="
-            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- cat /opt/keycloak/themes/kypo-v2/login/login.ftl"
-            echo "=== Content of theme.properties ==="
-            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- cat /opt/keycloak/themes/kypo-v2/login/theme.properties"
+            echo "=== Files in kypo-v3 ==="
+            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- find /opt/keycloak/themes/kypo-v3 -type f"
+            echo "=== theme.properties ==="
+            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- cat /opt/keycloak/themes/kypo-v3/login/theme.properties"
+            echo "=== login.ftl (first 5 lines) ==="
+            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- head -5 /opt/keycloak/themes/kypo-v3/login/login.ftl"
