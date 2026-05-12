@@ -142,3 +142,4 @@ jobs:
                 vagrant ssh -- "$@"
             }
             _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=10"
+            _in_vm "sudo kubectl logs keycloak-0 -n crczp --tail=50 | grep -A5 'TemplateNotFound\|Caused by\|ERROR'"
