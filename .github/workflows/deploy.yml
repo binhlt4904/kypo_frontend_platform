@@ -117,7 +117,7 @@ jobs:
                 -s loginTheme=$THEME 2>/dev/null || true
             '"
 
-      - name: Debug theme files
+      - name: Debug Keycloak version
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -135,6 +135,4 @@ jobs:
                 vagrantlibvirt/vagrant-libvirt:latest \
                 vagrant ssh -- "$@"
             }
-            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- ls /opt/keycloak/themes/"
-            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- ls /opt/keycloak/themes/keycloak/login/ 2>/dev/null || echo 'no keycloak theme dir'"
-            _in_vm "sudo kubectl exec -n crczp keycloak-0 -- find /opt/keycloak/themes -name 'error.ftl' 2>/dev/null"
+            _in_vm "sudo kubectl get pod keycloak-0 -n crczp -o jsonpath='{.spec.containers[0].image}'"
