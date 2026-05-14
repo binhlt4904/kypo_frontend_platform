@@ -1,35 +1,40 @@
 <div class="container">
     <div class="level-content">
         <div class="left-panel round-scrollbar">
-            <sentinel-markdown-view [markdown]="levelContent()" />
-            <div class="vflex g-1rem">
+            <div class="task-description-card">
+                <sentinel-markdown-view [markdown]="levelContent()" />
+            </div>
+            <div class="vflex g-1rem hints-section">
                 @for (hint of activeHints(); track hint.id) {
-                    <crczp-hint-content [hintText]="hint.content" [hintTitle]="hint.title" />
+                <crczp-hint-content [hintText]="hint.content" [hintTitle]="hint.title" />
                 }
                 @if (solutionContent()) {
-                    <crczp-hint-content [color]="'var(--warning-60)'" [hintText]="solutionContent()"
-                                        [hintTitle]="'Solution'" />
+                <crczp-hint-content [color]="'var(--warning-60)'" [hintText]="solutionContent()"
+                    [hintTitle]="'Solution'" />
                 }
             </div>
         </div>
     </div>
+
     @let lastLevelDisplayed = runService.runInfo$.observeProperty().isLastLevelDisplayed.$() | async;
     @if ((runService.runInfo$.observeProperty().isCurrentLevelAnswered.$() | async) ||
     (runService.runInfo$.observeProperty().isBacktracked.$() | async)) {
-        <button
-            (click)="runService.nextLevel()"
-            [disabled]="isLoading()"
-            class="next-button"
-            mat-raised-button>
-            {{ lastLevelDisplayed && !runService.runInfo.isBacktracked ? "Finish" : "Next" }}
-        </button>
+    <button (click)="runService.nextLevel()" [disabled]="isLoading()" class="next-button" mat-raised-button>
+        {{ lastLevelDisplayed && !runService.runInfo.isBacktracked ? "Finish" : "Next" }}
+    </button>
     } @else {
-        <crczp-floating-answer-form
-            [isLoading]="isLoading()"
-            (answerSubmit)="answerSubmitted.emit($event)"
-            [buttonLabel]="lastLevelDisplayed ? 'Finish' : 'Submit'"
-        >
-            <ng-content />
-        </crczp-floating-answer-form>
+    <!-- Toggle button — always visible, bottom-left -->
+    <button class="flag-toggle-btn" mat-mini-fab color="primary" (click)="isFormCollapsed.set(!isFormCollapsed())"
+        [matTooltip]="isFormCollapsed() ? 'Show answer form' : 'Hide answer form'" matTooltipPosition="above"
+        aria-label="Toggle answer form">
+        <mat-icon>{{ isFormCollapsed() ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+    </button>
+
+    @if (!isFormCollapsed()) {
+    <crczp-floating-answer-form [isLoading]="isLoading()" (answerSubmit)="answerSubmitted.emit($event)"
+        [buttonLabel]="lastLevelDisplayed ? 'Finish' : 'Submit'">
+        <ng-content />
+    </crczp-floating-answer-form>
+    }
     }
 </div>

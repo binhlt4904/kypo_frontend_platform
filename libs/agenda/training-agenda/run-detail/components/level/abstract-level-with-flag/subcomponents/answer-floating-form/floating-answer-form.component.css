@@ -14,27 +14,30 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 75%;
+    max-width: 55%;
     min-width: max(25rem, 25%);
     position: fixed;
-    left: calc(50% + 140px);
+    /* Anchor to the LEFT side, just past sidebar (~140px) */
+    left: calc(140px + 4rem);
     bottom: 1rem;
     z-index: 1000;
     overflow-x: hidden;
     resize: horizontal;
-    transform: translateX(-50%);
 
     /* soften the appearance when unloading and loading level */
     opacity: 1;
-    animation: 0.1s ease-in 1 fadeIn;
+    animation: 0.15s ease-in 1 slideUp;
 }
 
-@keyframes fadeIn {
+@keyframes slideUp {
     0% {
         opacity: 0;
+        transform: translateY(12px);
     }
+
     100% {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -59,7 +62,7 @@
 }
 
 /* Breakpoint based on sentinel layout (when navbar is hidden) */
-@media (max-width: 748px ) {
+@media (max-width: 748px) {
 
     .answer-form {
         bottom: 0;
@@ -67,7 +70,7 @@
         width: 100%;
         resize: none;
         border-radius: 0;
-        left: 50%
+        left: 0;
     }
 
     .answer-row {
@@ -75,4 +78,3 @@
         width: 100%;
     }
 }
-
