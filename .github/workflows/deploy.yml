@@ -42,7 +42,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to K8s
+      - uses: actions/checkout@v4
+
+      - name: Deploy frontend to K8s
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -51,3 +53,64 @@ jobs:
           command_timeout: 5m
           script: |
             /home/ubuntu/frontend-platform/build-deploy.sh "${{ needs.build.outputs.image }}"
+
+      - name: Copy Keycloak theme to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "keycloak-theme/"
+          target: "/tmp/kypo-theme-ci/"
+
+      - name: Deploy Keycloak theme
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
+            SRC="/tmp/kypo-theme-ci/keycloak-theme"
+            KC_POD=keycloak-0
+            KC_NS=crczp
+            THEME=kypo-v5
+
+            _in_vm() {
+              docker run --rm \
+                -e LIBVIRT_DEFAULT_URI \
+                -v /var/run/libvirt/:/var/run/libvirt/ \
+                -v ~/.vagrant.d:/.vagrant.d \
+                -v "$KYPO_DIR":"$KYPO_DIR" \
+                -w "$KYPO_DIR" --network host \
+                vagrantlibvirt/vagrant-libvirt:latest \
+                vagrant ssh -- "$@"
+            }
+
+            _copy_file() {
+              local src=$1
+              local dst=$2
+              cat $src | base64 | \
+                _in_vm "base64 -d > /tmp/kc-upload && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > $dst' < /tmp/kc-upload"
+            }
+
+            # Tạo thư mục theme trong pod
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/messages"
+
+            # Copy các file theme
+            _copy_file $SRC/login/theme.properties        /opt/keycloak/themes/$THEME/login/theme.properties
+            _copy_file $SRC/login/resources/css/login.css /opt/keycloak/themes/$THEME/login/resources/css/login.css
+            _copy_file $SRC/login/messages/messages_en.properties /opt/keycloak/themes/$THEME/login/messages/messages_en.properties
+
+            # Apply theme vào realm CRCZP
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
+              /opt/keycloak/bin/kcadm.sh config credentials \
+                --server http://localhost:8080/keycloak \
+                --realm master \
+                --user \$KEYCLOAK_ADMIN \
+                --password \$KEYCLOAK_ADMIN_PASSWORD 2>/dev/null && \
+              /opt/keycloak/bin/kcadm.sh update realms/crczp \
+                -s loginTheme=$THEME 2>/dev/null || true
+            '"
