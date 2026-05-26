@@ -99,21 +99,22 @@ jobs:
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/messages"
 
-            echo "===> [2] Kiem tra file SRC..."
-            ls -la $SRC/login/
-            ls -la $SRC/login/resources/css/
-            ls -la $SRC/login/messages/
+            echo "===> [2] Copy theme files..."
+            _copy_file $SRC/login/theme.properties \
+              /opt/keycloak/themes/$THEME/login/theme.properties
+            _copy_file $SRC/login/resources/css/login.css \
+              /opt/keycloak/themes/$THEME/login/resources/css/login.css
+            _copy_file $SRC/login/messages/messages_en.properties \
+              /opt/keycloak/themes/$THEME/login/messages/messages_en.properties
 
-            echo "===> [3] Copy theme files vao pod..."
-            _copy_file $SRC/login/theme.properties                       /opt/keycloak/themes/$THEME/login/theme.properties
-            _copy_file $SRC/login/resources/css/login.css                 /opt/keycloak/themes/$THEME/login/resources/css/login.css
-            _copy_file $SRC/login/messages/messages_en.properties         /opt/keycloak/themes/$THEME/login/messages/messages_en.properties
-
-            echo "===> [4] Verify files trong pod..."
+            echo "===> [3] Verify files + noi dung theme.properties..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- find /opt/keycloak/themes/$THEME -type f"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- cat /opt/keycloak/themes/$THEME/login/theme.properties"
 
-            echo "===> [5] Keycloak log (50 dong cuoi)..."
-            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=50"
+            echo "===> [4] Keycloak log - tim ERROR..."
+            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=100 2>&1 | grep -i 'error\|theme\|kypo\|exception\|cause' || echo 'Khong tim thay error trong log'"
+
+            echo "===> [5] Keycloak log - 30 dong cuoi cung..."
+            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=30 2>&1"
 
             echo "===> Done!"
