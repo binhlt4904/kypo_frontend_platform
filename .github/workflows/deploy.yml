@@ -114,7 +114,3 @@ jobs:
               /opt/keycloak/bin/kcadm.sh update realms/crczp \
                 -s loginTheme=$THEME 2>/dev/null || true
             '"
-
-            # Restart Keycloak để load theme mới (xóa cache)
-            _in_vm "sudo kubectl rollout restart statefulset/keycloak -n $KC_NS"
-            _in_vm "sudo kubectl rollout status statefulset/keycloak -n $KC_NS --timeout=120s"
