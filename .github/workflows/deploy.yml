@@ -114,16 +114,22 @@ jobs:
             _copy_file $SRC/login/messages/messages_en.properties \
               /opt/keycloak/themes/$THEME/login/messages/messages_en.properties
 
-            echo "===> [4] Xoa theme cache de Keycloak doc lai file moi..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- rm -rf /opt/keycloak/data/tmp/kc-gzip-cache 2>/dev/null || true"
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- rm -rf /tmp/freemarker* 2>/dev/null || true"
+            echo "===> [4] Clear Keycloak cache qua Admin API..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
+              TOKEN=\$(/opt/keycloak/bin/kcadm.sh config credentials \
+                --server http://localhost:8080/keycloak \
+                --realm master \
+                --user \$KEYCLOAK_ADMIN \
+                --password \$KEYCLOAK_ADMIN_PASSWORD 2>&1) && \
+              /opt/keycloak/bin/kcadm.sh create cache/clear-realm-cache -r CRCZP 2>&1 || \
+              /opt/keycloak/bin/kcadm.sh create cache/clear-user-cache -r CRCZP 2>&1 || \
+              echo \"Cache clear attempted\"
+            '"
 
-            echo "===> [5] Verify tat ca files trong pod..."
+            echo "===> [5] Verify files trong pod..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- find /opt/keycloak/themes/$THEME -type f"
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- cat /opt/keycloak/themes/$THEME/login/theme.properties"
 
-            echo "===> [6] Keycloak log ERROR sau khi deploy (moc thoi gian hien tai)..."
-            CURRENT_TIME=$(date -u '+%Y-%m-%d %H:%M')
-            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=50 2>&1 | grep -A2 'ERROR\|theme\|exception' | tail -30 || echo 'Khong co error moi'"
+            echo "===> [6] Keycloak log moi nhat..."
+            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=20 2>&1"
 
             echo "===> Done!"
