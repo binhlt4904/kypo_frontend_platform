@@ -75,7 +75,7 @@ jobs:
             SRC="/tmp/kypo-theme-ci/keycloak-theme"
             KC_POD=keycloak-0
             KC_NS=crczp
-            THEME=kypo-v5
+            THEME=kypo-v6
 
             _in_vm() {
               docker run --rm \
@@ -95,18 +95,11 @@ jobs:
                 _in_vm "base64 -d > /tmp/kc-upload && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/bash -c 'cat > $dst' < /tmp/kc-upload"
             }
 
-            echo "===> [1] Tao thu muc theme trong pod..."
+            echo "===> [1] Tao thu muc theme kypo-v6 trong pod..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/messages"
 
-            echo "===> [2] Copy tat ca .ftl files..."
-            for f in $SRC/login/*.ftl; do
-              fname=$(basename $f)
-              echo "    -> $fname"
-              _copy_file $f /opt/keycloak/themes/$THEME/login/$fname
-            done
-
-            echo "===> [3] Copy theme.properties, css, messages..."
+            echo "===> [2] Copy 3 file theme (parent=keycloak tu lo ftl)..."
             _copy_file $SRC/login/theme.properties \
               /opt/keycloak/themes/$THEME/login/theme.properties
             _copy_file $SRC/login/resources/css/login.css \
@@ -114,22 +107,25 @@ jobs:
             _copy_file $SRC/login/messages/messages_en.properties \
               /opt/keycloak/themes/$THEME/login/messages/messages_en.properties
 
-            echo "===> [4] Clear Keycloak cache qua Admin API..."
+            echo "===> [3] Verify files trong pod..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- find /opt/keycloak/themes/$THEME -type f"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- cat /opt/keycloak/themes/$THEME/login/theme.properties"
+
+            echo "===> [4] Apply theme kypo-v6 vao realm..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
-              TOKEN=\$(/opt/keycloak/bin/kcadm.sh config credentials \
+              /opt/keycloak/bin/kcadm.sh config credentials \
                 --server http://localhost:8080/keycloak \
                 --realm master \
                 --user \$KEYCLOAK_ADMIN \
-                --password \$KEYCLOAK_ADMIN_PASSWORD 2>&1) && \
-              /opt/keycloak/bin/kcadm.sh create cache/clear-realm-cache -r CRCZP 2>&1 || \
-              /opt/keycloak/bin/kcadm.sh create cache/clear-user-cache -r CRCZP 2>&1 || \
-              echo \"Cache clear attempted\"
+                --password \$KEYCLOAK_ADMIN_PASSWORD && \
+              /opt/keycloak/bin/kcadm.sh update realms/crczp \
+                -s loginTheme=$THEME
             '"
 
-            echo "===> [5] Verify files trong pod..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- find /opt/keycloak/themes/$THEME -type f"
+            echo "===> [5] Keycloak log - tim ERROR lien quan theme..."
+            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=50 2>&1 | grep -i 'error\|warn\|theme\|kypo\|exception' || echo 'Khong co error'"
 
-            echo "===> [6] Keycloak log moi nhat..."
+            echo "===> [6] Keycloak log - 20 dong cuoi..."
             _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=20 2>&1"
 
-            echo "===> Done!"
+            echo "===> Done! Vao Keycloak Admin chon loginTheme=kypo-v6 neu chua tu dong apply"
