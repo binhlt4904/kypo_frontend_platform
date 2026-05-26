@@ -99,7 +99,14 @@ jobs:
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/messages"
 
-            echo "===> [2] Copy theme files..."
+            echo "===> [2] Copy tat ca .ftl files..."
+            for f in $SRC/login/*.ftl; do
+              fname=$(basename $f)
+              echo "    -> $fname"
+              _copy_file $f /opt/keycloak/themes/$THEME/login/$fname
+            done
+
+            echo "===> [3] Copy theme.properties, css, messages..."
             _copy_file $SRC/login/theme.properties \
               /opt/keycloak/themes/$THEME/login/theme.properties
             _copy_file $SRC/login/resources/css/login.css \
@@ -107,14 +114,14 @@ jobs:
             _copy_file $SRC/login/messages/messages_en.properties \
               /opt/keycloak/themes/$THEME/login/messages/messages_en.properties
 
-            echo "===> [3] Verify files + noi dung theme.properties..."
+            echo "===> [4] Verify tat ca files trong pod..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- find /opt/keycloak/themes/$THEME -type f"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- cat /opt/keycloak/themes/$THEME/login/theme.properties"
 
-            echo "===> [4] Keycloak log - tim ERROR..."
-            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=100 2>&1 | grep -i 'error\|theme\|kypo\|exception\|cause' || echo 'Khong tim thay error trong log'"
+            echo "===> [5] Keycloak log - ERROR/WARN..."
+            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=100 2>&1 | grep -i 'error\|warn\|theme\|kypo\|exception\|cause' || echo 'Khong co error'"
 
-            echo "===> [5] Keycloak log - 30 dong cuoi cung..."
+            echo "===> [6] Keycloak log - 30 dong cuoi..."
             _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=30 2>&1"
 
             echo "===> Done!"
