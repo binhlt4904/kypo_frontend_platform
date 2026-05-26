@@ -114,14 +114,16 @@ jobs:
             _copy_file $SRC/login/messages/messages_en.properties \
               /opt/keycloak/themes/$THEME/login/messages/messages_en.properties
 
-            echo "===> [4] Verify tat ca files trong pod..."
+            echo "===> [4] Xoa theme cache de Keycloak doc lai file moi..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- rm -rf /opt/keycloak/data/tmp/kc-gzip-cache 2>/dev/null || true"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- rm -rf /tmp/freemarker* 2>/dev/null || true"
+
+            echo "===> [5] Verify tat ca files trong pod..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- find /opt/keycloak/themes/$THEME -type f"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- cat /opt/keycloak/themes/$THEME/login/theme.properties"
 
-            echo "===> [5] Keycloak log - ERROR/WARN..."
-            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=100 2>&1 | grep -i 'error\|warn\|theme\|kypo\|exception\|cause' || echo 'Khong co error'"
-
-            echo "===> [6] Keycloak log - 30 dong cuoi..."
-            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=30 2>&1"
+            echo "===> [6] Keycloak log ERROR sau khi deploy (moc thoi gian hien tai)..."
+            CURRENT_TIME=$(date -u '+%Y-%m-%d %H:%M')
+            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=50 2>&1 | grep -A2 'ERROR\|theme\|exception' | tail -30 || echo 'Khong co error moi'"
 
             echo "===> Done!"
