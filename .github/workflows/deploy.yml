@@ -129,3 +129,34 @@ jobs:
             _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=20 2>&1"
 
             echo "===> Done! Vao Keycloak Admin chon loginTheme=kypo-v6 neu chua tu dong apply"
+
+      - name: Check Keycloak version
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 5m
+          script: |
+            KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
+            KC_POD=keycloak-0
+            KC_NS=crczp
+
+            _in_vm() {
+              docker run --rm \
+                -e LIBVIRT_DEFAULT_URI \
+                -v /var/run/libvirt/:/var/run/libvirt/ \
+                -v ~/.vagrant.d:/.vagrant.d \
+                -v "$KYPO_DIR":"$KYPO_DIR" \
+                -w "$KYPO_DIR" --network host \
+                vagrantlibvirt/vagrant-libvirt:latest \
+                vagrant ssh -- "$@"
+            }
+
+            echo "===> Keycloak version..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /opt/keycloak/bin/kc.sh --version 2>&1 || true"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- cat /opt/keycloak/version.txt 2>/dev/null || true"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- ls /opt/keycloak/themes/ 2>&1"
+
+            echo "===> Built-in themes list..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- ls /opt/keycloak/themes/keycloak/login/ 2>&1"
