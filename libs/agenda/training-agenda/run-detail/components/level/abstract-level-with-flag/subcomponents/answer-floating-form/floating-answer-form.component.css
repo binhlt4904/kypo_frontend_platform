@@ -1,80 +1,108 @@
-.anchor-div {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.center-anchor-div {
-    position: relative;
-}
-
-.answer-form {
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 55%;
-    min-width: max(25rem, 25%);
+/* ─── Flag dock (fixed bottom panel) ───────────────────────────────── */
+.flag-dock {
     position: fixed;
-    /* Anchor to the LEFT side, just past sidebar (~140px) */
-    left: calc(140px + 4rem);
-    bottom: 1rem;
+    bottom: 0;
+    left: 140px;
+    right: 0;
     z-index: 1000;
-    overflow-x: hidden;
-    resize: horizontal;
-
-    /* soften the appearance when unloading and loading level */
-    opacity: 1;
-    animation: 0.15s ease-in 1 slideUp;
+    background: var(--surface, #fff);
+    border-top: 2px solid var(--primary-60, #e65c00);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+    animation: 0.18s ease-out 1 slideUpDock;
 }
 
-@keyframes slideUp {
+@keyframes slideUpDock {
     0% {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(20px);
     }
-
     100% {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
+/* ─── Dock bar ──────────────────────────────────────────────────────── */
+.flag-dock__bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    height: 30px;
+    background: var(--neutral-95, #f4f4f4);
+    border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+}
 
-.answer-row {
+.flag-dock__icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--primary-60, #e65c00);
+}
+
+.flag-dock__title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--neutral-50, #888);
+    flex: 1;
+}
+
+.flag-dock__close {
+    width: 24px !important;
+    height: 24px !important;
+    line-height: 24px !important;
+    color: var(--neutral-50, #888);
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+}
+
+/* ─── Dock body ─────────────────────────────────────────────────────── */
+.flag-dock__body {
+    padding: 6px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.flag-dock__hints {
+    min-height: 0;
+}
+
+/* ─── Input row ─────────────────────────────────────────────────────── */
+.flag-dock__input-row {
     display: flex;
     flex-direction: row;
-    justify-content: center;
     align-items: center;
     gap: 1rem;
-    max-width: 75vw;
-    width: 100%;
 }
 
 .input-form-field {
+    flex: 1;
     min-width: 8rem;
-    width: 100%;
 }
 
 .submit-button {
     min-width: 6rem;
+    flex-shrink: 0;
 }
 
-/* Breakpoint based on sentinel layout (when navbar is hidden) */
+/* ─── Responsive ────────────────────────────────────────────────────── */
 @media (max-width: 748px) {
-
-    .answer-form {
-        bottom: 0;
-        max-width: 100%;
-        width: 100%;
-        resize: none;
-        border-radius: 0;
+    .flag-dock {
         left: 0;
     }
 
-    .answer-row {
-        max-width: 100%;
+    .flag-dock__input-row {
+        flex-wrap: wrap;
+    }
+
+    .input-form-field {
         width: 100%;
     }
 }

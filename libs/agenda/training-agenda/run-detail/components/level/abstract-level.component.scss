@@ -1,78 +1,122 @@
-:host-context(.padded-content) {
-    padding-right: 0 !important;
-}
-
-.training-run-stepper {
-    padding-right: 40px;
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     overflow: hidden;
 }
 
-.level-header {
+/* ─── Stepper ───────────────────────────────────────────────────────── */
+.training-run-stepper {
+    overflow: hidden;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+}
+
+/* ─── Status row ────────────────────────────────────────────────────── */
+.status-row {
     display: flex;
-    flex-direction: row;
-    justify-items: stretch;
-    align-items: center;
-    width: calc(100% - 40px);
-    margin-top: 0;
+    align-items: stretch;
+    border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+    background: var(--surface, #fff);
+    flex-shrink: 0;
+}
+
+.stat {
+    padding: 5px 16px;
+    border-right: 1px solid var(--neutral-85, #e0e0e0);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    &--timer {
+        margin-left: auto;
+        border-right: none;
+    }
+}
+
+.stat-lbl {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--neutral-50, #888);
+    font-weight: 700;
+}
+
+.stat-val {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--on-surface, #222);
+    white-space: nowrap;
 }
 
 .timer {
-    text-align: right;
-    width: 15rem;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
 }
 
-.level-title {
-    margin-left: 15rem !important;
-    width: 100%;
-    text-align: center;
-    margin-bottom: 2rem !important;
-}
-
-.level-content {
+/* ─── Workspace ─────────────────────────────────────────────────────── */
+.workspace {
+    flex: 1;
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    flex-grow: 0;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    min-height: 0;
+}
+
+/* ─── Zone bar ──────────────────────────────────────────────────────── */
+.zone-bar {
+    background: var(--neutral-95, #f4f4f4);
+    border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 8px;
     flex-shrink: 0;
-    justify-content: flex-start;
-    width: 100%;
-    overflow-x: hidden;
 }
 
-.level-content > *:first-child {
-    flex: 1 1 auto;
-    min-width: 0;
-    width: 100%;
+.zone-bar__label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--neutral-50, #888);
 }
 
+/* ─── Task zone (scrollable) ────────────────────────────────────────── */
+.task-zone {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--neutral-75, #ccc);
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}
+
+/* ─── Topology wrapper ──────────────────────────────────────────────── */
 .level-topology-wrapper {
-    flex: 0 0 auto;
+    flex-shrink: 0;
 }
 
-
-@media (max-width: 1400px) {
-    .level-title {
-        margin-left: 2rem !important;
-        text-align: left !important;
-    }
-}
-
+/* ─── Responsive ────────────────────────────────────────────────────── */
 @media (max-width: 748px) {
-
-    .level-header {
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+    .stat-val {
+        font-size: 11px;
     }
 
-    .level-title {
-        margin: 0 0 1rem 0 !important;
-        text-align: center !important;
-    }
-
-    .timer {
-        width: fit-content;
-        scale: 0.75;
+    .stat {
+        padding: 4px 10px;
     }
 }
-

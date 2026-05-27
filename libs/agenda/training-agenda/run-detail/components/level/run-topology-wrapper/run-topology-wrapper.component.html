@@ -1,25 +1,23 @@
-<div class="hflex ai-center wh-100">
-    @let topologyCollapsed = topologyService.topologyCollapsed$ | async;
-    @if (topologyAllowed()) {
-        <button
-            (click)="topologyService.toggleCollapsed()"
-            class="expand-topology-button {{ !topologyCollapsed ? 'expand-topology-button--expanded' : '' }}"
-            matTooltip="{{ topologyCollapsed ? 'Show' : 'Hide' }} topology"
-            matTooltipPosition="left"
-        >
-            <mat-icon>
-                {{ topologyCollapsed ? 'polyline' : 'chevron_right' }}
+@let topologyCollapsed = topologyService.topologyCollapsed$ | async;
+@let sandboxInstanceId = (this.runService.runInfo$.observeProperty().sandboxInstanceId.$() | async);
+
+@if (topologyAllowed() && !!sandboxInstanceId) {
+    <div class="topology-section">
+        <div class="topo-zone-bar" (click)="topologyService.toggleCollapsed()">
+            <mat-icon class="topo-icon">device_hub</mat-icon>
+            <span class="topo-zone-bar__label">Network topology</span>
+            <span class="topo-badge">live</span>
+            <mat-icon class="collapse-icon">
+                {{ topologyCollapsed ? 'expand_less' : 'expand_more' }}
             </mat-icon>
-        </button>
-    }
-    @let sandboxInstanceId = (this.runService.runInfo$.observeProperty().sandboxInstanceId.$() | async);
-    @if (!!sandboxInstanceId) {
-        <crczp-topology-wrapper
-            (getAccessFile)="onAccessFileRequested()"
-            [id]="{instanceId: sandboxInstanceId}"
-            [ngClass]="{ 'level-topology--hidden': topologyService.topologyCollapsed$ | async }"
-            [standalone]="false"
-            class="wh-100 level-topology"
-        />
-    }
-</div>
+        </div>
+        <div class="topo-content" [class.topo-content--collapsed]="topologyCollapsed">
+            <crczp-topology-wrapper
+                (getAccessFile)="onAccessFileRequested()"
+                [id]="{instanceId: sandboxInstanceId}"
+                [standalone]="false"
+                class="wh-100 topo-graph"
+            />
+        </div>
+    </div>
+}
