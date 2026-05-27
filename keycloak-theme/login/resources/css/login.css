@@ -1,7 +1,9 @@
-/* Orange top border (giữ nguyên layout mặc định) */
+/* ===== ORANGE THEME ===== */
+
+/* Orange top border */
 .login-pf-page .card-pf,
 .card-pf {
-    border-top-color: #ff7a3d !important;
+    border-top: 4px solid #ff7a3d !important;
 }
 
 /* Input focus */
@@ -9,8 +11,8 @@
 #password:focus,
 .pf-c-form-control:focus {
     border-color: #ff7a3d !important;
+    box-shadow: 0 0 0 2px rgba(255, 122, 61, 0.15) !important;
 }
-
 
 /* Login button */
 #kc-login,
@@ -36,12 +38,13 @@ a:hover {
     color: #f06a2f !important;
 }
 
-/* Checkbox tick */
+/* Checkbox */
 input[type="checkbox"]:checked {
     accent-color: #ff7a3d;
 }
 
-/* Restore centered login card */
+/* ===== CENTER CARD ===== */
+
 .login-pf-page .card-pf {
     width: 560px !important;
     max-width: 560px !important;
@@ -67,4 +70,32 @@ input[type="checkbox"]:checked {
     margin-left: 0 !important;
     padding: 0 !important;
     float: none !important;
+}
+
+/* ===== ORANGE GLOW BACKGROUND ===== */
+
+.login-pf body {
+    position: relative;
+}
+
+.login-pf body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+
+    background:
+        radial-gradient(circle at top left,
+            rgba(255, 122, 61, 0.22),
+            transparent 35%),
+        radial-gradient(circle at bottom right,
+            rgba(255, 122, 61, 0.15),
+            transparent 40%);
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+.login-pf-page {
+    position: relative;
+    z-index: 1;
 }
