@@ -75,6 +75,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     protected readonly stepperLastIndex = signal<number | null>(null);
     protected readonly stepperHeight = signal<number>(148);
     protected readonly topoHeight = signal<number>(240);
+    protected readonly sandboxInstanceId = signal<string | null>(null);
 
     private isResizing = false;
     private dragStartY = 0;
@@ -127,11 +128,27 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
         );
     }
 
+    resetSplit(): void {
+        if (!this.levelContent?.nativeElement) return;
+        const h = this.levelContent.nativeElement.clientHeight;
+        // workspace = taskZoneBar(28) + taskContent(flex) + handle(5) + topoZoneBar(29) + topoContent(topoHeight)
+        const contentArea = h - 62;
+        this.topoHeight.set(Math.max(80, Math.round(contentArea / 2)));
+    }
+
+    maximizeTopo(): void {
+        if (!this.levelContent?.nativeElement) return;
+        const h = this.levelContent.nativeElement.clientHeight;
+        const contentArea = h - 62;
+        this.topoHeight.set(Math.max(80, Math.round(contentArea * 0.75)));
+    }
+
     ngOnInit(): void {
         this.runService.runInfo$.subscribe((runInfo) => {
             this.updateLevelType(runInfo);
             this.updateTopologyAllowed(runInfo);
             this.updateStepper(runInfo);
+            this.sandboxInstanceId.set(runInfo.sandboxInstanceId ?? null);
         });
     }
 

@@ -57,6 +57,40 @@
     letter-spacing: 0.5px;
 }
 
+.topo-zone-bar__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 4px;
+}
+
+.topo-action-btn {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--neutral-80, #ddd);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: transparent;
+    color: var(--neutral-50, #888);
+    transition: border-color 0.12s, color 0.12s;
+    padding: 0;
+
+    mat-icon {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+        line-height: 12px;
+    }
+
+    &:hover {
+        border-color: var(--primary-60, #e65c00);
+        color: var(--primary-60, #e65c00);
+    }
+}
+
 .collapse-icon {
     font-size: 16px;
     width: 16px;

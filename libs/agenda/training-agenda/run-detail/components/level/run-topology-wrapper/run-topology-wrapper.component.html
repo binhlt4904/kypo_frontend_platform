@@ -7,6 +7,20 @@
             <mat-icon class="topo-icon">device_hub</mat-icon>
             <span class="topo-zone-bar__label">Network topology</span>
             <span class="topo-badge">live</span>
+            <div class="topo-zone-bar__actions" (click)="$event.stopPropagation()">
+                <button
+                    class="topo-action-btn"
+                    (click)="resetSplitRequested.emit()"
+                    title="Reset split (50/50)">
+                    <mat-icon>view_agenda</mat-icon>
+                </button>
+                <button
+                    class="topo-action-btn"
+                    (click)="maximizeTopoRequested.emit()"
+                    title="Maximize topology">
+                    <mat-icon>open_in_full</mat-icon>
+                </button>
+            </div>
             <mat-icon class="collapse-icon">
                 {{ topologyCollapsed ? 'expand_less' : 'expand_more' }}
             </mat-icon>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, OnDestroy, OnInit, Renderer2, signal } from '@angular/core';
+import { Component, ElementRef, inject, input, OnDestroy, OnInit, output, Renderer2, signal } from '@angular/core';
 import { AbstractTrainingRunService } from '../../../services/training-run/abstract-training-run.service';
 import { AsyncPipe } from '@angular/common';
 import { SshAccessService } from '../../../services/training-run/ssh/ssh-acess.service';
@@ -20,6 +20,8 @@ import {
 })
 export class RunTopologyWrapperComponent implements OnInit, OnDestroy {
     topologyAllowed = input<boolean>(true);
+    readonly resetSplitRequested = output<void>();
+    readonly maximizeTopoRequested = output<void>();
     protected readonly runService = inject(AbstractTrainingRunService);
     protected readonly sshAccessService = inject(SshAccessService);
     protected readonly topologyService = inject(TopologySynchronizerService);

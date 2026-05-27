@@ -47,6 +47,25 @@
     font-weight: 700;
     color: var(--on-surface, #222);
     white-space: nowrap;
+
+    &--primary {
+        color: var(--primary-60, #e65c00);
+    }
+
+    &--running {
+        color: var(--success-40, #2a7a3b);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success-40, #2a7a3b);
+    flex-shrink: 0;
 }
 
 .timer {
@@ -83,6 +102,16 @@
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--neutral-50, #888);
+}
+
+.zone-bar__badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 2px;
+    background: rgba(230, 92, 0, 0.1);
+    color: var(--primary-60, #e65c00);
+    letter-spacing: 0.5px;
 }
 
 /* ─── Task zone (scrollable) ────────────────────────────────────────── */
