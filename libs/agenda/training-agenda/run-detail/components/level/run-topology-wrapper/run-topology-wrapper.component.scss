@@ -1,66 +1,80 @@
-$content-height: calc(100dvh - 20rem);
-
-
 :host {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    height: $content-height;
-    max-height: $content-height;
-    overflow: hidden;
-    position: relative;
-}
-
-.button-align-wrapper {
-    align-items: center;
-}
-
-
-.level-topology {
     display: block;
-    height: $content-height;
-    max-width: 80dvw;
-    transform: translateX(0);
+    flex-shrink: 0;
 }
 
-.level-topology--hidden {
-    width: 100dvw;
-    height: $content-height;
-    position: absolute;
-    left: 0;
-    opacity: 0;
-}
-
-
-.expand-topology-button {
+/* ─── Topology section ──────────────────────────────────────────────── */
+.topology-section {
     display: flex;
-    z-index: 10;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    top: 52dvh;
-    right: 0;
-    height: 8rem;
-    width: 2rem;
-    border-radius: 1rem 0 0 1rem;
-    background: var(--neutral-98);
-    box-shadow: -2px 1px 2px var(--neutral-70);
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0 1px 0 0;
+    flex-direction: column;
+    border-top: 1px solid var(--neutral-85, #e0e0e0);
+}
 
-    &:hover, &:active, &:focus {
-        box-shadow: -1px 1px 2px var(--neutral-70);
-    }
+/* ─── Zone bar (toggle) ─────────────────────────────────────────────── */
+.topo-zone-bar {
+    background: var(--neutral-95, #f4f4f4);
+    border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
 
     &:hover {
-        background: var(--primary-95);
+        background: var(--neutral-90, #ececec);
     }
+}
 
-    &--expanded {
-        position: static;
-        margin: 0 3px 0 0;
+.topo-zone-bar__label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--neutral-50, #888);
+    flex: 1;
+}
+
+.topo-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--neutral-50, #888);
+}
+
+.topo-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(63, 185, 80, 0.12);
+    color: var(--success-40, #2a7a3b);
+    letter-spacing: 0.5px;
+}
+
+.collapse-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--neutral-50, #888);
+}
+
+/* ─── Topology content (collapsible) ───────────────────────────────── */
+.topo-content {
+    height: 240px;
+    overflow: hidden;
+    transition: height 0.22s ease;
+    position: relative;
+
+    &--collapsed {
+        height: 0;
     }
+}
+
+.topo-graph {
+    display: block;
+    height: 100%;
+    width: 100%;
 }

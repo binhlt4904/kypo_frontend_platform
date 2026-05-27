@@ -1,9 +1,21 @@
-<div class="anchor-div">
-    <mat-card
-        class="answer-form highlighted-resizer"
-    >
-        <ng-content />
-        <div class="answer-row">
+<div class="flag-dock">
+    <div class="flag-dock__bar">
+        <mat-icon class="flag-dock__icon">flag</mat-icon>
+        <span class="flag-dock__title">Submit flag</span>
+        <button
+            (click)="closed.emit()"
+            aria-label="Close flag dock"
+            class="flag-dock__close"
+            mat-icon-button
+        >
+            <mat-icon>keyboard_arrow_down</mat-icon>
+        </button>
+    </div>
+    <div class="flag-dock__body">
+        <div class="flag-dock__hints">
+            <ng-content />
+        </div>
+        <div class="flag-dock__input-row">
             <mat-form-field
                 (keydown.enter)="$event.preventDefault()"
                 appearance="outline"
@@ -15,7 +27,7 @@
                     [ngModelOptions]="{ standalone: true }"
                     autocomplete="off"
                     matInput
-                    placeholder="Answer"
+                    placeholder="FLAG{...}"
                 />
                 <button
                     (click)="answer.set('')"
@@ -37,5 +49,5 @@
                 {{ buttonLabel() }}
             </button>
         </div>
-    </mat-card>
+    </div>
 </div>

@@ -25,6 +25,7 @@ export class FloatingAnswerFormComponent {
     buttonLabel = input<string>('Submit');
 
     answerSubmit = output<string>();
+    closed = output<void>();
     answer = model<string>('');
 
     /**
