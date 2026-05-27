@@ -1,3 +1,5 @@
+@let topoCollapsed = (topologyService.topologyCollapsed$ | async) ?? false;
+
 @if (runService.runInfo$.observeProperty().isStepperDisplayed.$() | async) {
     <div
         (sentinelResize)="stepperHeight.set($event.height)"
@@ -64,13 +66,13 @@
         }
     </div>
 
-    @if (topologyAllowed()) {
+    @if (topologyAllowed() && !topoCollapsed) {
         <div class="resize-handle" (mousedown)="onResizeHandleMouseDown($event)"></div>
     }
 
     <crczp-run-topology-wrapper
         [topologyAllowed]="topologyAllowed()"
-        [height]="topoHeight()"
+        [style.height.px]="!topologyAllowed() ? 0 : (topoCollapsed ? 29 : topoHeight() + 29)"
         class="level-topology-wrapper"
     />
 </div>
