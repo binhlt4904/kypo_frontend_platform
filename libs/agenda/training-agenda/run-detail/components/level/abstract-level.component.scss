@@ -105,6 +105,19 @@
     }
 }
 
+/* ─── Resize handle ─────────────────────────────────────────────────── */
+.resize-handle {
+    height: 5px;
+    flex-shrink: 0;
+    cursor: ns-resize;
+    background: var(--neutral-85, #e0e0e0);
+    transition: background 0.15s;
+
+    &:hover {
+        background: var(--primary-60, #e65c00);
+    }
+}
+
 /* ─── Topology wrapper ──────────────────────────────────────────────── */
 .level-topology-wrapper {
     flex-shrink: 0;

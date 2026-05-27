@@ -64,8 +64,13 @@
         }
     </div>
 
+    @if (topologyAllowed()) {
+        <div class="resize-handle" (mousedown)="onResizeHandleMouseDown($event)"></div>
+    }
+
     <crczp-run-topology-wrapper
         [topologyAllowed]="topologyAllowed()"
+        [height]="topoHeight()"
         class="level-topology-wrapper"
     />
 </div>

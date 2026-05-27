@@ -11,7 +11,9 @@
                 {{ topologyCollapsed ? 'expand_less' : 'expand_more' }}
             </mat-icon>
         </div>
-        <div class="topo-content" [class.topo-content--collapsed]="topologyCollapsed">
+        <div class="topo-content"
+             [class.topo-content--collapsed]="topologyCollapsed"
+             [style.height.px]="topologyCollapsed ? 0 : height()">
             <crczp-topology-wrapper
                 (getAccessFile)="onAccessFileRequested()"
                 [id]="{instanceId: sandboxInstanceId}"
