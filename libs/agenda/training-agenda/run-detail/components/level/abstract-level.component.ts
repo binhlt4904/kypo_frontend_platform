@@ -93,10 +93,15 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         this.fitWorkspaceToViewport();
+        const workspaceH = this.levelContent.nativeElement.clientHeight;
+        // Give topology ~30% of workspace, leaving 70% for task description
+        const contentArea = workspaceH - 62;
+        const initialTopoH = Math.max(80, Math.min(280, Math.round(contentArea * 0.30)));
+        this.topoHeight.set(initialTopoH);
         this.topologyService.emitTopologyWidthChange(
             this.levelContent.nativeElement.clientWidth,
         );
-        this.topologyService.emitTopologyHeightChange(this.topoHeight());
+        this.topologyService.emitTopologyHeightChange(initialTopoH);
         this.onResize();
     }
 
