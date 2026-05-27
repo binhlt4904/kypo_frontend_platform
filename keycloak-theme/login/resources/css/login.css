@@ -1,31 +1,43 @@
-/* ===== ORANGE THEME ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-/* Orange top border */
-.login-pf-page .card-pf,
+body,
+html.login-pf body {
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Header text */
+#kc-header-wrapper {
+    color: #ffffff !important;
+}
+
+/* Orange border on top card */
 .card-pf {
     border-top: 4px solid #ff7a3d !important;
 }
 
-/* Input focus */
+/* Orange focus */
 #username:focus,
 #password:focus,
 .pf-c-form-control:focus {
     border-color: #ff7a3d !important;
-    box-shadow: 0 0 0 2px rgba(255, 122, 61, 0.15) !important;
+    box-shadow: 0 0 0 3px rgba(255, 122, 61, .15) !important;
+}
+
+/* Password eye */
+.pf-c-button.pf-m-control {
+    color: #ff7a3d !important;
 }
 
 /* Login button */
 #kc-login,
-.pf-c-button.pf-m-primary,
-.pf-v5-c-button.pf-m-primary {
-    background-color: #ff7a3d !important;
+.pf-c-button.pf-m-primary {
+    background: #ff7a3d !important;
     border-color: #ff7a3d !important;
 }
 
 #kc-login:hover,
-.pf-c-button.pf-m-primary:hover,
-.pf-v5-c-button.pf-m-primary:hover {
-    background-color: #f06a2f !important;
+.pf-c-button.pf-m-primary:hover {
+    background: #f06a2f !important;
     border-color: #f06a2f !important;
 }
 
@@ -36,66 +48,4 @@ a {
 
 a:hover {
     color: #f06a2f !important;
-}
-
-/* Checkbox */
-input[type="checkbox"]:checked {
-    accent-color: #ff7a3d;
-}
-
-/* ===== CENTER CARD ===== */
-
-.login-pf-page .card-pf {
-    width: 560px !important;
-    max-width: 560px !important;
-    margin: 0 auto !important;
-    padding: 42px 48px !important;
-}
-
-.login-pf-page .container,
-.login-pf-page .container-fluid {
-    width: 560px !important;
-    max-width: 560px !important;
-    margin: 0 auto !important;
-}
-
-.login-pf-page .row {
-    margin: 0 !important;
-}
-
-.login-pf-page .col-sm-8,
-.login-pf-page .col-sm-offset-2 {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-left: 0 !important;
-    padding: 0 !important;
-    float: none !important;
-}
-
-/* ===== ORANGE GLOW BACKGROUND ===== */
-
-.login-pf body {
-    position: relative;
-}
-
-.login-pf body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-
-    background:
-        radial-gradient(circle at top left,
-            rgba(255, 122, 61, 0.22),
-            transparent 35%),
-        radial-gradient(circle at bottom right,
-            rgba(255, 122, 61, 0.15),
-            transparent 40%);
-
-    pointer-events: none;
-    z-index: 0;
-}
-
-.login-pf-page {
-    position: relative;
-    z-index: 1;
 }
