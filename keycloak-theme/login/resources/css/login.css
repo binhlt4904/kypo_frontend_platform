@@ -5,120 +5,34 @@ html.login-pf body {
     font-family: 'Inter', sans-serif !important;
 }
 
-/* Background */
-.login-pf body {
-    background:
-        linear-gradient(rgba(255, 122, 61, 0.06),
-            rgba(255, 122, 61, 0.06)),
-        url("../img/keycloak-bg.png") center center/cover no-repeat !important;
-}
-
-/* ===== HEADER ===== */
-
-#kc-header,
-.login-pf-page #kc-header {
-    margin-bottom: 24px !important;
-}
-
+/* Header text */
 #kc-header-wrapper {
-    font-size: 2rem !important;
-    font-weight: 600 !important;
-    letter-spacing: .25em !important;
     color: #ffffff !important;
-    text-transform: uppercase !important;
-    text-shadow: none !important;
 }
 
-/* ===== FIX WIDTH ===== */
-
-.login-pf-page .container,
-.login-pf-page .container-fluid,
-#kc-container-wrapper {
-    width: 100% !important;
-    max-width: 620px !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-}
-
-.login-pf-page .row {
-    margin: 0 !important;
-}
-
-.login-pf-page .col-sm-8,
-.login-pf-page .col-sm-offset-2 {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-left: 0 !important;
-    padding: 0 !important;
-    float: none !important;
-}
-
-/* ===== CARD ===== */
-
-.login-pf-page .card-pf,
+/* Orange border on top card */
 .card-pf {
-    width: 100% !important;
-    max-width: 620px !important;
-
     border-top: 4px solid #ff7a3d !important;
-    border-radius: 6px !important;
-
-    background: #ffffff !important;
-
-    padding: 42px 48px !important;
-
-    box-shadow:
-        0 10px 25px rgba(0, 0, 0, .12) !important;
 }
 
-/* ===== TITLE ===== */
-
-#kc-page-title {
-    color: #333 !important;
-    font-weight: 400 !important;
-    text-align: center !important;
-    margin-bottom: 30px !important;
-}
-
-/* ===== LABEL ===== */
-
-.login-pf-page label,
-label {
-    font-size: 14px !important;
-    color: #444 !important;
-}
-
-/* ===== INPUT ===== */
-
-#username,
-#password,
-.pf-c-form-control {
-    border: 1px solid #d7dce3 !important;
-    border-radius: 4px !important;
-    height: 44px !important;
-}
-
+/* Orange focus */
 #username:focus,
 #password:focus,
 .pf-c-form-control:focus {
     border-color: #ff7a3d !important;
-    box-shadow:
-        0 0 0 3px rgba(255, 122, 61, .15) !important;
+    box-shadow: 0 0 0 3px rgba(255, 122, 61, .15) !important;
 }
 
-/* Password eye button */
-
+/* Password eye */
 .pf-c-button.pf-m-control {
     color: #ff7a3d !important;
 }
 
-/* ===== LOGIN BUTTON ===== */
-
+/* Login button */
 #kc-login,
 .pf-c-button.pf-m-primary {
     background: #ff7a3d !important;
     border-color: #ff7a3d !important;
-    font-weight: 600 !important;
 }
 
 #kc-login:hover,
@@ -127,8 +41,7 @@ label {
     border-color: #f06a2f !important;
 }
 
-/* ===== LINKS ===== */
-
+/* Links */
 a {
     color: #ff7a3d !important;
 }
