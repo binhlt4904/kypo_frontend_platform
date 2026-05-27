@@ -99,19 +99,22 @@ jobs:
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/resources/css"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- mkdir -p /opt/keycloak/themes/$THEME/login/messages"
 
-            echo "===> [2] Copy 3 file theme (parent=keycloak tu lo ftl)..."
-            _copy_file $SRC/login/theme.properties \
+            echo "===> [2] Write theme.properties dung voi built-in theme hien co: parent=keycloak..."
+            printf 'parent=keycloak\nimport=common/keycloak\nstyles=css/login.css\n' > /tmp/theme.properties
+            _copy_file /tmp/theme.properties \
               /opt/keycloak/themes/$THEME/login/theme.properties
+
+            echo "===> [3] Copy CSS va messages..."
             _copy_file $SRC/login/resources/css/login.css \
               /opt/keycloak/themes/$THEME/login/resources/css/login.css
             _copy_file $SRC/login/messages/messages_en.properties \
               /opt/keycloak/themes/$THEME/login/messages/messages_en.properties
 
-            echo "===> [3] Verify files trong pod..."
+            echo "===> [4] Verify files trong pod..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- find /opt/keycloak/themes/$THEME -type f"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- cat /opt/keycloak/themes/$THEME/login/theme.properties"
 
-            echo "===> [4] Apply theme kypo-v6 vao realm..."
+            echo "===> [5] Apply theme kypo-v6 vao realm..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/bash -c '
               /opt/keycloak/bin/kcadm.sh config credentials \
                 --server http://localhost:8080/keycloak \
@@ -122,76 +125,10 @@ jobs:
                 -s loginTheme=$THEME
             '"
 
-            echo "===> [5] Keycloak log - tim ERROR lien quan theme..."
+            echo "===> [6] Keycloak log - tim ERROR lien quan theme..."
             _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=50 2>&1 | grep -i 'error\|warn\|theme\|kypo\|exception' || echo 'Khong co error'"
 
-            echo "===> [6] Keycloak log - 20 dong cuoi..."
+            echo "===> [7] Keycloak log - 20 dong cuoi..."
             _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=20 2>&1"
 
             echo "===> Done! Vao Keycloak Admin chon loginTheme=kypo-v6 neu chua tu dong apply"
-
-      - name: Check JAR structure
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 10m
-          script: |
-            KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
-            KC_POD=keycloak-0
-            KC_NS=crczp
-            JAR=/opt/keycloak/lib/lib/main/org.keycloak.keycloak-themes-25.0.1.jar
-
-            _in_vm() {
-              docker run --rm \
-                -e LIBVIRT_DEFAULT_URI \
-                -v /var/run/libvirt/:/var/run/libvirt/ \
-                -v ~/.vagrant.d:/.vagrant.d \
-                -v "$KYPO_DIR":"$KYPO_DIR" \
-                -w "$KYPO_DIR" --network host \
-                vagrantlibvirt/vagrant-libvirt:latest \
-                vagrant ssh -- "$@"
-            }
-
-            echo "===> Check built-in theme directories..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- sh -c 'find /opt/keycloak/themes -maxdepth 3 -type f | grep \\.ftl | sort | head -200 || true'"
-
-            echo "===> Verify JAR exists..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- ls -lh $JAR"
-
-            echo "===> Copy JAR from Keycloak pod to VM by base64..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- sh -c 'base64 -w0 $JAR' > /tmp/keycloak-themes.jar.b64"
-            _in_vm "base64 -d /tmp/keycloak-themes.jar.b64 > /tmp/keycloak-themes.jar"
-
-            echo "===> List all FTL files inside JAR..."
-            _in_vm "python3 - <<'PY'
-            import zipfile
-
-            jar = '/tmp/keycloak-themes.jar'
-
-            with zipfile.ZipFile(jar, 'r') as z:
-                ftl_files = [f for f in z.namelist() if f.endswith('.ftl')]
-                print('Total FTL files:', len(ftl_files))
-                for f in ftl_files:
-                    print(f)
-            PY"
-
-            echo "===> Extract login FTL files to /tmp/keycloak-ftl..."
-            _in_vm "rm -rf /tmp/keycloak-ftl && mkdir -p /tmp/keycloak-ftl && python3 - <<'PY'
-            import zipfile
-
-            jar = '/tmp/keycloak-themes.jar'
-            out = '/tmp/keycloak-ftl'
-
-            with zipfile.ZipFile(jar, 'r') as z:
-                for f in z.namelist():
-                    if f.endswith('.ftl') and '/login/' in f:
-                        z.extract(f, out)
-                        print('Extracted:', f)
-
-            print('Done. Output:', out)
-            PY"
-
-            echo "===> Show extracted login FTL files..."
-            _in_vm "find /tmp/keycloak-ftl -type f | sort | head -200"
