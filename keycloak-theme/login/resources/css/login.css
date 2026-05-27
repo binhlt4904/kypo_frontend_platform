@@ -1,440 +1,83 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-*,
-*::before,
-*::after {
-    box-sizing: border-box !important;
+body,
+html.login-pf body {
+    font-family: 'Inter', sans-serif !important;
 }
-
-/* ===== VUON TRE KEYCLOAK LOGIN - CYBER TECH STYLE ===== */
 
 /* Background */
-html.login-pf body,
-body {
-    min-height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    padding: 42px 20px !important;
-    overflow-x: hidden !important;
-
-    font-family: 'Lato', sans-serif !important;
-
+.login-pf body {
     background:
-        linear-gradient(rgba(255, 111, 58, 0.055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 111, 58, 0.045) 1px, transparent 1px),
-        radial-gradient(circle at 18% 18%, rgba(255, 111, 58, 0.26), transparent 28%),
-        radial-gradient(circle at 82% 75%, rgba(0, 194, 255, 0.16), transparent 34%),
-        radial-gradient(circle at 50% 50%, rgba(142, 68, 255, 0.10), transparent 42%),
-        linear-gradient(135deg, #060814 0%, #11162a 46%, #070b18 100%) !important;
-
-    background-size:
-        42px 42px,
-        42px 42px,
-        auto,
-        auto,
-        auto,
-        auto !important;
+        linear-gradient(rgba(255, 122, 61, 0.08),
+            rgba(255, 122, 61, 0.08)),
+        url("../img/keycloak-bg.png") center center/cover no-repeat !important;
 }
 
-/* Dark overlay / scan feel */
-body::before {
-    content: "" !important;
-    position: fixed !important;
-    inset: 0 !important;
-    pointer-events: none !important;
-    z-index: 0 !important;
-
-    background:
-        linear-gradient(120deg, transparent 0%, rgba(255, 111, 58, 0.035) 45%, transparent 60%),
-        repeating-linear-gradient(to bottom,
-            rgba(255, 255, 255, 0.018) 0px,
-            rgba(255, 255, 255, 0.018) 1px,
-            transparent 2px,
-            transparent 7px) !important;
-}
-
-/* Header: VƯỜN TRẺ */
-#kc-header,
-.login-pf-page #kc-header {
-    position: relative !important;
-    z-index: 2 !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    text-align: center !important;
-    width: 100% !important;
-    margin-bottom: 30px !important;
-}
-
-#kc-header-wrapper,
-.login-pf-page #kc-header-wrapper {
-    font-family: 'Space Mono', monospace !important;
-    font-weight: 700 !important;
-    font-size: 2.15rem !important;
-    letter-spacing: 0.32em !important;
-    text-transform: uppercase !important;
+/* Header */
+#kc-header-wrapper {
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    letter-spacing: .25em !important;
     color: #ff7a3d !important;
-    background: transparent !important;
-
-    text-shadow:
-        0 0 8px rgba(255, 122, 61, 0.95),
-        0 0 22px rgba(255, 122, 61, 0.55),
-        0 0 48px rgba(255, 122, 61, 0.28) !important;
-}
-
-/* Container */
-.login-pf-page,
-.login-pf-page>.container,
-.login-pf-page>.container-fluid,
-#kc-container-wrapper {
-    position: relative !important;
-    z-index: 2 !important;
-    width: 100% !important;
-    max-width: 780px !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-}
-
-.login-pf-page .row {
-    margin: 0 !important;
-}
-
-.login-pf-page .col-sm-8,
-.login-pf-page .col-sm-offset-2 {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-left: 0 !important;
-    float: none !important;
-    padding: 0 !important;
+    text-transform: uppercase !important;
 }
 
 /* Card */
-.login-pf-page .card-pf,
-.card-pf {
-    position: relative !important;
-    overflow: hidden !important;
-
-    width: 720px !important;
-    max-width: 92vw !important;
-    margin: 0 auto !important;
-    padding: 58px 82px 62px !important;
-
-    background:
-        linear-gradient(180deg, rgba(17, 23, 43, 0.92), rgba(8, 12, 27, 0.94)) !important;
-
-    border: 1px solid rgba(255, 122, 61, 0.48) !important;
-    border-top: 3px solid #ff7a3d !important;
-    border-radius: 24px !important;
+.login-pf-page .card-pf {
+    border-top: 4px solid #ff7a3d !important;
+    border-radius: 6px !important;
 
     box-shadow:
-        0 0 0 1px rgba(255, 122, 61, 0.10),
-        0 0 38px rgba(255, 122, 61, 0.26),
-        0 0 90px rgba(0, 194, 255, 0.08),
-        0 30px 95px rgba(0, 0, 0, 0.78) !important;
-
-    backdrop-filter: blur(18px) !important;
+        0 10px 25px rgba(0, 0, 0, .12) !important;
 }
 
-/* Card tech glow */
-.card-pf::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: 0 !important;
-    pointer-events: none !important;
-    border-radius: 24px !important;
-
-    background:
-        linear-gradient(135deg, rgba(255, 122, 61, 0.18), transparent 28%),
-        linear-gradient(315deg, rgba(0, 194, 255, 0.13), transparent 32%),
-        radial-gradient(circle at 50% 0%, rgba(255, 122, 61, 0.14), transparent 38%) !important;
-}
-
-.card-pf::after {
-    content: "" !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 34px !important;
-    right: 34px !important;
-    height: 1px !important;
-
-    background: linear-gradient(90deg, transparent, #ff7a3d, #00c2ff, transparent) !important;
-    box-shadow:
-        0 0 16px rgba(255, 122, 61, 0.95),
-        0 0 22px rgba(0, 194, 255, 0.45) !important;
-}
-
-/* Keep content above pseudo layers */
-.card-pf>* {
-    position: relative !important;
-    z-index: 2 !important;
-}
-
-/* Page title */
-#kc-page-title,
-.login-pf-page #kc-page-title {
-    font-family: 'Space Mono', monospace !important;
-    font-weight: 700 !important;
-    font-size: 1.85rem !important;
-    line-height: 1.35 !important;
-    color: #f7f9ff !important;
-    text-align: center !important;
-    margin-bottom: 42px !important;
-    letter-spacing: 0.02em !important;
-    text-shadow: 0 0 18px rgba(0, 194, 255, 0.12) !important;
-}
-
-/* Labels */
-.login-pf-page label,
-label {
-    display: block !important;
-    margin-bottom: 9px !important;
-
-    font-family: 'Space Mono', monospace !important;
-    font-size: 0.78rem !important;
-    font-weight: 700 !important;
-    color: #b9c5df !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.08em !important;
-}
-
-/* Form spacing */
-.login-pf-page .pf-c-form__group,
-.login-pf-page .form-group {
-    margin-bottom: 25px !important;
-}
-
-/* Input group */
-.login-pf-page .pf-c-input-group,
-.pf-c-input-group {
-    display: flex !important;
-    overflow: hidden !important;
-
-    background: rgba(4, 8, 20, 0.88) !important;
-    border: 1px solid rgba(127, 149, 190, 0.46) !important;
-    border-radius: 14px !important;
-
-    box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.025),
-        0 0 0 rgba(255, 122, 61, 0) !important;
-}
-
-.login-pf-page .pf-c-input-group:focus-within,
-.pf-c-input-group:focus-within {
-    border-color: rgba(255, 122, 61, 0.95) !important;
-    box-shadow:
-        0 0 0 3px rgba(255, 122, 61, 0.18),
-        0 0 24px rgba(255, 122, 61, 0.22) !important;
+/* Title */
+#kc-page-title {
+    color: #333 !important;
+    font-weight: 400 !important;
 }
 
 /* Inputs */
-.login-pf-page .pf-c-form-control,
-.login-pf-page input[type="text"],
-.login-pf-page input[type="password"],
-.login-pf-page input[type="email"],
-input.pf-c-form-control,
 #username,
-#password {
-    width: 100% !important;
-    height: 56px !important;
-    padding: 0 18px !important;
-
-    background: rgba(4, 8, 20, 0.88) !important;
-    color: #ffffff !important;
-
-    border: 1px solid rgba(127, 149, 190, 0.46) !important;
-    border-radius: 14px !important;
-
-    outline: none !important;
-    box-shadow: none !important;
-
-    font-family: 'Lato', sans-serif !important;
-    font-size: 1rem !important;
-    font-weight: 400 !important;
-
-    transition:
-        border-color 0.18s,
-        box-shadow 0.18s,
-        background 0.18s,
-        transform 0.18s !important;
+#password,
+.pf-c-form-control {
+    border: 1px solid #d7dce3 !important;
+    border-radius: 4px !important;
 }
 
-.login-pf-page .pf-c-form-control::placeholder,
-.login-pf-page input::placeholder {
-    color: rgba(185, 197, 223, 0.55) !important;
-}
-
-/* Input inside password group */
-.pf-c-input-group .pf-c-form-control,
-.pf-c-input-group input {
-    flex: 1 !important;
-    border: none !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-}
-
-.login-pf-page input:focus,
-.login-pf-page .pf-c-form-control:focus {
-    border-color: rgba(255, 122, 61, 0.95) !important;
-    background: rgba(7, 12, 28, 0.98) !important;
-
+#username:focus,
+#password:focus,
+.pf-c-form-control:focus {
+    border-color: #ff7a3d !important;
     box-shadow:
-        0 0 0 3px rgba(255, 122, 61, 0.18),
-        0 0 24px rgba(255, 122, 61, 0.22) !important;
+        0 0 0 3px rgba(255, 122, 61, .15) !important;
 }
 
-.pf-c-input-group input:focus {
-    box-shadow: none !important;
-}
-
-/* Eye toggle button */
-.login-pf-page .pf-c-button.pf-m-control,
+/* Password eye button */
 .pf-c-button.pf-m-control {
-    min-width: 54px !important;
-    padding: 0 16px !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    background: rgba(4, 8, 20, 0.88) !important;
     color: #ff7a3d !important;
-
-    border: none !important;
-    border-left: 1px solid rgba(255, 122, 61, 0.32) !important;
-    box-shadow: none !important;
-    outline: none !important;
-    cursor: pointer !important;
 }
 
-.login-pf-page .pf-c-button.pf-m-control:hover {
-    color: #00c2ff !important;
-    background: rgba(0, 194, 255, 0.08) !important;
-}
-
-/* Sign In button */
-.login-pf-page .pf-c-button.pf-m-primary,
-.login-pf-page #kc-login,
+/* Login button */
 #kc-login,
-input[type="submit"] {
-    display: block !important;
-    width: 100% !important;
-    height: 60px !important;
-    margin-top: 34px !important;
-    padding: 0 18px !important;
+.pf-c-button.pf-m-primary {
+    background: #ff7a3d !important;
+    border-color: #ff7a3d !important;
 
-    color: #ffffff !important;
-    background: linear-gradient(135deg, #ff7a3d 0%, #ff421f 55%, #ff7a3d 100%) !important;
-
-    border: none !important;
-    border-radius: 16px !important;
-
-    font-family: 'Space Mono', monospace !important;
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.10em !important;
-
-    cursor: pointer !important;
-
-    box-shadow:
-        0 0 18px rgba(255, 122, 61, 0.48),
-        0 16px 36px rgba(255, 66, 31, 0.28) !important;
-
-    transition:
-        transform 0.18s,
-        box-shadow 0.18s,
-        filter 0.18s !important;
+    font-weight: 600 !important;
 }
 
-.login-pf-page .pf-c-button.pf-m-primary:hover,
-.login-pf-page #kc-login:hover,
 #kc-login:hover,
-input[type="submit"]:hover {
-    transform: translateY(-1px) !important;
-    filter: brightness(1.08) !important;
-
-    box-shadow:
-        0 0 30px rgba(255, 122, 61, 0.70),
-        0 18px 44px rgba(255, 66, 31, 0.36) !important;
+.pf-c-button.pf-m-primary:hover {
+    background: #f06a2f !important;
+    border-color: #f06a2f !important;
 }
 
 /* Links */
-.login-pf-page a,
-.login-pf-page a:visited,
-#kc-info a {
-    color: #ff8b55 !important;
-    text-decoration: none !important;
-    font-family: 'Space Mono', monospace !important;
-    font-size: 0.82rem !important;
+a {
+    color: #ff7a3d !important;
 }
 
-.login-pf-page a:hover {
-    color: #00c2ff !important;
-    text-decoration: none !important;
-}
-
-/* Alert / Error */
-.login-pf-page .alert-error,
-.alert-error {
-    background: rgba(255, 66, 31, 0.12) !important;
-    color: #ffb199 !important;
-    border: 1px solid rgba(255, 111, 58, 0.40) !important;
-    border-radius: 12px !important;
-    padding: 12px 14px !important;
-    font-size: 0.86rem !important;
-    margin-bottom: 22px !important;
-}
-
-/* Info below card */
-#kc-info,
-.login-pf-page #kc-info {
-    text-align: center !important;
-    margin-top: 20px !important;
-    color: #9aa6c2 !important;
-    font-size: 0.82rem !important;
-}
-
-/* Social/IDP buttons */
-.login-pf-page .pf-c-button.pf-m-secondary,
-.pf-c-button.pf-m-secondary {
-    border-color: rgba(255, 122, 61, 0.70) !important;
-    color: #ff8b55 !important;
-    background: rgba(255, 122, 61, 0.06) !important;
-    border-radius: 12px !important;
-}
-
-.login-pf-page .pf-c-button.pf-m-secondary:hover {
-    background: rgba(0, 194, 255, 0.08) !important;
-    color: #00c2ff !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-
-    html.login-pf body,
-    body {
-        padding: 28px 14px !important;
-    }
-
-    #kc-header-wrapper,
-    .login-pf-page #kc-header-wrapper {
-        font-size: 1.55rem !important;
-        letter-spacing: 0.22em !important;
-    }
-
-    .login-pf-page .card-pf,
-    .card-pf {
-        width: 100% !important;
-        max-width: 94vw !important;
-        padding: 38px 26px 42px !important;
-        border-radius: 20px !important;
-    }
-
-    #kc-page-title,
-    .login-pf-page #kc-page-title {
-        font-size: 1.45rem !important;
-    }
+a:hover {
+    color: #f06a2f !important;
 }
