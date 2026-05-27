@@ -93,7 +93,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         this.topologyService.emitTopologyWidthChange(
-            this.levelContent.nativeElement.clientWidth / 2,
+            this.levelContent.nativeElement.clientWidth,
         );
         this.onResize();
     }
@@ -120,12 +120,11 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
 
     @HostListener('window:resize')
     onResize() {
-        this.topologyService.setMaxTopologyWidth(
-            this.levelContent.nativeElement.clientWidth * 0.65,
+        this.topologyService.emitTopologyWidthChange(
+            this.levelContent.nativeElement.clientWidth,
         );
-        this.topologyService.setMinTopologyWidth(
-            this.levelContent.nativeElement.clientWidth * 0.25,
-        );
+        this.topologyService.setMaxTopologyWidth(null);
+        this.topologyService.setMinTopologyWidth(null);
     }
 
     resetSplit(): void {
