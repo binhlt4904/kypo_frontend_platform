@@ -130,7 +130,7 @@ jobs:
 
             echo "===> Done! Vao Keycloak Admin chon loginTheme=kypo-v6 neu chua tu dong apply"
 
-      - name: Extract ftl from Keycloak themes JAR
+      - name: Check JAR structure
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -141,7 +141,6 @@ jobs:
             KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
             KC_POD=keycloak-0
             KC_NS=crczp
-            THEME=kypo-v6
             JAR=/opt/keycloak/lib/lib/main/org.keycloak.keycloak-themes-25.0.1.jar
 
             _in_vm() {
@@ -155,9 +154,8 @@ jobs:
                 vagrant ssh -- "$@"
             }
 
-            echo "===> List .ftl files trong JAR..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- unzip -l $JAR 2>&1 | grep 'theme/keycloak/login.*\.ftl'"
+            echo "===> List tat ca files trong JAR (20 dong dau)..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- unzip -l $JAR 2>&1 | head -30"
 
-            echo "===> Extract login.ftl va template.ftl ra /tmp..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- unzip -p $JAR theme/keycloak/login/login.ftl > /tmp/kc-login.ftl 2>&1 && echo 'OK login.ftl' || echo 'FAIL login.ftl'"
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- cat /tmp/kc-login.ftl | head -10 2>&1"
+            echo "===> Tim ftl trong JAR..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- unzip -l $JAR 2>&1 | grep '\.ftl' | head -20"
