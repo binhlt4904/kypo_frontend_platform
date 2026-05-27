@@ -92,9 +92,11 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        this.fitWorkspaceToViewport();
         this.topologyService.emitTopologyWidthChange(
             this.levelContent.nativeElement.clientWidth,
         );
+        this.topologyService.emitTopologyHeightChange(this.topoHeight());
         this.onResize();
     }
 
@@ -114,6 +116,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
         const maxTopoH = workspaceH - 93;
         const newHeight = Math.max(80, Math.min(maxTopoH, this.dragStartHeight + delta));
         this.topoHeight.set(newHeight);
+        this.topologyService.emitTopologyHeightChange(newHeight);
     }
 
     @HostListener('window:mouseup')
@@ -123,6 +126,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
 
     @HostListener('window:resize')
     onResize() {
+        this.fitWorkspaceToViewport();
         this.topologyService.emitTopologyWidthChange(
             this.levelContent.nativeElement.clientWidth,
         );
@@ -135,14 +139,26 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
         const h = this.levelContent.nativeElement.clientHeight;
         // workspace = taskZoneBar(28) + taskContent(flex) + handle(5) + topoZoneBar(29) + topoContent(topoHeight)
         const contentArea = h - 62;
-        this.topoHeight.set(Math.max(80, Math.round(contentArea / 2)));
+        const newHeight = Math.max(80, Math.round(contentArea / 2));
+        this.topoHeight.set(newHeight);
+        this.topologyService.emitTopologyHeightChange(newHeight);
     }
 
     maximizeTopo(): void {
         if (!this.levelContent?.nativeElement) return;
         const h = this.levelContent.nativeElement.clientHeight;
         const contentArea = h - 62;
-        this.topoHeight.set(Math.max(80, Math.round(contentArea * 0.75)));
+        const newHeight = Math.max(80, Math.round(contentArea * 0.75));
+        this.topoHeight.set(newHeight);
+        this.topologyService.emitTopologyHeightChange(newHeight);
+    }
+
+    private fitWorkspaceToViewport(): void {
+        if (!this.levelContent?.nativeElement) return;
+        const rect = this.levelContent.nativeElement.getBoundingClientRect();
+        const availableH = window.innerHeight - rect.top;
+        this.levelContent.nativeElement.style.height = availableH + 'px';
+        this.levelContent.nativeElement.style.flex = 'none';
     }
 
     ngOnInit(): void {
