@@ -63,7 +63,7 @@ jobs:
           source: "keycloak-theme/"
           target: "/tmp/kypo-theme-ci/"
 
-      - name: Deploy Keycloak theme
+      - name: Deploy Keycloak login theme
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -78,9 +78,9 @@ jobs:
             KC_POD=keycloak-0
             KC_NS=crczp
 
-            # Dùng tên theme mới, không đè lên kypo-v5/kypo-v6 có sẵn.
-            # Việc này cũng tránh cache lỗi "Failed to find LOGIN theme kypo-v6" trước đó.
-            THEME=vuontre-login
+            # Dùng theme name mới mỗi lần deploy để tránh cache theme.
+            # Không restart Keycloak vì theme đang được copy trực tiếp vào pod, restart sẽ mất theme.
+            THEME="vuontre-login-${{ github.run_number }}-${{ github.run_attempt }}"
 
             _in_vm() {
               docker run --rm \
@@ -98,51 +98,42 @@ jobs:
               local src="$1"
               local dst="$2"
 
-              if [ ! -s "$src" ]; then
-                echo "Missing or empty local file: $src"
+              if [ ! -f "$src" ]; then
+                echo "Missing local file: $src"
                 exit 1
               fi
 
               local encoded
-              encoded="$(base64 -w0 "$src")"
+              encoded=$(base64 -w0 "$src")
 
-              _in_vm "printf '%s' '$encoded' | base64 -d | sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/sh -c 'cat > \"$dst\"'"
-
-              _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'test -s \"$dst\" && echo Copied \"$dst\" size=\$(wc -c < \"$dst\") bytes'"
+              _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'mkdir -p \$(dirname $dst) && printf %s \"$encoded\" | base64 -d > $dst && chmod 0644 $dst && echo Copied $dst size=\$(wc -c < $dst) bytes'"
             }
 
             echo "===> [1] Check source theme folder on server..."
-            test -f "$SRC/login/theme.properties"
+            test -d "$SRC/login"
             test -f "$SRC/login/resources/css/login.css"
             test -f "$SRC/login/messages/messages_en.properties"
             find "$SRC" -type f | sort
 
-            echo "===> [2] Create clean theme folder in Keycloak pod..."
+            echo "===> [2] Create clean theme folder in Keycloak pod: $THEME"
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'rm -rf /opt/keycloak/themes/$THEME && mkdir -p /opt/keycloak/themes/$THEME/login/resources/css /opt/keycloak/themes/$THEME/login/messages'"
 
-            echo "===> [3] Copy theme.properties, CSS, and messages..."
-            _copy_file "$SRC/login/theme.properties" \
-              "/opt/keycloak/themes/$THEME/login/theme.properties"
+            echo "===> [3] Write theme.properties with parent=keycloak..."
+            printf '%s\n' \
+              'parent=keycloak' \
+              'import=common/keycloak' \
+              'styles=css/login.css' \
+              'locales=en' > /tmp/theme.properties
+            _copy_file "/tmp/theme.properties" "/opt/keycloak/themes/$THEME/login/theme.properties"
 
-            _copy_file "$SRC/login/resources/css/login.css" \
-              "/opt/keycloak/themes/$THEME/login/resources/css/login.css"
+            echo "===> [4] Copy CSS and messages only. No FTL files needed."
+            _copy_file "$SRC/login/resources/css/login.css" "/opt/keycloak/themes/$THEME/login/resources/css/login.css"
+            _copy_file "$SRC/login/messages/messages_en.properties" "/opt/keycloak/themes/$THEME/login/messages/messages_en.properties"
 
-            _copy_file "$SRC/login/messages/messages_en.properties" \
-              "/opt/keycloak/themes/$THEME/login/messages/messages_en.properties"
+            echo "===> [5] Verify theme files in pod..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'find /opt/keycloak/themes/$THEME -type f | sort && echo ---theme.properties--- && cat /opt/keycloak/themes/$THEME/login/theme.properties && echo ---ls--- && ls -la /opt/keycloak/themes/$THEME /opt/keycloak/themes/$THEME/login /opt/keycloak/themes/$THEME/login/resources/css /opt/keycloak/themes/$THEME/login/messages'"
 
-            echo "===> [4] Verify theme files in pod..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c '
-              find /opt/keycloak/themes/$THEME -type f -exec ls -lh {} \; | sort
-              echo ---
-              echo theme.properties content:
-              cat /opt/keycloak/themes/$THEME/login/theme.properties
-              echo ---
-              test -s /opt/keycloak/themes/$THEME/login/theme.properties
-              grep -q "^parent=keycloak" /opt/keycloak/themes/$THEME/login/theme.properties
-              ls -la /opt/keycloak/themes/$THEME /opt/keycloak/themes/$THEME/login
-            '"
-
-            echo "===> [5] Try to apply loginTheme=$THEME to the first non-master realm..."
+            echo "===> [6] Apply loginTheme=$THEME to non-master realm..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c '
               set +e
 
@@ -153,34 +144,68 @@ jobs:
                 --password \"\$KEYCLOAK_ADMIN_PASSWORD\"
 
               if [ \$? -ne 0 ]; then
-                echo \"Cannot login with kcadm. Theme was copied, but auto-apply was skipped.\"
+                echo "Cannot login with kcadm. Theme was copied, but auto-apply was skipped. Choose manually: $THEME"
                 exit 0
               fi
 
-              echo \"Available realms:\"
+              echo "Available realms:"
               /opt/keycloak/bin/kcadm.sh get realms --fields realm
 
               REALM=\$(/opt/keycloak/bin/kcadm.sh get realms --fields realm 2>/dev/null \
-                | grep -o \"\\\"realm\\\"[ ]*:[ ]*\\\"[^\\\"]*\\\"\" \
-                | sed \"s/.*: *\\\"//;s/\\\"//\" \
-                | grep -v \"^master$\" \
+                | grep -o "\\\"realm\\\"[ ]*:[ ]*\\\"[^\\\"]*\\\"" \
+                | sed "s/.*: *\\\"//;s/\\\"//" \
+                | grep -v "^master$" \
                 | head -1)
 
-              if [ -z \"\$REALM\" ]; then
-                echo \"No non-master realm found. Please choose Login theme manually in Admin Console: $THEME\"
+              if [ -z "\$REALM" ]; then
+                echo "No non-master realm found. Choose Login theme manually: $THEME"
                 exit 0
               fi
 
-              echo \"Applying loginTheme=$THEME to realm: \$REALM\"
+              echo "Applying loginTheme=$THEME to realm: \$REALM"
               /opt/keycloak/bin/kcadm.sh update realms/\$REALM -s loginTheme=$THEME
 
               if [ \$? -ne 0 ]; then
-                echo \"Auto-apply failed. Please choose Login theme manually in Admin Console: $THEME\"
+                echo "Auto-apply failed. Choose Login theme manually: $THEME"
                 exit 0
               fi
             '"
 
-            echo "===> [6] Recent Keycloak theme logs..."
-            _in_vm "sudo kubectl logs $KC_POD -n $KC_NS --tail=80 2>&1 | grep -i 'theme\|vuontre\|kypo\|error\|exception' || true"
+            echo "===> [7] Debug after applying theme..."
+            echo "===> DEBUG: Theme files in pod"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'echo Theme=$THEME && find /opt/keycloak/themes/$THEME -type f -maxdepth 6 | sort && echo --- theme.properties --- && cat /opt/keycloak/themes/$THEME/login/theme.properties && echo --- css size --- && ls -lh /opt/keycloak/themes/$THEME/login/resources/css/login.css && echo --- messages size --- && ls -lh /opt/keycloak/themes/$THEME/login/messages/messages_en.properties'"
 
-            echo "===> Done. Login theme name: $THEME"
+            echo "===> DEBUG: Theme folders under /opt/keycloak/themes"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'ls -la /opt/keycloak/themes | tail -80'"
+
+            echo "===> DEBUG: Current realm loginTheme setting"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c '
+              set +e
+              /opt/keycloak/bin/kcadm.sh config credentials \
+                --server http://localhost:8080/keycloak \
+                --realm master \
+                --user "\$KEYCLOAK_ADMIN" \
+                --password "\$KEYCLOAK_ADMIN_PASSWORD" >/dev/null 2>&1
+
+              REALM=\$(/opt/keycloak/bin/kcadm.sh get realms --fields realm 2>/dev/null \
+                | grep -o "\\"realm\\"[ ]*:[ ]*\\"[^\\"]*\\"" \
+                | sed "s/.*: *\\"//;s/\\"//" \
+                | grep -v "^master$" \
+                | head -1)
+
+              if [ -n "\$REALM" ]; then
+                echo Realm=\$REALM
+                /opt/keycloak/bin/kcadm.sh get realms/\$REALM --fields realm,loginTheme
+              else
+                echo No non-master realm found
+              fi
+            '"
+
+            echo "===> DEBUG: Recent Keycloak theme/template logs in last 15 minutes"
+            _in_vm "sudo kubectl logs -n $KC_NS $KC_POD --since=15m | grep -iE 'theme|freemarker|template|ftl|loginTheme|error' | tail -150 || true"
+
+            echo "===> DEBUG: Last 120 Keycloak log lines"
+            _in_vm "sudo kubectl logs -n $KC_NS $KC_POD --tail=120"
+
+            echo "===> [8] Done. Do NOT restart Keycloak. Login theme name: $THEME"
+            echo "Open Admin Console -> Realm settings -> Themes -> Login theme = $THEME"
