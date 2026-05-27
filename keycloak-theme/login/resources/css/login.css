@@ -40,3 +40,31 @@ a:hover {
 input[type="checkbox"]:checked {
     accent-color: #ff7a3d;
 }
+
+/* Restore centered login card */
+.login-pf-page .card-pf {
+    width: 560px !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
+    padding: 42px 48px !important;
+}
+
+.login-pf-page .container,
+.login-pf-page .container-fluid {
+    width: 560px !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
+}
+
+.login-pf-page .row {
+    margin: 0 !important;
+}
+
+.login-pf-page .col-sm-8,
+.login-pf-page .col-sm-offset-2 {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+}
