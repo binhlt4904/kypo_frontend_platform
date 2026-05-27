@@ -1,43 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-
-body,
-html.login-pf body {
-    font-family: 'Inter', sans-serif !important;
-}
-
-/* Header text */
-#kc-header-wrapper {
-    color: #ffffff !important;
-}
-
-/* Orange border on top card */
+/* Orange top border (giữ nguyên layout mặc định) */
+.login-pf-page .card-pf,
 .card-pf {
-    border-top: 4px solid #ff7a3d !important;
+    border-top-color: #ff7a3d !important;
 }
 
-/* Orange focus */
+/* Input focus */
 #username:focus,
 #password:focus,
 .pf-c-form-control:focus {
     border-color: #ff7a3d !important;
-    box-shadow: 0 0 0 3px rgba(255, 122, 61, .15) !important;
 }
 
-/* Password eye */
-.pf-c-button.pf-m-control {
-    color: #ff7a3d !important;
-}
 
 /* Login button */
 #kc-login,
-.pf-c-button.pf-m-primary {
-    background: #ff7a3d !important;
+.pf-c-button.pf-m-primary,
+.pf-v5-c-button.pf-m-primary {
+    background-color: #ff7a3d !important;
     border-color: #ff7a3d !important;
 }
 
 #kc-login:hover,
-.pf-c-button.pf-m-primary:hover {
-    background: #f06a2f !important;
+.pf-c-button.pf-m-primary:hover,
+.pf-v5-c-button.pf-m-primary:hover {
+    background-color: #f06a2f !important;
     border-color: #f06a2f !important;
 }
 
@@ -48,4 +34,9 @@ a {
 
 a:hover {
     color: #f06a2f !important;
+}
+
+/* Checkbox tick */
+input[type="checkbox"]:checked {
+    accent-color: #ff7a3d;
 }
