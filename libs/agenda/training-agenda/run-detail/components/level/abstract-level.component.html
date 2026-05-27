@@ -16,8 +16,26 @@
 <div class="status-row">
     <div class="stat">
         <div class="stat-lbl">Phase</div>
-        <div class="stat-val">{{ displayedLevelTitle$ | async }}</div>
+        <div class="stat-val stat-val--primary">{{ displayedLevelTitle$ | async }}</div>
     </div>
+    <div class="stat">
+        <div class="stat-lbl">Status</div>
+        <div class="stat-val stat-val--running">
+            <span class="status-dot"></span>Running
+        </div>
+    </div>
+    @if (sandboxInstanceId()) {
+        <div class="stat">
+            <div class="stat-lbl">Sandbox</div>
+            <div class="stat-val">{{ sandboxInstanceId() }}</div>
+        </div>
+    }
+    @if (stepperSteps().length > 0) {
+        <div class="stat">
+            <div class="stat-lbl">Progress</div>
+            <div class="stat-val">{{ (stepperLastIndex() ?? 0) + 1 }} / {{ stepperSteps().length }}</div>
+        </div>
+    }
     @let startTime = (startTime$ | async);
     @if (startTime) {
         <div class="stat stat--timer">
@@ -35,6 +53,9 @@
 <div #levelContent class="workspace">
     <div class="zone-bar">
         <span class="zone-bar__label">Task description</span>
+        @if (stepperSteps().length > 0) {
+            <span class="zone-bar__badge">Phase {{ (stepperSelectedIndex() ?? 0) + 1 }}</span>
+        }
     </div>
 
     <div class="task-zone">
@@ -73,6 +94,8 @@
     <crczp-run-topology-wrapper
         [topologyAllowed]="topologyAllowed()"
         [style.height.px]="!topologyAllowed() ? 0 : (topoCollapsed ? 29 : topoHeight() + 29)"
+        (resetSplitRequested)="resetSplit()"
+        (maximizeTopoRequested)="maximizeTopo()"
         class="level-topology-wrapper"
     />
 </div>
