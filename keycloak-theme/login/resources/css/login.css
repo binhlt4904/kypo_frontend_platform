@@ -86,18 +86,22 @@ html.login-pf body::after {
 }
 
 .login-pf-page #kc-header-wrapper::after {
-    content: 'Vườn Trẻ' !important;
+    content: "Vườn Trẻ" !important;
+
     visibility: visible !important;
+
     position: absolute !important;
-    top: 50% !important;
     left: 50% !important;
+    top: 50% !important;
     transform: translate(-50%, -50%) !important;
-    font-family: 'Space Mono', monospace !important;
+
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 52px !important;
     font-weight: 700 !important;
-    font-size: 2.4rem !important;
-    letter-spacing: 0.32em !important;
-    color: #ff6b35 !important;
-    white-space: nowrap !important;
+
+    letter-spacing: 8px !important;
+
+    color: #e67e22 !important;
 }
 
 /* Layout */
