@@ -98,13 +98,17 @@ jobs:
               local src="$1"
               local dst="$2"
 
-              if [ ! -f "$src" ]; then
-                echo "Missing local file: $src"
+              if [ ! -s "$src" ]; then
+                echo "Missing or empty local file: $src"
                 exit 1
               fi
 
-              base64 -w0 "$src" | \
-                _in_vm "base64 -d > /tmp/kc-upload && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/sh -c 'cat > $dst' < /tmp/kc-upload"
+              local encoded
+              encoded="$(base64 -w0 "$src")"
+
+              _in_vm "printf '%s' '$encoded' | base64 -d | sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/sh -c 'cat > \"$dst\"'"
+
+              _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'test -s \"$dst\" && echo Copied \"$dst\" size=\$(wc -c < \"$dst\") bytes'"
             }
 
             echo "===> [1] Check source theme folder on server..."
@@ -127,7 +131,16 @@ jobs:
               "/opt/keycloak/themes/$THEME/login/messages/messages_en.properties"
 
             echo "===> [4] Verify theme files in pod..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'find /opt/keycloak/themes/$THEME -type f | sort && echo --- && cat /opt/keycloak/themes/$THEME/login/theme.properties && echo --- && ls -la /opt/keycloak/themes/$THEME /opt/keycloak/themes/$THEME/login'"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c '
+              find /opt/keycloak/themes/$THEME -type f -exec ls -lh {} \; | sort
+              echo ---
+              echo theme.properties content:
+              cat /opt/keycloak/themes/$THEME/login/theme.properties
+              echo ---
+              test -s /opt/keycloak/themes/$THEME/login/theme.properties
+              grep -q "^parent=keycloak" /opt/keycloak/themes/$THEME/login/theme.properties
+              ls -la /opt/keycloak/themes/$THEME /opt/keycloak/themes/$THEME/login
+            '"
 
             echo "===> [5] Try to apply loginTheme=$THEME to the first non-master realm..."
             _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c '
