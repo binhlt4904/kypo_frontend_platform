@@ -8,7 +8,7 @@ import {
     inject,
     OnInit,
     signal,
-    ViewChild
+    ViewChild,
 } from '@angular/core';
 import { AbstractLevelTypeEnum, AbstractPhaseTypeEnum, AccessTrainingRunInfo } from '@crczp/training-model';
 import { TrainingTimerComponent } from './training-timer/training-timer.component';
@@ -74,6 +74,11 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     protected readonly stepperSelectedIndex = signal<number | null>(null);
     protected readonly stepperLastIndex = signal<number | null>(null);
     protected readonly stepperHeight = signal<number>(148);
+    protected readonly topoHeight = signal<number>(240);
+
+    private isResizing = false;
+    private dragStartY = 0;
+    private dragStartHeight = 0;
 
     constructor() {
         this.displayedLevelTitle$ = this.runService.runInfo$
@@ -90,6 +95,26 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
             this.levelContent.nativeElement.clientWidth / 2,
         );
         this.onResize();
+    }
+
+    protected onResizeHandleMouseDown(event: MouseEvent): void {
+        this.isResizing = true;
+        this.dragStartY = event.clientY;
+        this.dragStartHeight = this.topoHeight();
+        event.preventDefault();
+    }
+
+    @HostListener('window:mousemove', ['$event'])
+    onMouseMove(event: MouseEvent): void {
+        if (!this.isResizing) return;
+        const delta = this.dragStartY - event.clientY;
+        const newHeight = Math.max(80, Math.min(600, this.dragStartHeight + delta));
+        this.topoHeight.set(newHeight);
+    }
+
+    @HostListener('window:mouseup')
+    onMouseUp(): void {
+        this.isResizing = false;
     }
 
     @HostListener('window:resize')

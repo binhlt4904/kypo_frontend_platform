@@ -20,6 +20,7 @@ import {
 })
 export class RunTopologyWrapperComponent implements OnInit, OnDestroy {
     topologyAllowed = input<boolean>(true);
+    height = input<number>(240);
     protected readonly runService = inject(AbstractTrainingRunService);
     protected readonly sshAccessService = inject(SshAccessService);
     protected readonly topologyService = inject(TopologySynchronizerService);

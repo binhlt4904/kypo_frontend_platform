@@ -63,13 +63,12 @@
 
 /* ─── Topology content (collapsible) ───────────────────────────────── */
 .topo-content {
-    height: 240px;
     overflow: hidden;
     transition: height 0.22s ease;
     position: relative;
 
     &--collapsed {
-        height: 0;
+        height: 0 !important;
     }
 }
 
