@@ -41,7 +41,7 @@ export class AbstractFlagLevelComponent {
     protected readonly answerSubmitted = output<string>();
 
     protected readonly activeHints = signal<Hint[]>([]);
-    protected readonly isFormCollapsed = signal<boolean>(false);
+    protected readonly isFormCollapsed = signal<boolean>(true);
 
     protected readonly runService = inject(AbstractTrainingRunService);
     protected readonly destroyRef = inject(DestroyRef);
