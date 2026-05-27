@@ -51,13 +51,9 @@ body {
 .login-pf-page>.container-fluid,
 #kc-container-wrapper {
     width: 100% !important;
-    max-width: 500px !important;
+    max-width: 760px !important;
     padding: 0 !important;
     margin: 0 auto !important;
-}
-
-.login-pf-page .row {
-    margin: 0 !important;
 }
 
 .login-pf-page .col-sm-8,
@@ -72,15 +68,22 @@ body {
 /* ── Card ── */
 .login-pf-page .card-pf,
 .card-pf {
-    background: #ffffff !important;
-    border: none !important;
-    border-top: 4px solid #ff6b35 !important;
-    border-radius: 0 !important;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6) !important;
-    padding: 44px 48px 48px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    border: 1px solid rgba(255, 107, 53, 0.25) !important;
+    border-top: 3px solid #ff6b35 !important;
+
+    border-radius: 18px !important;
+
+    box-shadow:
+        0 0 30px rgba(255, 107, 53, 0.12),
+        0 20px 60px rgba(0, 0, 0, 0.55) !important;
+
+    padding: 50px 70px !important;
+
     margin: 0 auto !important;
+
     width: 100% !important;
-    max-width: 500px !important;
+    max-width: 760px !important;
 }
 
 /* ── Page title trong card ── */
@@ -134,7 +137,9 @@ input.pf-c-form-control,
     border-radius: 4px !important;
     outline: none !important;
     font-size: 0.95rem !important;
-    padding: 10px 12px !important;
+    padding: 14px 16px !important;
+    height: 52px !important;
+    font-size: 15px !important;
     background: #fafafa !important;
     color: #222 !important;
     box-shadow: none !important;
@@ -194,7 +199,11 @@ input[type="submit"] {
     display: block !important;
     width: 100% !important;
     margin-top: 28px !important;
-    padding: 14px !important;
+    padding: 16px !important;
+    height: 56px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
     background: #ff6b35 !important;
     color: #fff !important;
     border: none !important;
@@ -259,4 +268,25 @@ input[type="submit"]:hover {
 
 .login-pf-page .pf-c-button.pf-m-secondary:hover {
     background: rgba(255, 107, 53, 0.08) !important;
+}
+
+.card-pf::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    pointer-events: none;
+
+    background:
+        linear-gradient(135deg,
+            rgba(255, 107, 53, 0.08),
+            transparent 25%,
+            transparent 75%,
+            rgba(255, 107, 53, 0.08));
+}
+
+#kc-header-wrapper {
+    text-shadow:
+        0 0 10px rgba(255, 107, 53, 0.5),
+        0 0 25px rgba(255, 107, 53, 0.25);
 }
