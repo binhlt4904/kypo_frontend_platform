@@ -103,8 +103,14 @@ jobs:
                 exit 1
               fi
 
-              base64 -w0 "$src" | \
-                _in_vm "base64 -d > /tmp/kc-upload && sudo kubectl exec -i -n $KC_NS $KC_POD -- /bin/sh -c 'cat > $dst' < /tmp/kc-upload"
+              # IMPORTANT:
+              # Do not pipe file content into _in_vm. docker run inside _in_vm is not interactive,
+              # so stdin is lost and the copied file becomes 0 bytes.
+              # Instead, put the base64 string directly into the remote command.
+              local encoded
+              encoded=$(base64 -w0 "$src")
+
+              _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'mkdir -p $(dirname "$dst") && printf %s "$encoded" | base64 -d > "$dst" && ls -lh "$dst"'"
             }
 
             echo "===> [1] Check source theme folder on server..."
