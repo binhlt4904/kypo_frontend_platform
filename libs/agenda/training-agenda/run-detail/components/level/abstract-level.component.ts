@@ -109,7 +109,10 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     onMouseMove(event: MouseEvent): void {
         if (!this.isResizing) return;
         const delta = this.dragStartY - event.clientY;
-        const newHeight = Math.max(80, Math.min(600, this.dragStartHeight + delta));
+        const workspaceH = this.levelContent?.nativeElement?.clientHeight ?? 800;
+        // leave at least 60px task content + 28px task zone bar + 5px handle = 93px for task pane
+        const maxTopoH = workspaceH - 93;
+        const newHeight = Math.max(80, Math.min(maxTopoH, this.dragStartHeight + delta));
         this.topoHeight.set(newHeight);
     }
 

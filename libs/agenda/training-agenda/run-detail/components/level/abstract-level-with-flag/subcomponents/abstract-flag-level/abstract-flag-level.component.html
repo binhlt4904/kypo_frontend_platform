@@ -20,15 +20,17 @@
     {{ lastLevelDisplayed && !runService.runInfo.isBacktracked ? "Finish" : "Next" }}
 </button>
 } @else {
-<!-- FAB — bottom-right -->
+<!-- FAB — only visible when dock is closed -->
+@if (isFormCollapsed()) {
 <button class="flag-fab" mat-raised-button color="primary"
-    (click)="isFormCollapsed.set(!isFormCollapsed())"
-    [matTooltip]="isFormCollapsed() ? 'Submit flag' : 'Hide flag form'"
+    (click)="isFormCollapsed.set(false)"
+    matTooltip="Submit flag"
     matTooltipPosition="above"
-    aria-label="Toggle flag dock">
-    <mat-icon>{{ isFormCollapsed() ? 'flag' : 'keyboard_arrow_down' }}</mat-icon>
-    {{ isFormCollapsed() ? 'SUBMIT FLAG' : 'HIDE' }}
+    aria-label="Open flag dock">
+    <mat-icon>flag</mat-icon>
+    SUBMIT FLAG
 </button>
+}
 
 @if (!isFormCollapsed()) {
 <crczp-floating-answer-form

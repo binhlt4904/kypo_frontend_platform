@@ -111,3 +111,15 @@
     height: 100%;
     width: 100%;
 }
+
+/* ─── Override inner topology component for vertical split layout ───── */
+/* Hide the horizontal drag-bar (designed for old side-by-side layout)  */
+::ng-deep .draggable-bar {
+    display: none !important;
+}
+
+/* Remove the side-panel card look (rounded corners + left shadow) */
+::ng-deep .toplogy-tabs-wrapper {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
