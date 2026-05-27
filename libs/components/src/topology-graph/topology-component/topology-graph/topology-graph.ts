@@ -143,21 +143,11 @@ export class TopologyGraph implements AfterViewInit {
             return;
         }
         this.resized.set(false);
-        const scaleChange =
-            this.networkContainer.nativeElement.offsetWidth / width;
-        const zoomAdjustment = scaleChange <= 0 ? 1 : scaleChange;
 
-        const scale = this.network().getScale();
-        const viewPosition = this.network().getViewPosition();
-        this.network().moveTo({
-            position: viewPosition,
-            scale: scale * zoomAdjustment,
-            animation: false,
-        });
-
-        if (!this.networkContainer) return;
         this.networkContainer.nativeElement.style.width = `${width}px`;
         this.networkContainer.nativeElement.style.height = `${height}px`;
+        this.network().setSize(`${width}px`, `${height}px`);
+        this.network().fit({ animation: false });
     }
 
     private handleTopologyChange(newTopology: Topology) {

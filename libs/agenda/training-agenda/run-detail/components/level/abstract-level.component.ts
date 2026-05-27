@@ -100,6 +100,14 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
         this.onResize();
     }
 
+    protected onStepperResized(height: number): void {
+        this.stepperHeight.set(height);
+        this.fitWorkspaceToViewport();
+        this.topologyService.emitTopologyWidthChange(
+            this.levelContent.nativeElement.clientWidth,
+        );
+    }
+
     protected onResizeHandleMouseDown(event: MouseEvent): void {
         this.isResizing = true;
         this.dragStartY = event.clientY;
