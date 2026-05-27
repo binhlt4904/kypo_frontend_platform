@@ -136,7 +136,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 5m
+          command_timeout: 10m
           script: |
             KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
             KC_POD=keycloak-0
@@ -154,8 +154,44 @@ jobs:
                 vagrant ssh -- "$@"
             }
 
-            echo "===> List tat ca files trong JAR (20 dong dau)..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- unzip -l $JAR 2>&1 | head -30"
+            echo "===> Check built-in theme directories..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- sh -c 'find /opt/keycloak/themes -maxdepth 3 -type f | grep \\.ftl | sort | head -200 || true'"
 
-            echo "===> Tim ftl trong JAR..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- unzip -l $JAR 2>&1 | grep '\.ftl' | head -20"
+            echo "===> Verify JAR exists..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- ls -lh $JAR"
+
+            echo "===> Copy JAR from Keycloak pod to VM by base64..."
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- sh -c 'base64 -w0 $JAR' > /tmp/keycloak-themes.jar.b64"
+            _in_vm "base64 -d /tmp/keycloak-themes.jar.b64 > /tmp/keycloak-themes.jar"
+
+            echo "===> List all FTL files inside JAR..."
+            _in_vm "python3 - <<'PY'
+            import zipfile
+
+            jar = '/tmp/keycloak-themes.jar'
+
+            with zipfile.ZipFile(jar, 'r') as z:
+                ftl_files = [f for f in z.namelist() if f.endswith('.ftl')]
+                print('Total FTL files:', len(ftl_files))
+                for f in ftl_files:
+                    print(f)
+            PY"
+
+            echo "===> Extract login FTL files to /tmp/keycloak-ftl..."
+            _in_vm "rm -rf /tmp/keycloak-ftl && mkdir -p /tmp/keycloak-ftl && python3 - <<'PY'
+            import zipfile
+
+            jar = '/tmp/keycloak-themes.jar'
+            out = '/tmp/keycloak-ftl'
+
+            with zipfile.ZipFile(jar, 'r') as z:
+                for f in z.namelist():
+                    if f.endswith('.ftl') and '/login/' in f:
+                        z.extract(f, out)
+                        print('Extracted:', f)
+
+            print('Done. Output:', out)
+            PY"
+
+            echo "===> Show extracted login FTL files..."
+            _in_vm "find /tmp/keycloak-ftl -type f | sort | head -200"
