@@ -1,3 +1,40 @@
 .overview-container {
     margin-bottom: 1%;
 }
+
+/* FCTF Space Mono Typography and Modern Styling */
+::ng-deep crczp-training-definition-summary * {
+    font-family: 'Space Mono', monospace !important;
+}
+
+/* Make material cards square to match the modern/angular look */
+::ng-deep crczp-training-definition-summary mat-card {
+    border-radius: 0 !important;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Adjust headings for better balance */
+::ng-deep crczp-training-definition-summary h2 {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem;
+    color: #222;
+}
+
+::ng-deep crczp-training-definition-summary h3 {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #333;
+}
+
+::ng-deep crczp-training-definition-summary .key-field {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+}
+
+::ng-deep crczp-training-definition-summary .data-field {
+    font-size: 0.9rem;
+    color: #222;
+}
