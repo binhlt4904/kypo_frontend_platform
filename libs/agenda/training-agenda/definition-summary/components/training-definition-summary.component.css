@@ -7,11 +7,17 @@
     font-family: 'Space Mono', monospace !important;
 }
 
-/* Make material cards square to match the modern/angular look */
-::ng-deep crczp-training-definition-summary mat-card {
+/* Make material cards and expansion panels square to match the modern/angular look */
+::ng-deep crczp-training-definition-summary mat-card,
+::ng-deep crczp-training-definition-summary mat-expansion-panel {
     border-radius: 0 !important;
-    background-color: #ffffff;
+    background-color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Add orange accent to all expansion panels */
+::ng-deep crczp-training-definition-summary mat-expansion-panel {
+    border-left: 4px solid #f26722 !important;
 }
 
 /* Adjust headings for better balance */
