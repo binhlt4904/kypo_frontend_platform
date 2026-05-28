@@ -5,6 +5,23 @@
 h3 {
     margin: 0;
     place-self: center;
+    font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+/* Modern, square, white-orange theme for expansion panels */
+::ng-deep .mat-expansion-panel.panel-align {
+    border-radius: 0 !important;
+    background-color: #ffffff !important;
+    border-left: 4px solid #f26722; /* Orange accent */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+}
+
+::ng-deep .mat-expansion-panel-header-title,
+::ng-deep .mat-expansion-panel-header-description {
+    font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
 }
 
 .key-field {
