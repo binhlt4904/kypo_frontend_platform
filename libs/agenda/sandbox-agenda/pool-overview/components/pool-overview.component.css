@@ -3,3 +3,73 @@
     max-width: 140px;
     min-width: 80px;
 }
+
+/* =============================================
+   Modern Theme — White / Orange
+   ============================================= */
+:host {
+    display: block;
+    font-family: 'Roboto', 'Inter', sans-serif;
+    padding: 8px 0;
+}
+
+/* Table wrapper — square, no rounding */
+::ng-deep sentinel-table mat-table {
+    border-radius: 0 !important;
+    font-family: 'Roboto', 'Inter', sans-serif !important;
+    box-shadow: none !important;
+    border: 1px solid rgba(242, 103, 34, 0.15);
+    overflow: hidden;
+}
+
+/* Header row */
+::ng-deep sentinel-table .mat-mdc-header-row {
+    background: linear-gradient(90deg, #f26722 0%, #ff8c52 100%) !important;
+    border-radius: 0 !important;
+}
+
+::ng-deep sentinel-table .mat-mdc-header-cell {
+    color: #ffffff !important;
+    font-family: 'Roboto', 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.3px !important;
+    border-bottom: none !important;
+    text-transform: uppercase;
+}
+
+/* Data rows */
+::ng-deep sentinel-table .mat-mdc-row {
+    font-family: 'Roboto', 'Inter', sans-serif !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid rgba(242, 103, 34, 0.1) !important;
+    transition: background-color 0.15s ease;
+}
+
+::ng-deep sentinel-table .mat-mdc-row:hover {
+    background-color: #fff5f0 !important;
+}
+
+::ng-deep sentinel-table .mat-mdc-cell {
+    font-family: 'Roboto', 'Inter', sans-serif !important;
+    font-size: 0.85rem !important;
+    color: #333 !important;
+    border-bottom: none !important;
+}
+
+/* Action buttons inside table */
+::ng-deep sentinel-table .mat-mdc-icon-button mat-icon {
+    color: #f26722;
+}
+
+::ng-deep sentinel-table .mat-mdc-icon-button:hover mat-icon {
+    color: #c94f15;
+}
+
+/* Top controls */
+::ng-deep sentinel-controls .mat-mdc-raised-button {
+    border-radius: 0 !important;
+    font-family: 'Roboto', 'Inter', sans-serif !important;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
