@@ -5,9 +5,9 @@
 h3 {
     margin: 0;
     place-self: center;
-    font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.2px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0px;
 }
 
 /* Modern, square, white-orange theme for expansion panels */
@@ -16,12 +16,12 @@ h3 {
     background-color: #ffffff !important;
     border-left: 4px solid #f26722; /* Orange accent */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-    font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+    font-family: 'Space Mono', monospace;
 }
 
 ::ng-deep .mat-expansion-panel-header-title,
 ::ng-deep .mat-expansion-panel-header-description {
-    font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+    font-family: 'Space Mono', monospace;
 }
 
 .key-field {
