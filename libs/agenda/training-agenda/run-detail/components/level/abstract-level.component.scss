@@ -176,7 +176,7 @@
 .task-zone {
     flex-shrink: 0;
     overflow: visible;
-    padding-bottom: 160px;
+    padding-bottom: var(--run-task-bottom-padding, 160px);
 }
 
 /* ─── Resize handle ─────────────────────────────────────────────────── */
