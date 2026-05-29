@@ -6,17 +6,17 @@
     padding: 8px;
 }
 
-/* Make title, links, and action icons bold on hover instead of background color */
+/* Keep table links/actions clean on hover; only brighten the text/icon color. */
 ::ng-deep sentinel-table .mat-mdc-row a,
 ::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button,
 ::ng-deep sentinel-table .mat-mdc-row button {
-    transition: font-weight 0.2s, color 0.2s;
+    transition: color 0.2s;
 }
 
 ::ng-deep sentinel-table .mat-mdc-row a:hover {
     background-color: transparent !important;
     background: transparent !important;
-    color: #d84315 !important;
+    color: #ff8c52 !important;
 }
 
 ::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover,
@@ -26,17 +26,18 @@
 }
 ::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover::before,
 ::ng-deep sentinel-table .mat-mdc-row button:hover::before,
-::ng-deep sentinel-table .mat-mdc-row a:hover::before {
+::ng-deep sentinel-table .mat-mdc-row a:hover::before,
+::ng-deep sentinel-table .mat-mdc-row a:hover .mat-mdc-button-persistent-ripple::before,
+::ng-deep sentinel-table .mat-mdc-row a:hover .mat-mdc-button-ripple::before {
     background-color: transparent !important;
     background: transparent !important;
-}
-
-::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover mat-icon {
-    font-weight: bold !important;
+    opacity: 0 !important;
 }
 
 /* Specifically for the action buttons */
 ::ng-deep sentinel-table .mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
-::ng-deep sentinel-table .mat-mdc-icon-button .mat-mdc-button-ripple {
+::ng-deep sentinel-table .mat-mdc-icon-button .mat-mdc-button-ripple,
+::ng-deep sentinel-table a .mat-mdc-button-persistent-ripple,
+::ng-deep sentinel-table a .mat-mdc-button-ripple {
     display: none !important;
 }
