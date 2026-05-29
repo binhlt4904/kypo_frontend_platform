@@ -61,6 +61,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     @ViewChild('splitContainer')
     protected readonly splitContainer: ElementRef<HTMLDivElement>;
 
+    private readonly hostElement = inject(ElementRef<HTMLElement>);
     protected readonly runService = inject(AbstractTrainingRunService);
     protected readonly levelType = signal<
         AbstractLevelTypeEnum | AbstractPhaseTypeEnum
@@ -180,8 +181,12 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
 
     private fitSplitContainerToViewport(): void {
         if (!this.splitContainer?.nativeElement) return;
+        const hostRect =
+            this.hostElement.nativeElement.getBoundingClientRect();
         const rect = this.splitContainer.nativeElement.getBoundingClientRect();
+        const hostAvailableH = Math.max(160, window.innerHeight - hostRect.top);
         const availableH = Math.max(160, window.innerHeight - rect.top);
+        this.hostElement.nativeElement.style.height = hostAvailableH + 'px';
         this.splitContainer.nativeElement.style.height = availableH + 'px';
         this.splitContainer.nativeElement.style.flex = 'none';
     }
