@@ -120,6 +120,16 @@
     bottom: 1rem !important;
 }
 
+::ng-deep .topo-graph .topology-container {
+    height: 100% !important;
+    min-height: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+::ng-deep .topo-graph .topology {
+    height: 100% !important;
+}
+
 /* ─── Override inner topology component for vertical split layout ───── */
 /* Hide the horizontal drag-bar (designed for old side-by-side layout)  */
 ::ng-deep .draggable-bar {
