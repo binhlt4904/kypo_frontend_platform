@@ -58,6 +58,8 @@ import { SentinelResizeDirective } from '@sentinel/common/resize';
 export class AbstractLevelComponent implements OnInit, AfterViewInit {
     @ViewChild('levelContent')
     protected readonly levelContent: ElementRef<HTMLDivElement>;
+    @ViewChild('splitContainer')
+    protected readonly splitContainer: ElementRef<HTMLDivElement>;
 
     protected readonly runService = inject(AbstractTrainingRunService);
     protected readonly levelType = signal<
@@ -92,14 +94,14 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.fitWorkspaceToViewport();
-        const workspaceH = this.levelContent.nativeElement.clientHeight;
-        // Give topology ~30% of workspace, leaving 70% for task description
-        const contentArea = workspaceH - 62;
-        const initialTopoH = Math.max(80, Math.min(280, Math.round(contentArea * 0.30)));
+        const splitH = this.splitContainer.nativeElement.clientHeight;
+        const initialTopoH = Math.max(
+            96,
+            Math.min(320, Math.round(splitH * 0.34)),
+        );
         this.topoHeight.set(initialTopoH);
         this.topologyService.emitTopologyWidthChange(
-            this.levelContent.nativeElement.clientWidth,
+            this.splitContainer.nativeElement.clientWidth,
         );
         this.topologyService.emitTopologyHeightChange(initialTopoH);
         this.onResize();
@@ -107,9 +109,9 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
 
     protected onStepperResized(height: number): void {
         this.stepperHeight.set(height);
-        this.fitWorkspaceToViewport();
+        if (!this.splitContainer?.nativeElement) return;
         this.topologyService.emitTopologyWidthChange(
-            this.levelContent.nativeElement.clientWidth,
+            this.splitContainer.nativeElement.clientWidth,
         );
     }
 
@@ -124,10 +126,9 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     onMouseMove(event: MouseEvent): void {
         if (!this.isResizing) return;
         const delta = this.dragStartY - event.clientY;
-        const workspaceH = this.levelContent?.nativeElement?.clientHeight ?? 800;
-        // leave at least 60px task content + 28px task zone bar + 5px handle = 93px for task pane
-        const maxTopoH = workspaceH - 93;
-        const newHeight = Math.max(80, Math.min(maxTopoH, this.dragStartHeight + delta));
+        const newHeight = this.clampTopologyHeight(
+            this.dragStartHeight + delta,
+        );
         this.topoHeight.set(newHeight);
         this.topologyService.emitTopologyHeightChange(newHeight);
     }
@@ -139,39 +140,39 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
 
     @HostListener('window:resize')
     onResize() {
-        this.fitWorkspaceToViewport();
+        if (!this.splitContainer?.nativeElement) return;
+        const newHeight = this.clampTopologyHeight(this.topoHeight());
+        if (this.topoHeight() !== newHeight) {
+            this.topoHeight.set(newHeight);
+            this.topologyService.emitTopologyHeightChange(newHeight);
+        }
         this.topologyService.emitTopologyWidthChange(
-            this.levelContent.nativeElement.clientWidth,
+            this.splitContainer.nativeElement.clientWidth,
         );
         this.topologyService.setMaxTopologyWidth(null);
         this.topologyService.setMinTopologyWidth(null);
     }
 
     resetSplit(): void {
-        if (!this.levelContent?.nativeElement) return;
-        const h = this.levelContent.nativeElement.clientHeight;
-        // workspace = taskZoneBar(28) + taskContent(flex) + handle(5) + topoZoneBar(29) + topoContent(topoHeight)
-        const contentArea = h - 62;
-        const newHeight = Math.max(80, Math.round(contentArea / 2));
+        if (!this.splitContainer?.nativeElement) return;
+        const h = this.splitContainer.nativeElement.clientHeight;
+        const newHeight = this.clampTopologyHeight(Math.round(h * 0.45));
         this.topoHeight.set(newHeight);
         this.topologyService.emitTopologyHeightChange(newHeight);
     }
 
     maximizeTopo(): void {
-        if (!this.levelContent?.nativeElement) return;
-        const h = this.levelContent.nativeElement.clientHeight;
-        const contentArea = h - 62;
-        const newHeight = Math.max(80, Math.round(contentArea * 0.75));
+        if (!this.splitContainer?.nativeElement) return;
+        const h = this.splitContainer.nativeElement.clientHeight;
+        const newHeight = this.clampTopologyHeight(Math.round(h * 0.78));
         this.topoHeight.set(newHeight);
         this.topologyService.emitTopologyHeightChange(newHeight);
     }
 
-    private fitWorkspaceToViewport(): void {
-        if (!this.levelContent?.nativeElement) return;
-        const rect = this.levelContent.nativeElement.getBoundingClientRect();
-        const availableH = window.innerHeight - rect.top;
-        this.levelContent.nativeElement.style.height = availableH + 'px';
-        this.levelContent.nativeElement.style.flex = 'none';
+    private clampTopologyHeight(height: number): number {
+        const splitH = this.splitContainer?.nativeElement?.clientHeight ?? 800;
+        const maxTopoH = Math.max(96, splitH - 96);
+        return Math.max(96, Math.min(maxTopoH, height));
     }
 
     ngOnInit(): void {

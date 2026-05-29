@@ -3,6 +3,7 @@
     flex-shrink: 0;
     overflow: hidden;
     transition: height 0.22s ease;
+    background: var(--surface, #fff);
 }
 
 /* ─── Topology section ──────────────────────────────────────────────── */
@@ -11,16 +12,17 @@
     flex-direction: column;
     height: 100%;
     border-top: 1px solid var(--neutral-85, #e0e0e0);
+    background: var(--surface, #fff);
 }
 
 /* ─── Zone bar (toggle) ─────────────────────────────────────────────── */
 .topo-zone-bar {
     background: var(--neutral-95, #f4f4f4);
     border-bottom: 1px solid var(--neutral-85, #e0e0e0);
-    height: 28px;
+    height: 29px;
     display: flex;
     align-items: center;
-    padding: 0 14px;
+    padding: 0 12px;
     gap: 8px;
     cursor: pointer;
     user-select: none;
@@ -60,29 +62,29 @@
 .topo-zone-bar__actions {
     display: flex;
     align-items: center;
-    gap: 4px;
-    margin-right: 4px;
+    gap: 6px;
+    margin-right: 2px;
 }
 
 .topo-action-btn {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border: 1px solid var(--neutral-80, #ddd);
-    border-radius: 3px;
+    border-radius: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     background: transparent;
     color: var(--neutral-50, #888);
-    transition: border-color 0.12s, color 0.12s;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
     padding: 0;
 
     mat-icon {
-        font-size: 12px;
-        width: 12px;
-        height: 12px;
-        line-height: 12px;
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+        line-height: 15px;
     }
 
     &:hover {
@@ -102,7 +104,7 @@
 .topo-content {
     flex: 1;
     min-height: 0;
-    overflow: hidden;
+    overflow: auto;
     position: relative;
 }
 

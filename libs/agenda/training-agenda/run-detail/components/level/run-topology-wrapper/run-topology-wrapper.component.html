@@ -9,14 +9,18 @@
             <span class="topo-badge">live</span>
             <div class="topo-zone-bar__actions" (click)="$event.stopPropagation()">
                 <button
+                    type="button"
                     class="topo-action-btn"
                     (click)="resetSplitRequested.emit()"
+                    aria-label="Reset topology size"
                     title="Reset split (50/50)">
                     <mat-icon>view_agenda</mat-icon>
                 </button>
                 <button
+                    type="button"
                     class="topo-action-btn"
                     (click)="maximizeTopoRequested.emit()"
+                    aria-label="Maximize topology"
                     title="Maximize topology">
                     <mat-icon>open_in_full</mat-icon>
                 </button>

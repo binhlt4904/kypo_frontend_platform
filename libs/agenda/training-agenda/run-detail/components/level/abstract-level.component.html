@@ -50,45 +50,51 @@
     }
 </div>
 
-<div #levelContent class="workspace">
-    <div class="zone-bar">
-        <span class="zone-bar__label">Task description</span>
-        @if (stepperSteps().length > 0) {
-            <span class="zone-bar__badge">Phase {{ (stepperSelectedIndex() ?? 0) + 1 }}</span>
-        }
-    </div>
+<div class="zone-bar">
+    <span class="zone-bar__label">Task description</span>
+    @if (stepperSteps().length > 0) {
+        <span class="zone-bar__badge">Phase {{ (stepperSelectedIndex() ?? 0) + 1 }}</span>
+    }
+</div>
 
-    <div class="task-zone">
-        @switch (levelType()) {
-            @case (AbstractLevelTypeEnum.Info) {
-                <crczp-info-level />
+<div #splitContainer class="workspace-shell">
+    <div #levelContent class="workspace">
+        <div class="task-zone">
+            @switch (levelType()) {
+                @case (AbstractLevelTypeEnum.Info) {
+                    <crczp-info-level />
+                }
+                @case (AbstractPhaseTypeEnum.Info) {
+                    <crczp-info-level />
+                }
+                @case (AbstractLevelTypeEnum.Access) {
+                    <crczp-linear-access-level />
+                }
+                @case (AbstractPhaseTypeEnum.Access) {
+                    <crczp-adaptive-access-level />
+                }
+                @case (AbstractLevelTypeEnum.Training) {
+                    <crczp-linear-training-level />
+                }
+                @case (AbstractPhaseTypeEnum.Training) {
+                    <crczp-adaptive-training-level />
+                }
+                @case (AbstractLevelTypeEnum.Assessment) {
+                    <crczp-assessment-level />
+                }
+                @case (AbstractPhaseTypeEnum.Questionnaire) {
+                    <crczp-questionnaire-level />
+                }
             }
-            @case (AbstractPhaseTypeEnum.Info) {
-                <crczp-info-level />
-            }
-            @case (AbstractLevelTypeEnum.Access) {
-                <crczp-linear-access-level />
-            }
-            @case (AbstractPhaseTypeEnum.Access) {
-                <crczp-adaptive-access-level />
-            }
-            @case (AbstractLevelTypeEnum.Training) {
-                <crczp-linear-training-level />
-            }
-            @case (AbstractPhaseTypeEnum.Training) {
-                <crczp-adaptive-training-level />
-            }
-            @case (AbstractLevelTypeEnum.Assessment) {
-                <crczp-assessment-level />
-            }
-            @case (AbstractPhaseTypeEnum.Questionnaire) {
-                <crczp-questionnaire-level />
-            }
-        }
+        </div>
     </div>
 
     @if (topologyAllowed() && !topoCollapsed) {
-        <div class="resize-handle" (mousedown)="onResizeHandleMouseDown($event)"></div>
+        <div
+            class="resize-handle"
+            [style.bottom.px]="topoHeight() + 29"
+            (mousedown)="onResizeHandleMouseDown($event)">
+        </div>
     }
 
     <crczp-run-topology-wrapper
