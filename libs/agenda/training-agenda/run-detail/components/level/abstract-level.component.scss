@@ -10,6 +10,43 @@
     overflow: hidden;
     flex-shrink: 0;
     border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+
+    ::ng-deep .stepper-container {
+        padding: 6px 0 2px;
+        margin-bottom: 0;
+    }
+
+    ::ng-deep .step-node-container {
+        gap: 3px;
+        width: 3.75rem;
+    }
+
+    ::ng-deep .step-node {
+        width: 1.75rem;
+        height: 1.75rem;
+        border-width: 1px;
+
+        mat-icon {
+            font-size: 1rem;
+            width: 1rem;
+            height: 1rem;
+        }
+
+        &.selected-step {
+            border-width: 2px;
+            box-shadow: 0 0 0 2px rgba(224, 172, 0, 0.18);
+        }
+    }
+
+    ::ng-deep .step-label {
+        font-size: 0.62rem;
+        line-height: 1.15;
+    }
+
+    ::ng-deep .step-line {
+        min-width: 28px;
+        margin-top: 0.9rem;
+    }
 }
 
 /* ─── Status row ────────────────────────────────────────────────────── */
@@ -22,11 +59,11 @@
 }
 
 .stat {
-    padding: 5px 16px;
+    padding: 3px 14px;
     border-right: 1px solid var(--neutral-85, #e0e0e0);
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 
     &--timer {
         margin-left: auto;
@@ -35,7 +72,7 @@
 }
 
 .stat-lbl {
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--neutral-50, #888);
@@ -43,7 +80,7 @@
 }
 
 .stat-val {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--on-surface, #222);
     white-space: nowrap;
@@ -61,26 +98,33 @@
 }
 
 .status-dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: var(--success-40, #2a7a3b);
     flex-shrink: 0;
 }
 
 .timer {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 2px;
 }
 
 /* ─── Workspace ─────────────────────────────────────────────────────── */
-.workspace {
+.workspace-shell {
     flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.workspace {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    position: relative;
     min-height: 0;
 
     &::-webkit-scrollbar {
@@ -101,12 +145,13 @@
 .zone-bar {
     background: var(--neutral-95, #f4f4f4);
     border-bottom: 1px solid var(--neutral-85, #e0e0e0);
-    height: 28px;
+    height: 24px;
     display: flex;
     align-items: center;
-    padding: 0 14px;
-    gap: 8px;
+    padding: 0 12px;
+    gap: 7px;
     flex-shrink: 0;
+    z-index: 2;
 }
 
 .zone-bar__label {
@@ -135,20 +180,40 @@
 
 /* ─── Resize handle ─────────────────────────────────────────────────── */
 .resize-handle {
-    height: 5px;
-    flex-shrink: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 6px;
     cursor: ns-resize;
     background: var(--neutral-85, #e0e0e0);
     transition: background 0.15s;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
         background: var(--primary-60, #e65c00);
+    }
+
+    &::after {
+        content: "";
+        width: 40px;
+        height: 2px;
+        border-radius: 2px;
+        background: currentColor;
+        opacity: 0.36;
+        box-shadow: 0 3px 0 currentColor, 0 -3px 0 currentColor;
     }
 }
 
 /* ─── Topology wrapper ──────────────────────────────────────────────── */
 .level-topology-wrapper {
-    flex-shrink: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 11;
 }
 
 /* ─── Responsive ────────────────────────────────────────────────────── */
@@ -158,6 +223,6 @@
     }
 
     .stat {
-        padding: 4px 10px;
+        padding: 3px 8px;
     }
 }
