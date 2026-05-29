@@ -35,7 +35,6 @@
     background-color: transparent !important;
     background: transparent !important;
     color: #d84315 !important;
-    font-weight: normal !important;
 }
 
 ::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover,
