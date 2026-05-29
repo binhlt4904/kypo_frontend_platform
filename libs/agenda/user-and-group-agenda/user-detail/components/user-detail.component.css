@@ -92,3 +92,39 @@ mat-divider {
 .detail-headers-align .mat-mdc-form-field + .mat-mdc-form-field {
     margin-left: 8px;
 }
+
+/* Custom Hover Styles */
+::ng-deep sentinel-table .mat-mdc-row a,
+::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button,
+::ng-deep sentinel-table .mat-mdc-row button {
+    transition: color 0.2s;
+}
+
+::ng-deep sentinel-table .mat-mdc-row a:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #d84315 !important;
+    font-weight: normal !important;
+}
+
+::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover,
+::ng-deep sentinel-table .mat-mdc-row button:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+::ng-deep sentinel-table .mat-mdc-row a:hover::before,
+::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover::before,
+::ng-deep sentinel-table .mat-mdc-row button:hover::before {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover mat-icon {
+    font-weight: bold !important;
+}
+
+::ng-deep sentinel-table .mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
+::ng-deep sentinel-table .mat-mdc-icon-button .mat-mdc-button-ripple {
+    display: none !important;
+}
