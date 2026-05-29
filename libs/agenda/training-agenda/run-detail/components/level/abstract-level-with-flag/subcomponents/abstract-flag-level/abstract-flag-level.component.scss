@@ -2,7 +2,7 @@
 
 /* ─── Task content ──────────────────────────────────────────────────── */
 .task-content {
-    padding: 14px 1rem 6rem 1rem;
+    padding: 1rem 1.25rem 6rem;
     width: 100%;
 }
 
@@ -12,9 +12,10 @@
     border: 1px solid var(--neutral-80, #e0e0e0);
     border-left: 4px solid var(--primary-60, #e65c00);
     border-radius: 0;
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.25rem;
     margin-bottom: 1.25rem;
-    line-height: 1.7;
+    font-size: 0.875rem;
+    line-height: 1.6;
 
     ::ng-deep code {
         background: var(--neutral-90, #efefef);
@@ -45,6 +46,23 @@
         color: var(--primary-40, #b84000);
         margin-top: 0.75rem;
         margin-bottom: 0.25rem;
+    }
+
+    ::ng-deep h1 {
+        font-size: 1.25rem;
+    }
+
+    ::ng-deep h2 {
+        font-size: 1.125rem;
+    }
+
+    ::ng-deep h3 {
+        font-size: 1rem;
+    }
+
+    ::ng-deep p,
+    ::ng-deep li {
+        font-size: 0.875rem;
     }
 
     ::ng-deep p:first-child {
@@ -90,7 +108,7 @@
 /* ─── Responsive ────────────────────────────────────────────────────── */
 @media (max-width: 748px) {
     .task-content {
-        padding: 10px 0.5rem 6rem 0.5rem;
+        padding: 0.75rem 0.75rem 6rem;
     }
 
     .flag-fab {
