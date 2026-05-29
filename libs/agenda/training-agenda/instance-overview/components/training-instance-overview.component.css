@@ -24,3 +24,40 @@
     padding: 8px;
 }
 
+/* Make title, links, and action icons bold on hover instead of background color */
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row a,
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row .mat-mdc-icon-button,
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row button {
+    transition: font-weight 0.2s, color 0.2s;
+}
+
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row a:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #d84315 !important; /* Richer, darker orange color instead of bold */
+    font-weight: normal !important; /* Ensure it is not bold */
+}
+
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover,
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row button:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row a:hover::before,
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover::before,
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row button:hover::before {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover mat-icon {
+    font-weight: bold !important;
+}
+
+/* Specifically for the action buttons */
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
+::ng-deep crczp-training-instance-overview sentinel-table .mat-mdc-icon-button .mat-mdc-button-ripple {
+    display: none !important;
+}
+
