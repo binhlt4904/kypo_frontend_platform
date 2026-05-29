@@ -94,6 +94,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        this.fitSplitContainerToViewport();
         const splitH = this.splitContainer.nativeElement.clientHeight;
         const initialTopoH = Math.max(
             96,
@@ -110,6 +111,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     protected onStepperResized(height: number): void {
         this.stepperHeight.set(height);
         if (!this.splitContainer?.nativeElement) return;
+        this.fitSplitContainerToViewport();
         this.topologyService.emitTopologyWidthChange(
             this.splitContainer.nativeElement.clientWidth,
         );
@@ -141,6 +143,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     @HostListener('window:resize')
     onResize() {
         if (!this.splitContainer?.nativeElement) return;
+        this.fitSplitContainerToViewport();
         const newHeight = this.clampTopologyHeight(this.topoHeight());
         if (this.topoHeight() !== newHeight) {
             this.topoHeight.set(newHeight);
@@ -173,6 +176,14 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
         const splitH = this.splitContainer?.nativeElement?.clientHeight ?? 800;
         const maxTopoH = Math.max(96, splitH - 96);
         return Math.max(96, Math.min(maxTopoH, height));
+    }
+
+    private fitSplitContainerToViewport(): void {
+        if (!this.splitContainer?.nativeElement) return;
+        const rect = this.splitContainer.nativeElement.getBoundingClientRect();
+        const availableH = Math.max(160, window.innerHeight - rect.top);
+        this.splitContainer.nativeElement.style.height = availableH + 'px';
+        this.splitContainer.nativeElement.style.flex = 'none';
     }
 
     ngOnInit(): void {
