@@ -57,7 +57,11 @@
     }
 </div>
 
-<div #splitContainer class="workspace-shell">
+<div
+    #splitContainer
+    class="workspace-shell"
+    [style.--run-submit-flag-bottom.px]="topologyAllowed() ? (topoCollapsed ? 43 : topoHeight() + 43) : 14"
+    [style.--run-task-bottom-padding.px]="topologyAllowed() ? (topoCollapsed ? 80 : topoHeight() + 96) : 96">
     <div #levelContent class="workspace">
         <div class="task-zone">
             @switch (levelType()) {
