@@ -114,6 +114,12 @@
     width: 100%;
 }
 
+::ng-deep .topo-graph .ssh-button {
+    left: 0.75rem !important;
+    right: auto !important;
+    bottom: 1rem !important;
+}
+
 /* ─── Override inner topology component for vertical split layout ───── */
 /* Hide the horizontal drag-bar (designed for old side-by-side layout)  */
 ::ng-deep .draggable-bar {
