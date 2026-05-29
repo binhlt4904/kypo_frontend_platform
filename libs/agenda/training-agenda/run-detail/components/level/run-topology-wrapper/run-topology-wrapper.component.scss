@@ -104,7 +104,7 @@
 .topo-content {
     flex: 1;
     min-height: 0;
-    overflow: auto;
+    overflow: hidden;
     position: relative;
 }
 
@@ -124,10 +124,19 @@
     height: 100% !important;
     min-height: 0 !important;
     padding-bottom: 0 !important;
+    overflow: hidden !important;
 }
 
 ::ng-deep .topo-graph .topology {
     height: 100% !important;
+    overflow: hidden !important;
+}
+
+::ng-deep .topo-graph .toplogy-tabs-wrapper,
+::ng-deep .topo-graph .mat-mdc-tab-body-wrapper,
+::ng-deep .topo-graph .mat-mdc-tab-body,
+::ng-deep .topo-graph .mat-mdc-tab-body-content {
+    overflow: hidden !important;
 }
 
 /* ─── Override inner topology component for vertical split layout ───── */

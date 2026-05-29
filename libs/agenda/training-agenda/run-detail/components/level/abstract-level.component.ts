@@ -6,6 +6,7 @@ import {
     ElementRef,
     HostListener,
     inject,
+    OnDestroy,
     OnInit,
     signal,
     ViewChild,
@@ -55,7 +56,7 @@ import { SentinelResizeDirective } from '@sentinel/common/resize';
         SentinelResizeDirective,
     ],
 })
-export class AbstractLevelComponent implements OnInit, AfterViewInit {
+export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('levelContent')
     protected readonly levelContent: ElementRef<HTMLDivElement>;
     @ViewChild('splitContainer')
@@ -83,6 +84,8 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     private isResizing = false;
     private dragStartY = 0;
     private dragStartHeight = 0;
+    private ancestorPaddedContent: HTMLElement | null = null;
+    private originalPadding = '';
 
     constructor() {
         this.displayedLevelTitle$ = this.runService.runInfo$
@@ -95,6 +98,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        this.removeLayoutPadding();
         this.fitSplitContainerToViewport();
         const splitH = this.splitContainer.nativeElement.clientHeight;
         const initialTopoH = Math.max(
@@ -107,6 +111,12 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
         );
         this.topologyService.emitTopologyHeightChange(initialTopoH);
         this.onResize();
+    }
+
+    ngOnDestroy(): void {
+        if (this.ancestorPaddedContent) {
+            this.ancestorPaddedContent.style.padding = this.originalPadding;
+        }
     }
 
     protected onStepperResized(height: number): void {
@@ -189,6 +199,33 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit {
         this.hostElement.nativeElement.style.height = hostAvailableH + 'px';
         this.splitContainer.nativeElement.style.height = availableH + 'px';
         this.splitContainer.nativeElement.style.flex = 'none';
+    }
+
+    private removeLayoutPadding(): void {
+        this.ancestorPaddedContent = this.findAncestorByClass(
+            this.hostElement.nativeElement,
+            'padded-content',
+        );
+
+        if (!this.ancestorPaddedContent) return;
+        this.originalPadding = this.ancestorPaddedContent.style.padding;
+        this.ancestorPaddedContent.style.padding = '0';
+    }
+
+    private findAncestorByClass(
+        element: HTMLElement,
+        className: string,
+    ): HTMLElement | null {
+        let currentElement = element.parentElement;
+
+        while (currentElement) {
+            if (currentElement.classList.contains(className)) {
+                return currentElement;
+            }
+            currentElement = currentElement.parentElement;
+        }
+
+        return null;
     }
 
     ngOnInit(): void {
