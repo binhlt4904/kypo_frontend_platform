@@ -16,8 +16,7 @@
 ::ng-deep sentinel-table .mat-mdc-row a:hover {
     background-color: transparent !important;
     background: transparent !important;
-    color: #d84315 !important; /* Richer, darker orange color instead of bold */
-    font-weight: normal !important; /* Ensure it is not bold */
+    color: #d84315 !important;
 }
 
 ::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover,
