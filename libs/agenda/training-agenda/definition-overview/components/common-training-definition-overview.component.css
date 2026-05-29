@@ -5,3 +5,39 @@
 ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
     padding: 8px;
 }
+
+/* Make title, links, and action icons bold on hover instead of background color */
+::ng-deep sentinel-table .mat-mdc-row a,
+::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button,
+::ng-deep sentinel-table .mat-mdc-row button {
+    transition: font-weight 0.2s, color 0.2s;
+}
+
+::ng-deep sentinel-table .mat-mdc-row a:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #d84315 !important; /* Richer, darker orange color instead of bold */
+    font-weight: normal !important; /* Ensure it is not bold */
+}
+
+::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover,
+::ng-deep sentinel-table .mat-mdc-row button:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover::before,
+::ng-deep sentinel-table .mat-mdc-row button:hover::before,
+::ng-deep sentinel-table .mat-mdc-row a:hover::before {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+::ng-deep sentinel-table .mat-mdc-row .mat-mdc-icon-button:hover mat-icon {
+    font-weight: bold !important;
+}
+
+/* Specifically for the action buttons */
+::ng-deep sentinel-table .mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
+::ng-deep sentinel-table .mat-mdc-icon-button .mat-mdc-button-ripple {
+    display: none !important;
+}
