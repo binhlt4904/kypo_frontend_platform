@@ -142,11 +142,13 @@ export class TopologyGraph implements AfterViewInit {
             this.bufferedDimensionsChange = { width, height };
             return;
         }
+        const safeWidth = Math.max(1, width);
+        const safeHeight = Math.max(1, height);
         this.resized.set(false);
 
-        this.networkContainer.nativeElement.style.width = `${width}px`;
-        this.networkContainer.nativeElement.style.height = `${height}px`;
-        this.network().setSize(`${width}px`, `${height}px`);
+        this.networkContainer.nativeElement.style.width = `${safeWidth}px`;
+        this.networkContainer.nativeElement.style.height = `${safeHeight}px`;
+        this.network().setSize(`${safeWidth}px`, `${safeHeight}px`);
         this.network().fit({ animation: false });
     }
 

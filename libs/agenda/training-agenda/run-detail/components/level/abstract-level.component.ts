@@ -28,6 +28,7 @@ import { Observable } from 'rxjs';
 import { RunTopologyWrapperComponent } from './run-topology-wrapper/run-topology-wrapper.component';
 import { Stepper, StepperItem, TopologySynchronizerService } from '@crczp/components';
 import { SentinelResizeDirective } from '@sentinel/common/resize';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 /**
  * Component to display one level in a training run. Serves mainly as a wrapper which determines the type of the training
@@ -111,6 +112,15 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         );
         this.topologyService.emitTopologyHeightChange(initialTopoH);
         this.onResize();
+        this.topologyService.topologyCollapsed$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((collapsed) => {
+                if (collapsed) {
+                    this.topologyService.emitTopologyHeightChange(49);
+                    return;
+                }
+                requestAnimationFrame(() => this.refreshTopologyDimensions());
+            });
     }
 
     ngOnDestroy(): void {
@@ -146,6 +156,15 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         this.topologyService.emitTopologyHeightChange(newHeight);
     }
 
+    private refreshTopologyDimensions(): void {
+        if (!this.splitContainer?.nativeElement) return;
+        this.fitSplitContainerToViewport();
+        this.topologyService.emitTopologyWidthChange(
+            this.splitContainer.nativeElement.clientWidth,
+        );
+        this.topologyService.emitTopologyHeightChange(this.topoHeight());
+    }
+
     @HostListener('window:mouseup')
     onMouseUp(): void {
         this.isResizing = false;
@@ -169,6 +188,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
 
     resetSplit(): void {
         if (!this.splitContainer?.nativeElement) return;
+        this.topologyService.setTopologyCollapsed(false);
         const h = this.splitContainer.nativeElement.clientHeight;
         const newHeight = this.clampTopologyHeight(Math.round(h * 0.45));
         this.topoHeight.set(newHeight);
@@ -177,6 +197,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
 
     maximizeTopo(): void {
         if (!this.splitContainer?.nativeElement) return;
+        this.topologyService.setTopologyCollapsed(false);
         const h = this.splitContainer.nativeElement.clientHeight;
         const newHeight = this.clampTopologyHeight(Math.round(h * 0.78));
         this.topoHeight.set(newHeight);
