@@ -1,0 +1,45 @@
+// FCTF Aesthetic Global Table Overrides
+
+.mat-mdc-table, .mat-table {
+  font-family: monospace !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.5rem !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden !important;
+  width: 100% !important;
+
+  .mat-mdc-header-row, .mat-header-row {
+    background-color: #f3f4f6 !important;
+  }
+
+  .mat-mdc-header-cell, .mat-header-cell {
+    font-family: monospace !important;
+    text-transform: uppercase !important;
+    font-weight: bold !important;
+    color: #ea580c !important; /* Tailwind orange-600 */
+    border-bottom: 2px solid #e5e7eb !important;
+    padding: 12px 16px !important;
+  }
+
+  .mat-mdc-cell, .mat-cell {
+    font-family: monospace !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+    padding: 12px 16px !important;
+    color: #374151 !important; /* Tailwind gray-700 */
+  }
+
+  .mat-mdc-row, .mat-row {
+    transition: background-color 0.2s ease !important;
+
+    &:hover {
+      background-color: #f9fafb !important; /* Tailwind gray-50 */
+    }
+
+    &:last-child {
+      .mat-mdc-cell, .mat-cell {
+        border-bottom: none !important;
+      }
+    }
+  }
+}
