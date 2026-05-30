@@ -23,25 +23,20 @@
     @include sentinel-layout-sidebar.sidebar-page-layout-theme(theme.$theme);
 }
 
-// Add bold hover styles for adaptive definition components
-crczp-adaptive-definition-summary,
-crczp-adaptive-definition-edit,
-crczp-adaptive-definition-detail,
-crczp-adaptive-definition-simulator-wrapper,
-crczp-adaptive-definition-preview,
-crczp-adaptive-definition-phases {
-    a:hover,
-    button:hover,
-    .mdc-button:hover,
-    .mat-mdc-button:hover,
-    .mat-mdc-raised-button:hover,
-    .mat-mdc-icon-button:hover,
-    .mat-button:hover,
-    .mat-raised-button:hover,
-    .mat-icon-button:hover,
-    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover,
-    .title:hover,
-    .action-button:hover {
-        font-weight: bold !important;
-    }
+// Ensure link-buttons (like definition titles) only change text color on hover
+button.link-button:hover,
+a.link-button:hover {
+    color: #d84315 !important;
+    background-color: transparent !important;
+    font-weight: inherit !important;
 }
+
+button.link-button:hover .mat-mdc-button-persistent-ripple::before,
+button.link-button:hover .mat-mdc-button-ripple::before,
+a.link-button:hover .mat-mdc-button-persistent-ripple::before,
+a.link-button:hover .mat-mdc-button-ripple::before {
+    opacity: 0 !important;
+    background-color: transparent !important;
+}
+
+
