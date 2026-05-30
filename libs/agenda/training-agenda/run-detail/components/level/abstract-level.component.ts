@@ -119,7 +119,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
                     this.topologyService.emitTopologyHeightChange(49);
                     return;
                 }
-                requestAnimationFrame(() => this.refreshTopologyDimensions());
+                this.scheduleTopologyRefresh();
             });
     }
 
@@ -165,6 +165,12 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         this.topologyService.emitTopologyHeightChange(this.topoHeight());
     }
 
+    private scheduleTopologyRefresh(): void {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => this.refreshTopologyDimensions());
+        });
+    }
+
     @HostListener('window:mouseup')
     onMouseUp(): void {
         this.isResizing = false;
@@ -188,20 +194,20 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
 
     resetSplit(): void {
         if (!this.splitContainer?.nativeElement) return;
-        this.topologyService.setTopologyCollapsed(false);
         const h = this.splitContainer.nativeElement.clientHeight;
         const newHeight = this.clampTopologyHeight(Math.round(h * 0.45));
         this.topoHeight.set(newHeight);
-        this.topologyService.emitTopologyHeightChange(newHeight);
+        this.topologyService.setTopologyCollapsed(false);
+        this.scheduleTopologyRefresh();
     }
 
     maximizeTopo(): void {
         if (!this.splitContainer?.nativeElement) return;
-        this.topologyService.setTopologyCollapsed(false);
         const h = this.splitContainer.nativeElement.clientHeight;
         const newHeight = this.clampTopologyHeight(Math.round(h * 0.78));
         this.topoHeight.set(newHeight);
-        this.topologyService.emitTopologyHeightChange(newHeight);
+        this.topologyService.setTopologyCollapsed(false);
+        this.scheduleTopologyRefresh();
     }
 
     private clampTopologyHeight(height: number): number {
