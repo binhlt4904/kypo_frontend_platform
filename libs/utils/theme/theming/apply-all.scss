@@ -40,3 +40,10 @@ a.link-button:hover .mat-mdc-button-ripple::before {
 }
 
 
+// Remove pill-shape rounded corners from all rectangular buttons
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button {
+    border-radius: 4px !important;
+}
