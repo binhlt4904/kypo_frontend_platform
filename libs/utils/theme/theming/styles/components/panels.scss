@@ -35,6 +35,16 @@ div.mat-expansion-panel-body {
 
 mat-card.mat-mdc-card {
     background-color: var(--primary-98);
+    border-radius: 0 !important;
+}
+
+mat-card-content.mat-mdc-card-content,
+.mat-mdc-card-content.levels-container,
+.overview-container,
+mat-expansion-panel-header.mat-expansion-panel-header,
+div.mat-expansion-panel-body,
+.expansion-content {
+    border-radius: 0 !important;
 }
 
 // Remove padding from expansion panel content when the class is applied to the expansion panel
