@@ -119,6 +119,14 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
                     this.topologyService.emitTopologyHeightChange(49);
                     return;
                 }
+                // Emit current height immediately so the topology canvas
+                // knows its new size before the first paint
+                this.topologyService.emitTopologyHeightChange(this.topoHeight());
+                if (this.splitContainer?.nativeElement) {
+                    this.topologyService.emitTopologyWidthChange(
+                        this.splitContainer.nativeElement.clientWidth,
+                    );
+                }
                 this.scheduleTopologyRefresh();
             });
     }
@@ -163,11 +171,16 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
             this.splitContainer.nativeElement.clientWidth,
         );
         this.topologyService.emitTopologyHeightChange(this.topoHeight());
+        // Dispatch a synthetic resize so the topology canvas repaints
+        window.dispatchEvent(new Event('resize'));
     }
 
     private scheduleTopologyRefresh(): void {
+        // Use a triple rAF chain to ensure Angular CD + CSS layout have settled
         requestAnimationFrame(() => {
-            requestAnimationFrame(() => this.refreshTopologyDimensions());
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => this.refreshTopologyDimensions());
+            });
         });
     }
 
@@ -198,6 +211,11 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         const newHeight = this.clampTopologyHeight(Math.round(h * 0.45));
         this.topoHeight.set(newHeight);
         this.topologyService.setTopologyCollapsed(false);
+        // Emit dimensions immediately then schedule a follow-up repaint
+        this.topologyService.emitTopologyHeightChange(newHeight);
+        this.topologyService.emitTopologyWidthChange(
+            this.splitContainer.nativeElement.clientWidth,
+        );
         this.scheduleTopologyRefresh();
     }
 
@@ -207,6 +225,11 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         const newHeight = this.clampTopologyHeight(Math.round(h * 0.78));
         this.topoHeight.set(newHeight);
         this.topologyService.setTopologyCollapsed(false);
+        // Emit dimensions immediately then schedule a follow-up repaint
+        this.topologyService.emitTopologyHeightChange(newHeight);
+        this.topologyService.emitTopologyWidthChange(
+            this.splitContainer.nativeElement.clientWidth,
+        );
         this.scheduleTopologyRefresh();
     }
 
