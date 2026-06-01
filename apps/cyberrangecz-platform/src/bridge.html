@@ -8,30 +8,55 @@
 <body>
     <script>
         (function () {
+            console.log('[Bridge] Starting...');
+            console.log('[Bridge] Hash:', window.location.hash);
+
             const params = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = params.get('access_token');
             const refreshToken = params.get('refresh_token');
+            const idToken = params.get('id_token');
             const expiresIn = parseInt(params.get('expires_in') || '300', 10);
+            const sessionState = params.get('session_state') || '';
+
+            console.log('[Bridge] access_token:', accessToken ? accessToken.substring(0, 20) + '...' : 'NULL');
+            console.log('[Bridge] id_token:', idToken ? idToken.substring(0, 20) + '...' : 'NULL');
 
             if (!accessToken) {
+                console.log('[Bridge] No token, redirecting to login');
                 window.location.href = '/login';
                 return;
             }
 
-            const now = Date.now();
-            localStorage.setItem('access_token', accessToken);
-            localStorage.setItem('access_token_stored_at', String(now));
-            localStorage.setItem('expires_at', String(now + expiresIn * 1000));
-            if (refreshToken) {
-                localStorage.setItem('refresh_token', refreshToken);
-            }
-            localStorage.setItem('_token_response', JSON.stringify({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-                expires_in: expiresIn,
-                token_type: 'bearer',
-            }));
+            const now = Math.round(Date.now() / 1000);
+            const expiresAt = (now + expiresIn) * 1000;
 
+            let idTokenClaims = {};
+            let idTokenExpiresAt = expiresAt;
+            if (idToken) {
+                try {
+                    const payload = idToken.split('.')[1];
+                    idTokenClaims = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+                    idTokenExpiresAt = (idTokenClaims.exp || (now + expiresIn)) * 1000;
+                } catch (e) {
+                    console.log('[Bridge] Error parsing id_token:', e);
+                }
+            }
+
+            localStorage.setItem('access_token', accessToken);
+            localStorage.setItem('refresh_token', refreshToken || '');
+            localStorage.setItem('id_token', idToken || '');
+            localStorage.setItem('session_state', sessionState);
+            localStorage.setItem('access_token_stored_at', String(Date.now()));
+            localStorage.setItem('expires_at', String(expiresAt));
+            localStorage.setItem('id_token_stored_at', String(Date.now()));
+            localStorage.setItem('id_token_expires_at', String(idTokenExpiresAt));
+            localStorage.setItem('id_token_claims_obj', JSON.stringify(idTokenClaims));
+            localStorage.setItem('granted_scopes', JSON.stringify(["profile", "offline_access", "openid", "email"]));
+
+            console.log('[Bridge] localStorage set, verifying...');
+            console.log('[Bridge] access_token in storage:', localStorage.getItem('access_token') ? 'YES' : 'NO');
+
+            console.log('[Bridge] Redirecting to /run...');
             window.location.href = '/run';
         })();
     </script>
