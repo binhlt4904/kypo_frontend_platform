@@ -35,7 +35,7 @@
                     {
                         "glob": "bridge.html",
                         "input": "apps/cyberrangecz-platform/src",
-                        "output": "/"
+                        "output": "/assets"
                     },
                     {
                         "glob": "**/*",
