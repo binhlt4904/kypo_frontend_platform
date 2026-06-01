@@ -54,4 +54,38 @@
       }
     }
   }
+
+  .mat-mdc-row.detail-row,
+  .mat-row.detail-row,
+  .mat-mdc-row.rlm-queue-row,
+  .mat-row.rlm-queue-row,
+  .mat-mdc-row:has(> .mat-column-expandedDetail),
+  .mat-row:has(> .mat-column-expandedDetail),
+  .mat-mdc-row:has(> .mat-column-expandedQueue),
+  .mat-row:has(> .mat-column-expandedQueue) {
+    --mat-table-row-item-container-height: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .mat-mdc-row.detail-row .mat-mdc-cell,
+  .mat-row.detail-row .mat-cell,
+  .mat-mdc-row.rlm-queue-row .mat-mdc-cell,
+  .mat-row.rlm-queue-row .mat-cell,
+  .mat-column-expandedDetail,
+  .mat-column-expandedQueue {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .mat-mdc-row.detail-row sentinel-table-expanded-row-detail,
+  .mat-row.detail-row sentinel-table-expanded-row-detail,
+  .mat-mdc-row.detail-row .element-detail,
+  .mat-row.detail-row .element-detail,
+  .mat-mdc-row.rlm-queue-row .rlm-queue-panel,
+  .mat-row.rlm-queue-row .rlm-queue-panel {
+    display: block !important;
+    overflow: hidden !important;
+  }
 }
