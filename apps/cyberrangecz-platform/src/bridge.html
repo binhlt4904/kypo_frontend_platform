@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>KYPO Bridge</title>
+</head>
+
+<body>
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.hash.substring(1));
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            const expiresIn = parseInt(params.get('expires_in') || '300', 10);
+
+            if (!accessToken) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const now = Date.now();
+            localStorage.setItem('access_token', accessToken);
+            localStorage.setItem('access_token_stored_at', String(now));
+            localStorage.setItem('expires_at', String(now + expiresIn * 1000));
+            if (refreshToken) {
+                localStorage.setItem('refresh_token', refreshToken);
+            }
+            localStorage.setItem('_token_response', JSON.stringify({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+                expires_in: expiresIn,
+                token_type: 'bearer',
+            }));
+
+            window.location.href = '/run';
+        })();
+    </script>
+</body>
+
+</html>
