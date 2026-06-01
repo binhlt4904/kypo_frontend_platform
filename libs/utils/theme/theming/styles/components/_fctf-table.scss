@@ -20,6 +20,18 @@
     color: #ea580c !important; /* Tailwind orange-600 */
     border-bottom: 2px solid #e5e7eb !important;
     padding: 12px 16px !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    line-height: 1.25 !important;
+    vertical-align: middle !important;
+  }
+
+  .mat-mdc-header-cell *,
+  .mat-header-cell *,
+  .mat-sort-header-container,
+  .mat-sort-header-content {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
   }
 
   .mat-mdc-cell, .mat-cell {
