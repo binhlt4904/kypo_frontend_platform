@@ -1,65 +1,73 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>KYPO Bridge</title>
-</head>
-
+<head><title>KYPO Bridge</title></head>
 <body>
-    <script>
-        (function () {
-            console.log('[Bridge] Starting...');
-            console.log('[Bridge] Hash:', window.location.hash);
+<script>
+  (function() {
+    console.log('[Bridge] Starting...');
+    
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken  = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const idToken      = params.get('id_token');
+    const expiresIn    = parseInt(params.get('expires_in') || '300', 10);
+    const sessionState = params.get('session_state') || '';
 
-            const params = new URLSearchParams(window.location.hash.substring(1));
-            const accessToken = params.get('access_token');
-            const refreshToken = params.get('refresh_token');
-            const idToken = params.get('id_token');
-            const expiresIn = parseInt(params.get('expires_in') || '300', 10);
-            const sessionState = params.get('session_state') || '';
+    console.log('[Bridge] access_token:', accessToken ? 'OK' : 'NULL');
+    console.log('[Bridge] id_token:', idToken ? 'OK' : 'NULL');
 
-            console.log('[Bridge] access_token:', accessToken ? accessToken.substring(0, 20) + '...' : 'NULL');
-            console.log('[Bridge] id_token:', idToken ? idToken.substring(0, 20) + '...' : 'NULL');
+    if (!accessToken) {
+      console.log('[Bridge] No token, redirecting to login');
+      window.location.href = '/login';
+      return;
+    }
 
-            if (!accessToken) {
-                console.log('[Bridge] No token, redirecting to login');
-                window.location.href = '/login';
-                return;
-            }
+    // Parse id_token claims
+    let idTokenClaims = {};
+    let idTokenExpiresAt = (Math.round(Date.now() / 1000) + expiresIn) * 1000;
+    if (idToken) {
+      try {
+        const payload = idToken.split('.')[1];
+        idTokenClaims = JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));
+        if (idTokenClaims.exp) {
+          idTokenExpiresAt = idTokenClaims.exp * 1000;
+        }
+      } catch(e) {
+        console.log('[Bridge] Error parsing id_token:', e);
+      }
+    }
 
-            const now = Math.round(Date.now() / 1000);
-            const expiresAt = (now + expiresIn) * 1000;
+    const now = Date.now();
+    const expiresAt = (Math.round(now / 1000) + expiresIn) * 1000;
 
-            let idTokenClaims = {};
-            let idTokenExpiresAt = expiresAt;
-            if (idToken) {
-                try {
-                    const payload = idToken.split('.')[1];
-                    idTokenClaims = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-                    idTokenExpiresAt = (idTokenClaims.exp || (now + expiresIn)) * 1000;
-                } catch (e) {
-                    console.log('[Bridge] Error parsing id_token:', e);
-                }
-            }
+    // Clear old state first
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('id_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('nonce');
+    localStorage.removeItem('PKCE_verifier');
 
-            localStorage.setItem('access_token', accessToken);
-            localStorage.setItem('refresh_token', refreshToken || '');
-            localStorage.setItem('id_token', idToken || '');
-            localStorage.setItem('session_state', sessionState);
-            localStorage.setItem('access_token_stored_at', String(Date.now()));
-            localStorage.setItem('expires_at', String(expiresAt));
-            localStorage.setItem('id_token_stored_at', String(Date.now()));
-            localStorage.setItem('id_token_expires_at', String(idTokenExpiresAt));
-            localStorage.setItem('id_token_claims_obj', JSON.stringify(idTokenClaims));
-            localStorage.setItem('granted_scopes', JSON.stringify(["profile", "offline_access", "openid", "email"]));
+    // Set tokens theo đúng format angular-oauth2-oidc
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('refresh_token', refreshToken || '');
+    localStorage.setItem('id_token', idToken || '');
+    localStorage.setItem('session_state', sessionState);
+    localStorage.setItem('access_token_stored_at', String(now));
+    localStorage.setItem('expires_at', String(expiresAt));
+    localStorage.setItem('id_token_stored_at', String(now));
+    localStorage.setItem('id_token_expires_at', String(idTokenExpiresAt));
+    localStorage.setItem('id_token_claims_obj', JSON.stringify(idTokenClaims));
+    localStorage.setItem('granted_scopes', JSON.stringify(["profile","offline_access","openid","email"]));
 
-            console.log('[Bridge] localStorage set, verifying...');
-            console.log('[Bridge] access_token in storage:', localStorage.getItem('access_token') ? 'YES' : 'NO');
+    console.log('[Bridge] All tokens set');
+    console.log('[Bridge] access_token in storage:', localStorage.getItem('access_token') ? 'YES' : 'NO');
+    console.log('[Bridge] Redirecting to /run...');
 
-            console.log('[Bridge] Redirecting to /run...');
-            window.location.href = '/run';
-        })();
-    </script>
+    // Delay nhỏ để đảm bảo localStorage được write xong
+    setTimeout(function() {
+      window.location.replace('/run');
+    }, 100);
+  })();
+</script>
 </body>
-
 </html>
