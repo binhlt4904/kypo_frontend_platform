@@ -82,8 +82,8 @@ $fctf-white: #ffffff;
         // ── Nav items: hover = solid orange + white text (matches FCTF exactly) ──
         .nav-drawer {
 
-            a,
-            button {
+            sentinel-root-agenda-container a,
+            sentinel-root-agenda-container button {
                 --mat-button-text-label-text-color: #{$fctf-text-medium};
                 --mat-button-text-ripple-color: rgba(255, 107, 53, 0.15);
                 border-radius: 5px !important;
