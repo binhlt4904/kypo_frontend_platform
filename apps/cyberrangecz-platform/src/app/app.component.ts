@@ -141,17 +141,32 @@ export class AppComponent implements OnInit, AfterViewInit {
                 const sectionText = sectionEl.querySelector('.container')?.textContent?.trim().toLowerCase() ?? '';
                 if (!sectionText.includes(section)) return;
 
-                sectionEl.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((btn) => {
-                    const label = btn.querySelector('.mdc-button__label')?.textContent?.trim().toLowerCase() ?? '';
+                // Find the exact parent button (e.g. 'Definition' or 'Instance')
+                // and ONLY search for child within that parent's own agenda-element
+                const agendaElements = sectionEl.querySelectorAll<HTMLElement>('sentinel-agenda-element');
+                agendaElements.forEach((agendaEl) => {
+                    // Get the top-level button of this agenda-element
+                    const topBtn = agendaEl.querySelector<HTMLElement>(':scope > .top-level a.mdc-button, :scope > .top-level button.mdc-button');
+                    if (!topBtn) return;
 
-                    // Always highlight the parent (e.g. 'definition', 'instance')
-                    if (label === parentLabel) {
-                        btn.classList.add('fctf-active');
-                    }
+                    const topLabel = topBtn.querySelector('.mdc-button__label')?.textContent?.trim().toLowerCase() ?? '';
 
-                    // Also highlight the child (e.g. 'adaptive', 'linear') if defined
-                    if (childLabel && label === childLabel) {
-                        btn.classList.add('fctf-active');
+                    if (topLabel === parentLabel) {
+                        // Highlight the parent
+                        topBtn.classList.add('fctf-active');
+
+                        // If there's a child label, find it ONLY within this agenda-element's nested container
+                        if (childLabel) {
+                            const nestedContainer = agendaEl.querySelector<HTMLElement>('sentinel-nested-agenda-container');
+                            if (nestedContainer) {
+                                nestedContainer.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((childBtn) => {
+                                    const childBtnLabel = childBtn.querySelector('.mdc-button__label')?.textContent?.trim().toLowerCase() ?? '';
+                                    if (childBtnLabel === childLabel) {
+                                        childBtn.classList.add('fctf-active');
+                                    }
+                                });
+                            }
+                        }
                     }
                 });
             });
