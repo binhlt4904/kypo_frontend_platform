@@ -62,10 +62,6 @@ $fctf-white: #ffffff;
             background-image: none;
             border-right: 1px solid #{$fctf-border-light};
             box-shadow: 2px 0 8px rgba(255, 107, 53, 0.06);
-            // Allow sidebar to scroll when content overflows
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
 
             // Custom orange scrollbar (matches FCTF admin sidebar)
             &::-webkit-scrollbar {
@@ -151,41 +147,15 @@ $fctf-white: #ffffff;
         }
 
         sentinel-agenda-element .nested {
-            height: auto;
+            height: 30px;
         }
 
         sentinel-agenda-element .top-level {
             height: var(--mat-button-text-container-height);
         }
 
-        // ── Nested child buttons (Adaptive / Linear inside Definition / Instance) ──
-        // Make them smaller and indented so they don't overlap parent buttons
-        sentinel-nested-agenda-container {
-            a.mdc-button,
-            button.mdc-button {
-                font-size: 0.8rem !important;
-                min-height: 30px !important;
-                height: 30px !important;
-                margin: 2px 8px 2px 24px !important;   // extra left indent
-                width: calc(100% - 32px) !important;
-                padding: 0 10px !important;
-                border-radius: 4px !important;
-                transition: all 0.2s ease !important;
-                color: #{$fctf-text-light} !important;
-
-                &:hover {
-                    background-color: #{$fctf-orange} !important;
-                    color: #{$fctf-white} !important;
-                    transform: translateX(2px);
-                }
-
-                &.fctf-active {
-                    background-color: #{$fctf-orange} !important;
-                    color: #{$fctf-white} !important;
-                    font-weight: 600 !important;
-                    box-shadow: 0 2px 6px rgba(255, 107, 53, 0.25) !important;
-                }
-            }
+        sentinel-nested-agenda-container button {
+            margin: 8px 0;
         }
 
         #version {

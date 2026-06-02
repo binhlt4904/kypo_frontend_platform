@@ -76,9 +76,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     /**
      * Marks the nav button matching the current route as fctf-active.
-     * Also highlights the parent label (e.g. Definition/Instance) when a
-     * child route (Adaptive/Linear) is active, so the user always sees
-     * both the parent and the specific child highlighted.
      * @sentinel/layout does not expose an active class, so we inject it manually.
      */
     private updateActiveNavItem(currentUrl: string): void {
@@ -90,83 +87,47 @@ export class AppComponent implements OnInit, AfterViewInit {
             navDrawer.querySelectorAll('.fctf-active').forEach((el) => {
                 el.classList.remove('fctf-active');
             });
-            navDrawer.querySelectorAll('.fctf-parent-active').forEach((el) => {
-                el.classList.remove('fctf-parent-active');
-            });
 
             const urlLower = currentUrl.toLowerCase().split('?')[0];
 
-            /**
-             * segmentMap: each entry defines which nav items to activate.
-             *  - parentLabel: the parent button to highlight (e.g. 'definition')
-             *  - childLabel:  the specific child button to highlight (e.g. 'adaptive')
-             *                 undefined = no child, only highlight parent
-             */
-            const segmentMap: Array<{
-                segment: string;
-                section: string;
-                parentLabel: string;
-                childLabel?: string;
-            }> = [
-                { segment: 'adaptive-definition',  section: 'trainings',      parentLabel: 'definition', childLabel: 'adaptive' },
-                { segment: 'linear-definition',    section: 'trainings',      parentLabel: 'definition', childLabel: 'linear' },
-                { segment: 'adaptive-instance',    section: 'trainings',      parentLabel: 'instance',   childLabel: 'adaptive' },
-                { segment: 'linear-instance',      section: 'trainings',      parentLabel: 'instance',   childLabel: 'linear' },
-                { segment: 'run',                  section: 'trainings',      parentLabel: 'run' },
-                { segment: 'sandbox-definition',   section: 'sandboxes',      parentLabel: 'definition' },
-                { segment: 'pool',                 section: 'sandboxes',      parentLabel: 'pool' },
-                { segment: 'sandbox-image',        section: 'sandboxes',      parentLabel: 'images' },
-                { segment: 'user',                 section: 'administration', parentLabel: 'user' },
-                { segment: 'group',                section: 'administration', parentLabel: 'group' },
-                { segment: 'microservice',         section: 'administration', parentLabel: 'microservice' },
+            // Map URL segments → { section, label } to activate
+            const segmentMap: Array<{ segment: string; items: Array<{ section: string; label: string }> }> = [
+                { segment: 'adaptive-definition', items: [{ section: 'trainings', label: 'definition' }] },
+                { segment: 'linear-definition', items: [{ section: 'trainings', label: 'definition' }] },
+                { segment: 'adaptive-instance', items: [{ section: 'trainings', label: 'instance' }] },
+                { segment: 'linear-instance', items: [{ section: 'trainings', label: 'instance' }] },
+                { segment: 'run', items: [{ section: 'trainings', label: 'run' }] },
+                { segment: 'sandbox-definition', items: [{ section: 'sandboxes', label: 'definition' }] },
+                { segment: 'pool', items: [{ section: 'sandboxes', label: 'pool' }] },
+                { segment: 'sandbox-image', items: [{ section: 'sandboxes', label: 'images' }] },
+                { segment: 'user', items: [{ section: 'administration', label: 'user' }] },
+                { segment: 'group', items: [{ section: 'administration', label: 'group' }] },
+                { segment: 'microservice', items: [{ section: 'administration', label: 'microservice' }] },
             ];
 
             // Find best match (longest segment wins)
-            let matched: typeof segmentMap[0] | null = null;
+            let matchedItems: Array<{ section: string; label: string }> = [];
             let bestLen = 0;
-            for (const entry of segmentMap) {
-                if (urlLower.includes(entry.segment) && entry.segment.length > bestLen) {
-                    matched = entry;
-                    bestLen = entry.segment.length;
+            for (const { segment, items } of segmentMap) {
+                if (urlLower.includes(segment) && segment.length > bestLen) {
+                    matchedItems = items;
+                    bestLen = segment.length;
                 }
             }
 
-            if (!matched) return;
+            if (!matchedItems.length) return;
 
-            const { section, parentLabel, childLabel } = matched;
-
-            // Walk all sentinel sections and activate the right buttons
+            // For each section in nav, find and activate matching buttons
             const sections = navDrawer.querySelectorAll<HTMLElement>('sentinel-root-agenda-container');
-            sections.forEach((sectionEl) => {
-                const sectionText = sectionEl.querySelector('.container')?.textContent?.trim().toLowerCase() ?? '';
-                if (!sectionText.includes(section)) return;
-
-                // Find the exact parent button (e.g. 'Definition' or 'Instance')
-                // and ONLY search for child within that parent's own agenda-element
-                const agendaElements = sectionEl.querySelectorAll<HTMLElement>('sentinel-agenda-element');
-                agendaElements.forEach((agendaEl) => {
-                    // Get the top-level button of this agenda-element
-                    const topBtn = agendaEl.querySelector<HTMLElement>(':scope > .top-level a.mdc-button, :scope > .top-level button.mdc-button');
-                    if (!topBtn) return;
-
-                    const topLabel = topBtn.querySelector('.mdc-button__label')?.textContent?.trim().toLowerCase() ?? '';
-
-                    if (topLabel === parentLabel) {
-                        // Highlight the parent
-                        topBtn.classList.add('fctf-active');
-
-                        // If there's a child label, find it ONLY within this agenda-element's nested container
-                        if (childLabel) {
-                            const nestedContainer = agendaEl.querySelector<HTMLElement>('sentinel-nested-agenda-container');
-                            if (nestedContainer) {
-                                nestedContainer.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((childBtn) => {
-                                    const childBtnLabel = childBtn.querySelector('.mdc-button__label')?.textContent?.trim().toLowerCase() ?? '';
-                                    if (childBtnLabel === childLabel) {
-                                        childBtn.classList.add('fctf-active');
-                                    }
-                                });
-                            }
-                        }
+            sections.forEach((section) => {
+                const sectionText = section.querySelector('.container')?.textContent?.trim().toLowerCase() ?? '';
+                section.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((btn) => {
+                    const label = btn.querySelector('.mdc-button__label')?.textContent?.trim().toLowerCase() ?? '';
+                    const shouldActivate = matchedItems.some(
+                        item => sectionText.includes(item.section) && label === item.label
+                    );
+                    if (shouldActivate) {
+                        btn.classList.add('fctf-active');
                     }
                 });
             });
