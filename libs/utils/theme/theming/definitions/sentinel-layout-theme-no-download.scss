@@ -56,34 +56,57 @@ $fctf-white: #ffffff;
             --mat-icon-button-icon-color: #{$fctf-white};
         }
 
-        // ── Sidebar: FCTF pinkish-white background ──
+        // ── Sidebar: FCTF pinkish-white background + custom scrollbar ──
         .nav-drawer.mat-drawer {
             background-color: #{$fctf-bg-sidebar};
             background-image: none;
             border-right: 1px solid #{$fctf-border-light};
             box-shadow: 2px 0 8px rgba(255, 107, 53, 0.06);
+
+            // Custom orange scrollbar (matches FCTF admin sidebar)
+            &::-webkit-scrollbar {
+                width: 5px;
+            }
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            &::-webkit-scrollbar-thumb {
+                background: rgba(255, 107, 53, 0.3);
+                border-radius: 3px;
+            }
+            &::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 107, 53, 0.5);
+            }
         }
 
-        // Active nav item — full orange background + white text
+        // ── Nav items: hover = solid orange + white text (matches FCTF exactly) ──
         .nav-drawer {
 
-            a,
-            button {
+            sentinel-root-agenda-container a,
+            sentinel-root-agenda-container button {
                 --mat-button-text-label-text-color: #{$fctf-text-medium};
                 --mat-button-text-ripple-color: rgba(255, 107, 53, 0.15);
-                border-radius: 8px !important;
+                border-radius: 5px !important;
                 font-family: 'Space Mono', monospace;
                 letter-spacing: 0.5px;
-                transition: background-color 0.2s ease;
-                width: calc(100% - 20px) !important;
-                margin: 1px 10px !important;
-                min-height: 40px !important;
-                height: 40px !important;
+                transition: all 0.2s ease !important;
+                width: calc(100% - 28px) !important;
+                margin: 3px 14px !important;
+                min-height: 38px !important;
+                height: auto !important;
 
                 &:hover {
-                    background-color: #{$fctf-active-bg} !important;
-                    --mat-button-text-label-text-color: #{$fctf-orange};
-                    color: #{$fctf-orange} !important;
+                    // Solid orange hover — identical to FCTF admin navbar
+                    background-color: #{$fctf-orange} !important;
+                    --mat-button-text-label-text-color: #{$fctf-white};
+                    color: #{$fctf-white} !important;
+                    transform: translateX(3px);
+
+                    .mat-icon,
+                    mat-icon {
+                        color: #{$fctf-white} !important;
+                        transform: scale(1.1);
+                    }
                 }
 
                 &.active,
@@ -96,7 +119,8 @@ $fctf-white: #ffffff;
                     --mat-icon-button-icon-color: #{$fctf-white} !important;
                     font-weight: 700;
                     color: #{$fctf-white} !important;
-                    border-radius: 8px !important;
+                    border-radius: 5px !important;
+                    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
 
                     .mat-icon,
                     mat-icon {
