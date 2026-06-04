@@ -204,15 +204,40 @@ $fctf-white: #ffffff;
         }
 
         // Expand/collapse icon inside nested container button stays on the right
-        sentinel-nested-agenda-container button.mdc-button {
+        .nav-drawer a.mdc-button, .nav-drawer button.mdc-button,
+        .nav-drawer a[mat-button], .nav-drawer button[mat-button] {
             .mdc-button__label {
-                display: flex;
-                align-items: center;
-                flex: 1;
+                display: flex !important;
+                align-items: center !important;
+                flex: 1 !important;
+                width: 100% !important;
             }
-            mat-icon.mat-icon {
-                margin-left: auto;
+            mat-icon {
+                margin-left: auto !important;
             }
+        }
+
+        // ── FCTF Dropdown styling when expanded ──
+        // The .nested-container is only in the DOM when expanded (via *ngIf="expanded")
+        sentinel-nested-agenda-container:has(> .nested-container) > button.mdc-button {
+            background-color: #{$fctf-orange} !important;
+            color: #{$fctf-white} !important;
+            border-radius: 5px !important;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
+
+            .mat-icon, mat-icon, .fctf-nav-icon {
+                color: #{$fctf-white} !important;
+            }
+        }
+
+        sentinel-nested-agenda-container .nested-container {
+            margin-left: 12px !important;
+            margin-top: 4px !important;
+            margin-bottom: 4px !important;
+            border-left: 3px solid #{$fctf-orange} !important;
+            padding-left: 4px !important;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
         }
 
         #version {
