@@ -211,19 +211,21 @@ $fctf-white: #ffffff;
                 align-items: center !important;
                 flex: 1 !important;
                 width: 100% !important;
+                justify-content: space-between !important;
             }
             mat-icon {
+                order: 2 !important; // Force it to render AFTER the text
                 margin-left: auto !important;
             }
         }
 
         // ── FCTF Dropdown styling when expanded ──
-        // The .nested-container is only in the DOM when expanded (via *ngIf="expanded")
         sentinel-nested-agenda-container:has(> .nested-container) > button.mdc-button {
             background-color: #{$fctf-orange} !important;
             color: #{$fctf-white} !important;
             border-radius: 5px !important;
             box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
+            margin-bottom: 0 !important; // Flush with the dropdown block below
 
             .mat-icon, mat-icon, .fctf-nav-icon {
                 color: #{$fctf-white} !important;
@@ -231,13 +233,29 @@ $fctf-white: #ffffff;
         }
 
         sentinel-nested-agenda-container .nested-container {
-            margin-left: 12px !important;
-            margin-top: 4px !important;
-            margin-bottom: 4px !important;
+            margin-left: 12px !important; // Indent to align with parent text/icon
+            margin-top: 0 !important;
+            margin-bottom: 8px !important;
             border-left: 3px solid #{$fctf-orange} !important;
-            padding-left: 4px !important;
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
+            background-color: rgba(255, 107, 53, 0.08) !important; // Distinct light pinkish background
+            border-radius: 0 5px 5px 0 !important;
+            padding-left: 0 !important; // Child touches the border
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+            display: flex;
+            flex-direction: column;
+        }
+
+        sentinel-nested-agenda-container .nested-container a.mdc-button {
+            border-radius: 0 4px 4px 0 !important; // Flat left, rounded right
+            margin: 0 !important;
+            padding-left: 16px !important; // Text indentation
+            height: 38px !important;
+            
+            &.active, &[aria-current="page"], &.sentinel-active, &.fctf-active {
+                background-color: #{$fctf-orange} !important;
+                color: #{$fctf-white} !important;
+            }
         }
 
         #version {
