@@ -140,6 +140,25 @@ $fctf-white: #ffffff;
                 }
             }
 
+            // ── Exception: parent dropdown buttons (Definition/Instance) must NEVER
+            //    get the solid orange active fill — only orange text/icon color ──
+            sentinel-nested-agenda-container > button {
+                &.active,
+                &[aria-current="page"],
+                &.sentinel-active,
+                &.fctf-active {
+                    background-color: transparent !important;
+                    box-shadow: none !important;
+                    color: #{$fctf-orange} !important;
+
+                    .mat-icon,
+                    mat-icon,
+                    .fctf-nav-icon {
+                        color: #{$fctf-orange} !important;
+                    }
+                }
+            }
+
             --mat-container-text-color: #{$fctf-text-medium};
             --mat-icon-button-icon-color: #{$fctf-text-light};
         }
