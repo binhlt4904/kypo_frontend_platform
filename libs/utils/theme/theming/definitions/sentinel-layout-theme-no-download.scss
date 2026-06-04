@@ -144,6 +144,22 @@ $fctf-white: #ffffff;
             --mat-icon-button-icon-color: #{$fctf-text-light};
         }
 
+        // ── Center logo in the new 190px sidebar ──
+        .nav-drawer .sentinel-logo-wrapper {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-top: 32px !important; // A bit more breathing room
+            margin-bottom: 16px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+
+        .nav-drawer .sentinel-logo {
+            max-width: 120px !important; // Scale down slightly to fit well within 190px
+            max-height: 120px !important;
+        }
+
         sentinel-root-agenda-container .container {
             margin: 8px 0;
             color: #{$fctf-text-light};
