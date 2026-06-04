@@ -2,7 +2,7 @@
 .flag-dock {
     position: fixed;
     bottom: 0;
-    left: 140px;
+    left: 190px;
     right: 0;
     z-index: 1000;
     background: var(--surface, #fff);

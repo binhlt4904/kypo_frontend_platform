@@ -42,9 +42,9 @@ mat-divider {
 .bottom-card {
     position: fixed;
     bottom: 0;
-    left: 140px;
+    left: 190px;
     z-index: 10;
-    width: calc(100vw - (100vw - 100%) - 16px - 140px);
+    width: calc(100vw - (100vw - 100%) - 16px - 190px);
     padding: 8px;
 }
 
