@@ -219,17 +219,18 @@ $fctf-white: #ffffff;
             mat-icon {
                 order: 2 !important; // Force it to render AFTER the text
                 margin-left: auto !important;
-                color: transparent !important; // Hide original text ligature
-                position: relative;
+                font-size: 0 !important; // Hide original text ligature completely (even on hover)
+                width: 24px !important;
+                height: 24px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
                 
                 &::after {
                     content: 'chevron_right';
                     font-family: 'Material Icons';
-                    color: #{$fctf-text-light}; // Default closed color
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    font-size: 24px; // Standard mat-icon size
+                    font-size: 24px !important; // Restore font size for the injected icon
+                    color: inherit;
                 }
             }
         }
@@ -242,7 +243,7 @@ $fctf-white: #ffffff;
             box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
             margin-bottom: 0 !important; // Flush with the dropdown block below
 
-            .mat-icon::after, mat-icon::after, .fctf-nav-icon {
+            .mat-icon, mat-icon, .fctf-nav-icon {
                 color: #{$fctf-white} !important;
             }
             
