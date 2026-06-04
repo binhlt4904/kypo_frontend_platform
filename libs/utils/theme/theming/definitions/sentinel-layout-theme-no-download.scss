@@ -273,9 +273,10 @@ $fctf-white: #ffffff;
             overflow: hidden; // Clip rounded corners cleanly
         }
 
-        // Kill ALL borders/shadows on everything inside .nested (catches any inherited right borders)
-        sentinel-nested-agenda-container .nested,
+        // Kill ALL borders/shadows on everything INSIDE .nested
+        // (.nested container itself keeps its border-left — only children are cleared)
         sentinel-nested-agenda-container .nested * {
+            border-left: none !important;   // Each button must NOT have its own left border
             border-right: none !important;
             box-shadow: none !important;
             outline: none !important;
