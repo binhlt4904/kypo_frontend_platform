@@ -72,6 +72,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
         // Apply on initial load
         this.updateActiveNavItem(this.router.url);
+
+        // Inject nav icons once after nav renders
+        this.injectNavIcons();
     }
 
     /**
@@ -122,7 +125,9 @@ export class AppComponent implements OnInit, AfterViewInit {
             sections.forEach((section) => {
                 const sectionText = section.querySelector('.container')?.textContent?.trim().toLowerCase() ?? '';
                 section.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((btn) => {
-                    const label = btn.querySelector('.mdc-button__label')?.textContent?.trim().toLowerCase() ?? '';
+                    // Read only direct text nodes inside .mdc-button__label (exclude injected icon text)
+                    const labelEl = btn.querySelector('.mdc-button__label');
+                    const label = this.getButtonLabel(labelEl);
                     const shouldActivate = matchedItems.some(
                         item => sectionText.includes(item.section) && label === item.label
                     );
@@ -132,6 +137,66 @@ export class AppComponent implements OnInit, AfterViewInit {
                 });
             });
         }, 150);
+    }
+
+    /**
+     * Extracts button label text while ignoring injected icon spans and mat-icon content.
+     */
+    private getButtonLabel(labelEl: Element | null): string {
+        if (!labelEl) return '';
+        // Collect only text nodes (skip child elements like mat-icon and .fctf-nav-icon)
+        let text = '';
+        labelEl.childNodes.forEach((node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                text += node.textContent ?? '';
+            }
+        });
+        return text.trim().toLowerCase();
+    }
+
+    /**
+     * Injects Material Icon spans before the label of each nav button.
+     * Called once after the nav is rendered. Safe to call multiple times
+     * (skips buttons that already have an icon).
+     */
+    private injectNavIcons(): void {
+        // Map nav item label (lowercase) → Material Icon name
+        const iconMap: Record<string, string> = {
+            'definition':   'description',
+            'adaptive':     'auto_awesome',
+            'linear':       'linear_scale',
+            'instance':     'play_circle_outline',
+            'run':          'directions_run',
+            'pool':         'storage',
+            'images':       'photo_library',
+            'user':         'person',
+            'group':        'group',
+            'microservice': 'settings',
+        };
+
+        setTimeout(() => {
+            const navDrawer = document.querySelector('.nav-drawer');
+            if (!navDrawer) return;
+
+            navDrawer.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((btn) => {
+                // Skip if icon already injected
+                if (btn.querySelector('.fctf-nav-icon')) return;
+
+                const labelEl = btn.querySelector('.mdc-button__label');
+                if (!labelEl) return;
+
+                const label = this.getButtonLabel(labelEl);
+                const iconName = iconMap[label];
+                if (!iconName) return;
+
+                // Create and insert icon span before the label element
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'fctf-nav-icon material-icons';
+                iconSpan.textContent = iconName;
+                iconSpan.setAttribute('aria-hidden', 'true');
+                btn.insertBefore(iconSpan, labelEl);
+            });
+        }, 400);
     }
 
     onLogin(): void {

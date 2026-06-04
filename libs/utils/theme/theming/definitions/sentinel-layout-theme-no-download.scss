@@ -62,6 +62,10 @@ $fctf-white: #ffffff;
             background-image: none;
             border-right: 1px solid #{$fctf-border-light};
             box-shadow: 2px 0 8px rgba(255, 107, 53, 0.06);
+            // Allow sidebar to scroll when content overflows
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
 
             // Custom orange scrollbar (matches FCTF admin sidebar)
             &::-webkit-scrollbar {
@@ -79,7 +83,7 @@ $fctf-white: #ffffff;
             }
         }
 
-        // ── Nav items: hover = solid orange + white text (matches FCTF exactly) ──
+        // ── Nav items: left-aligned + FCTF orange hover ──
         .nav-drawer {
 
             sentinel-root-agenda-container a,
@@ -94,6 +98,10 @@ $fctf-white: #ffffff;
                 margin: 3px 14px !important;
                 min-height: 38px !important;
                 height: auto !important;
+                // ── Left-align text (matches FCTF layout) ──
+                justify-content: flex-start !important;
+                padding-left: 12px !important;
+                padding-right: 12px !important;
 
                 &:hover {
                     // Solid orange hover — identical to FCTF admin navbar
@@ -147,15 +155,45 @@ $fctf-white: #ffffff;
         }
 
         sentinel-agenda-element .nested {
-            height: 30px;
+            height: auto;
         }
 
         sentinel-agenda-element .top-level {
-            height: var(--mat-button-text-container-height);
+            height: auto;
         }
 
         sentinel-nested-agenda-container button {
-            margin: 8px 0;
+            margin: 4px 0;
+        }
+
+        // ── Injected nav icons (via JS) ──
+        .nav-drawer .fctf-nav-icon {
+            font-family: 'Material Icons';
+            font-style: normal;
+            font-weight: normal;
+            font-size: 18px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            flex-shrink: 0;
+            color: inherit;
+            transition: color 0.2s ease;
+        }
+
+        // Expand/collapse icon inside nested container button stays on the right
+        sentinel-nested-agenda-container button.mdc-button {
+            .mdc-button__label {
+                display: flex;
+                align-items: center;
+                flex: 1;
+            }
+            mat-icon.mat-icon {
+                margin-left: auto;
+            }
         }
 
         #version {
