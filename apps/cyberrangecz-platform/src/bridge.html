@@ -2,7 +2,6 @@
 <html>
 
 <head>
-    <title>KYPO Bridge</title>
 </head>
 
 <body>
@@ -14,6 +13,8 @@
             const idToken = params.get('id_token');
             const expiresIn = parseInt(params.get('expires_in') || '300', 10);
             const sessionState = params.get('session_state') || '';
+            const redirectTo = params.get('redirect_to') || '/run';
+
 
             if (!accessToken) {
                 window.location.href = '/login';
@@ -51,8 +52,9 @@
             localStorage.setItem('nonce', nonce);
             localStorage.setItem('sentinel_auth_provider_id', 'CRCZP-Client');
 
+
             setTimeout(function () {
-                window.location.replace('/run');
+                window.location.replace(redirectTo);
             }, 200);
         })();
     </script>
