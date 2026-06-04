@@ -213,9 +213,24 @@ $fctf-white: #ffffff;
                 width: 100% !important;
                 justify-content: space-between !important;
             }
+            
+            // Override the default caret icon from Sentinel (expand_more / expand_less) 
+            // to match FCTF (chevron_right / expand_more)
             mat-icon {
                 order: 2 !important; // Force it to render AFTER the text
                 margin-left: auto !important;
+                color: transparent !important; // Hide original text ligature
+                position: relative;
+                
+                &::after {
+                    content: 'chevron_right';
+                    font-family: 'Material Icons';
+                    color: #{$fctf-text-light}; // Default closed color
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    font-size: 24px; // Standard mat-icon size
+                }
             }
         }
 
@@ -227,8 +242,13 @@ $fctf-white: #ffffff;
             box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
             margin-bottom: 0 !important; // Flush with the dropdown block below
 
-            .mat-icon, mat-icon, .fctf-nav-icon {
+            .mat-icon::after, mat-icon::after, .fctf-nav-icon {
                 color: #{$fctf-white} !important;
+            }
+            
+            // When expanded, the caret should be a down arrow
+            mat-icon::after {
+                content: 'expand_more' !important;
             }
         }
 
