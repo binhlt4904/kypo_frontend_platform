@@ -155,12 +155,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     /**
-     * Injects Material Icon spans before the label of each nav button.
-     * Called once after the nav is rendered. Safe to call multiple times
-     * (skips buttons that already have an icon).
+     * Injects Material Icon spans before each nav button label.
+     * Retries at multiple fixed delays + uses MutationObserver to handle:
+     *  - async auth/agenda rendering
+     *  - newly expanded nested items (Adaptive/Linear)
      */
     private injectNavIcons(): void {
-        // Map nav item label (lowercase) → Material Icon name
         const iconMap: Record<string, string> = {
             'definition':   'description',
             'adaptive':     'auto_awesome',
@@ -174,29 +174,62 @@ export class AppComponent implements OnInit, AfterViewInit {
             'microservice': 'settings',
         };
 
-        setTimeout(() => {
+        const doInject = (): void => {
             const navDrawer = document.querySelector('.nav-drawer');
             if (!navDrawer) return;
 
-            navDrawer.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((btn) => {
-                // Skip if icon already injected
+            // Support both Angular Material class conventions
+            const buttons = navDrawer.querySelectorAll<HTMLElement>(
+                'sentinel-root-agenda-container a[mat-button],' +
+                'sentinel-root-agenda-container button[mat-button],' +
+                'sentinel-root-agenda-container a.mdc-button,' +
+                'sentinel-root-agenda-container button.mdc-button'
+            );
+
+            buttons.forEach((btn) => {
                 if (btn.querySelector('.fctf-nav-icon')) return;
 
+                // Try .mdc-button__label; fall back to stripping mat-icon text
                 const labelEl = btn.querySelector('.mdc-button__label');
-                if (!labelEl) return;
+                let label: string;
+                if (labelEl) {
+                    label = this.getButtonLabel(labelEl);
+                } else {
+                    const clone = btn.cloneNode(true) as HTMLElement;
+                    clone.querySelectorAll('mat-icon, .mat-icon').forEach((el) => el.remove());
+                    label = clone.textContent?.trim().toLowerCase() ?? '';
+                }
 
-                const label = this.getButtonLabel(labelEl);
                 const iconName = iconMap[label];
                 if (!iconName) return;
 
-                // Create and insert icon span before the label element
                 const iconSpan = document.createElement('span');
                 iconSpan.className = 'fctf-nav-icon material-icons';
                 iconSpan.textContent = iconName;
                 iconSpan.setAttribute('aria-hidden', 'true');
-                btn.insertBefore(iconSpan, labelEl);
+
+                if (labelEl) {
+                    btn.insertBefore(iconSpan, labelEl);
+                } else {
+                    btn.prepend(iconSpan);
+                }
             });
-        }, 400);
+        };
+
+        // Fixed-delay retries handle async agenda/auth rendering
+        [100, 400, 900, 1800, 4000].forEach((delay) => setTimeout(doInject, delay));
+
+        // MutationObserver handles expand/collapse revealing new buttons
+        let observerAttached = false;
+        const tryAttachObserver = (): void => {
+            const navDrawer = document.querySelector('.nav-drawer');
+            if (navDrawer && !observerAttached) {
+                const observer = new MutationObserver(doInject);
+                observer.observe(navDrawer, { childList: true, subtree: true });
+                observerAttached = true;
+            }
+        };
+        [50, 200, 600, 1200].forEach((delay) => setTimeout(tryAttachObserver, delay));
     }
 
     onLogin(): void {

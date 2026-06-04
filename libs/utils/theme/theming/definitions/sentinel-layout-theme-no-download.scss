@@ -56,18 +56,20 @@ $fctf-white: #ffffff;
             --mat-icon-button-icon-color: #{$fctf-white};
         }
 
-        // ── Sidebar: FCTF pinkish-white background + custom scrollbar ──
+        // ── Sidebar: FCTF pinkish-white background ──
         .nav-drawer.mat-drawer {
             background-color: #{$fctf-bg-sidebar};
             background-image: none;
             border-right: 1px solid #{$fctf-border-light};
             box-shadow: 2px 0 8px rgba(255, 107, 53, 0.06);
-            // Allow sidebar to scroll when content overflows
-            height: 100vh;
-            overflow-y: auto;
+        }
+
+        // ── Override sentinel-layout1's .nav-content { overflow: hidden } to enable scroll ──
+        .nav-drawer .nav-content {
+            overflow-y: auto !important;
             overflow-x: hidden;
 
-            // Custom orange scrollbar (matches FCTF admin sidebar)
+            // Custom orange scrollbar
             &::-webkit-scrollbar {
                 width: 5px;
             }
