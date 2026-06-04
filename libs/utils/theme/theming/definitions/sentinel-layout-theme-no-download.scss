@@ -206,6 +206,12 @@ $fctf-white: #ffffff;
         // Expand/collapse icon inside nested container button stays on the right
         .nav-drawer a.mdc-button, .nav-drawer button.mdc-button,
         .nav-drawer a[mat-button], .nav-drawer button[mat-button] {
+            
+            // Hide the default material gray/light background on hover
+            .mat-mdc-button-persistent-ripple {
+                display: none !important;
+            }
+
             .mdc-button__label {
                 display: flex !important;
                 align-items: center !important;
@@ -236,20 +242,25 @@ $fctf-white: #ffffff;
         }
 
         // ── FCTF Dropdown styling when expanded ──
+        sentinel-nested-agenda-container {
+            background-color: transparent !important; // Prevent any native background wrapper
+        }
+        
         sentinel-nested-agenda-container:has(> .nested-container) > button.mdc-button {
-            background-color: #{$fctf-orange} !important;
-            color: #{$fctf-white} !important;
+            background-color: transparent !important;
+            color: #{$fctf-orange} !important;
             border-radius: 5px !important;
-            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
+            box-shadow: none !important;
             margin-bottom: 0 !important; // Flush with the dropdown block below
 
             .mat-icon, mat-icon, .fctf-nav-icon {
-                color: #{$fctf-white} !important;
+                color: #{$fctf-orange} !important;
             }
             
             // When expanded, the caret should be a down arrow
             mat-icon::after {
                 content: 'expand_more' !important;
+                color: #{$fctf-orange} !important;
             }
         }
 
