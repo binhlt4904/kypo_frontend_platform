@@ -278,6 +278,8 @@ $fctf-white: #ffffff;
             width: 100% !important;
             margin: 0 !important;       // No gaps between buttons
             border-radius: 0 !important; // Flat so they stack cleanly
+            border: none !important;     // Remove any individual borders (incl. right border)
+            box-shadow: none !important; // Remove any shadow that looks like a right border
             padding-left: 14px !important;
             padding-right: 12px !important;
             min-height: 36px !important;
@@ -304,11 +306,30 @@ $fctf-white: #ffffff;
                 color: #{$fctf-white} !important;
                 font-weight: 700 !important;
                 box-shadow: none !important;
-                border-left: none !important;
+                border: none !important;
 
                 .mat-icon, mat-icon, .fctf-nav-icon {
                     color: #{$fctf-white} !important;
                 }
+            }
+        }
+
+        // ── Keep parent button highlighted (solid orange) when a child is active ──
+        sentinel-nested-agenda-container:has(.nested .fctf-active) > .nested-container > button,
+        sentinel-nested-agenda-container:has(.nested .active) > .nested-container > button,
+        sentinel-nested-agenda-container:has(.nested [aria-current="page"]) > .nested-container > button {
+            background-color: #{$fctf-orange} !important;
+            color: #{$fctf-white} !important;
+            font-weight: 700 !important;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
+
+            .mat-icon, mat-icon, .fctf-nav-icon {
+                color: #{$fctf-white} !important;
+            }
+
+            mat-icon::after {
+                content: 'expand_more' !important;
+                color: #{$fctf-white} !important;
             }
         }
 
