@@ -75,6 +75,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
         // Inject nav icons once after nav renders
         this.injectNavIcons();
+
+        // Auto-select first child when parent dropdown is expanded
+        this.setupNestedNavAutoSelect();
     }
 
     /**
@@ -230,6 +233,59 @@ export class AppComponent implements OnInit, AfterViewInit {
             }
         };
         [50, 200, 600, 1200].forEach((delay) => setTimeout(tryAttachObserver, delay));
+    }
+
+    /**
+     * Sets up auto-navigation to the first child button when a parent
+     * dropdown (Definition / Instance / Sandbox Definition) is expanded.
+     * Also keeps the parent highlighted whenever a child is the active route.
+     */
+    private setupNestedNavAutoSelect(): void {
+        const attachListeners = (): void => {
+            const navDrawer = document.querySelector('.nav-drawer');
+            if (!navDrawer) return;
+
+            const containers = navDrawer.querySelectorAll<HTMLElement>('sentinel-nested-agenda-container');
+            containers.forEach((container) => {
+                const parentBtn = container.querySelector<HTMLElement>(
+                    '.nested-container > button, .nested-container > a'
+                );
+                if (!parentBtn || (parentBtn as any).__fctfListenerAttached) return;
+                (parentBtn as any).__fctfListenerAttached = true;
+
+                parentBtn.addEventListener('click', () => {
+                    // Wait for the .nested div to appear (Sentinel toggles it)
+                    setTimeout(() => {
+                        const nestedDiv = container.querySelector<HTMLElement>('.nested');
+                        if (!nestedDiv) return; // was collapsed, nothing to do
+
+                        // Find the first child button that is NOT already active
+                        const firstChild = nestedDiv.querySelector<HTMLElement>(
+                            'a.mdc-button, button.mdc-button'
+                        );
+                        if (firstChild && !firstChild.classList.contains('fctf-active')) {
+                            firstChild.click();
+                        }
+                    }, 80);
+                });
+            });
+        };
+
+        // Retry attaching because nav renders asynchronously
+        [300, 800, 1500, 3000].forEach((d) => setTimeout(attachListeners, d));
+
+        // Also re-attach whenever the nav DOM changes (new containers appear)
+        let listenerObserverAttached = false;
+        const tryAttachListenerObserver = (): void => {
+            const navDrawer = document.querySelector('.nav-drawer');
+            if (navDrawer && !listenerObserverAttached) {
+                listenerObserverAttached = true;
+                new MutationObserver(() => attachListeners()).observe(
+                    navDrawer, { childList: true, subtree: true }
+                );
+            }
+        };
+        [200, 600, 1200].forEach((d) => setTimeout(tryAttachListenerObserver, d));
     }
 
     onLogin(): void {
