@@ -62,7 +62,7 @@ $fctf-white: #ffffff;
             background-image: none;
             border-right: 1px solid #{$fctf-border-light};
             box-shadow: 2px 0 8px rgba(255, 107, 53, 0.06);
-            width: 190px !important;
+            width: 220px !important; // Increased from 190px to prevent text clipping
         }
 
         // ── Override sentinel-layout1's .nav-content { overflow: hidden } to enable scroll ──
@@ -144,7 +144,7 @@ $fctf-white: #ffffff;
             --mat-icon-button-icon-color: #{$fctf-text-light};
         }
 
-        // ── Center logo in the new 190px sidebar ──
+        // ── Center logo in the new 220px sidebar ──
         .nav-drawer .sentinel-logo-wrapper {
             width: 100% !important;
             margin-left: 0 !important;
@@ -156,8 +156,8 @@ $fctf-white: #ffffff;
         }
 
         .nav-drawer .sentinel-logo {
-            max-width: 120px !important; // Scale down slightly to fit well within 190px
-            max-height: 120px !important;
+            max-width: 140px !important; // Scale up slightly to fit well within 220px
+            max-height: 140px !important;
         }
 
         sentinel-root-agenda-container .container {
@@ -251,12 +251,12 @@ $fctf-white: #ffffff;
         // ── FCTF Dropdown: child button area (.nested) ──
         // ONE continuous left orange border for the whole block
         sentinel-nested-agenda-container .nested {
-            margin: 0 8px 6px 36px !important;  // Indent the entire block (border + background)
+            margin: 0 8px 6px 24px !important;  // Indent the entire block (border + background)
             border-left: 3px solid #{$fctf-orange} !important;
             border-right: none !important;      // No right border on container
             background-color: rgba(255, 107, 53, 0.08) !important;
             border-radius: 0 6px 6px 0 !important;
-            padding: 2px 0 !important;          // Reduced padding to make it tighter
+            padding: 0px 0 !important;          // Reduced padding to make it tighter
             display: flex;
             flex-direction: column;
             overflow: hidden; // Clip rounded corners cleanly
