@@ -262,35 +262,42 @@ $fctf-white: #ffffff;
 
         // ── FCTF Dropdown styling when expanded ──
         sentinel-nested-agenda-container {
-            background-color: transparent !important; // Prevent any native background wrapper
+            background-color: transparent !important;
         }
-        
-        sentinel-nested-agenda-container:has(> .nested-container) > button.mdc-button {
+
+        // .nested-container wraps the PARENT button (Definition / Instance)
+        // → should have no special background, just be transparent
+        sentinel-nested-agenda-container .nested-container {
+            background-color: transparent !important;
+            border-left: none !important;
+        }
+
+        // Parent button text/icon turns orange when expanded (has .nested sibling)
+        sentinel-nested-agenda-container:has(> .nested) > .nested-container > button {
             background-color: transparent !important;
             color: #{$fctf-orange} !important;
-            border-radius: 5px !important;
             box-shadow: none !important;
-            margin-bottom: 0 !important; // Flush with the dropdown block below
 
             .mat-icon, mat-icon, .fctf-nav-icon {
                 color: #{$fctf-orange} !important;
             }
-            
-            // When expanded, the caret should be a down arrow
+
             mat-icon::after {
                 content: 'expand_more' !important;
                 color: #{$fctf-orange} !important;
             }
         }
 
-        sentinel-nested-agenda-container .nested-container {
-            margin-left: 12px !important; // Indent to align with parent text/icon
+        // .nested wraps the CHILD buttons (Adaptive / Linear)
+        // → gets the light orange background + left border
+        sentinel-nested-agenda-container .nested {
+            margin-left: 12px !important;
             margin-top: 0 !important;
             margin-bottom: 8px !important;
             border-left: 3px solid #{$fctf-orange} !important;
-            background-color: rgba(255, 107, 53, 0.08) !important; // Distinct light pinkish background
+            background-color: rgba(255, 107, 53, 0.08) !important;
             border-radius: 0 5px 5px 0 !important;
-            padding-left: 0 !important; // Child touches the border
+            padding-left: 0 !important;
             padding-top: 4px !important;
             padding-bottom: 4px !important;
             display: flex;
