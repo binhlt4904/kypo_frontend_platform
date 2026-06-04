@@ -140,24 +140,6 @@ $fctf-white: #ffffff;
                 }
             }
 
-            // ── Exception: parent dropdown buttons (Definition/Instance) must NEVER
-            //    get the solid orange active fill — only orange text/icon color ──
-            sentinel-nested-agenda-container > button {
-                &.active,
-                &[aria-current="page"],
-                &.sentinel-active,
-                &.fctf-active {
-                    background-color: transparent !important;
-                    box-shadow: none !important;
-                    color: #{$fctf-orange} !important;
-
-                    .mat-icon,
-                    mat-icon,
-                    .fctf-nav-icon {
-                        color: #{$fctf-orange} !important;
-                    }
-                }
-            }
 
             --mat-container-text-color: #{$fctf-text-medium};
             --mat-icon-button-icon-color: #{$fctf-text-light};
@@ -260,59 +242,73 @@ $fctf-white: #ffffff;
             }
         }
 
-        // ── FCTF Dropdown styling when expanded ──
+        // ── FCTF Dropdown: parent button (Definition / Instance) ──
+        // Behaves exactly like any other button (solid orange hover/active)
+        // Only the caret icon changes when expanded
         sentinel-nested-agenda-container {
             background-color: transparent !important;
         }
 
-        // .nested-container wraps the PARENT button (Definition / Instance)
-        // → should have no special background, just be transparent
         sentinel-nested-agenda-container .nested-container {
             background-color: transparent !important;
             border-left: none !important;
         }
 
-        // Parent button text/icon turns orange when expanded (has .nested sibling)
-        sentinel-nested-agenda-container:has(> .nested) > .nested-container > button {
-            background-color: transparent !important;
-            color: #{$fctf-orange} !important;
-            box-shadow: none !important;
-
-            .mat-icon, mat-icon, .fctf-nav-icon {
-                color: #{$fctf-orange} !important;
-            }
-
-            mat-icon::after {
-                content: 'expand_more' !important;
-                color: #{$fctf-orange} !important;
-            }
+        // When expanded: caret flips to expand_more
+        sentinel-nested-agenda-container:has(> .nested) > .nested-container > button mat-icon::after {
+            content: 'expand_more' !important;
         }
 
-        // .nested wraps the CHILD buttons (Adaptive / Linear)
-        // → gets the light orange background + left border
+        // ── FCTF Dropdown: child button area (.nested) ──
+        // ONE continuous left orange border for the whole block
         sentinel-nested-agenda-container .nested {
-            margin-left: 12px !important;
-            margin-top: 0 !important;
-            margin-bottom: 8px !important;
+            margin: 0 8px 6px 14px !important;  // left = matches button padding
             border-left: 3px solid #{$fctf-orange} !important;
             background-color: rgba(255, 107, 53, 0.08) !important;
-            border-radius: 0 5px 5px 0 !important;
-            padding-left: 0 !important;
-            padding-top: 4px !important;
-            padding-bottom: 4px !important;
+            border-radius: 0 6px 6px 0 !important;
+            padding: 4px 0 !important;
             display: flex;
             flex-direction: column;
+            overflow: hidden; // Clip rounded corners cleanly
         }
 
-        sentinel-nested-agenda-container .nested-container a.mdc-button {
-            border-radius: 0 4px 4px 0 !important; // Flat left, rounded right
-            margin: 0 !important;
-            padding-left: 16px !important; // Text indentation
-            height: 38px !important;
-            
-            &.active, &[aria-current="page"], &.sentinel-active, &.fctf-active {
+        // Child buttons inside .nested: flush, no gap, so border looks continuous
+        sentinel-nested-agenda-container .nested a,
+        sentinel-nested-agenda-container .nested button {
+            width: 100% !important;
+            margin: 0 !important;       // No gaps between buttons
+            border-radius: 0 !important; // Flat so they stack cleanly
+            padding-left: 14px !important;
+            padding-right: 12px !important;
+            min-height: 36px !important;
+            height: 36px !important;
+            font-size: 0.85rem !important;
+            justify-content: flex-start !important;
+            color: #{$fctf-text-medium} !important;
+
+            &:hover {
                 background-color: #{$fctf-orange} !important;
                 color: #{$fctf-white} !important;
+
+                .mat-icon, mat-icon, .fctf-nav-icon {
+                    color: #{$fctf-white} !important;
+                }
+            }
+
+            // Active child button: solid orange fill (like Correct Submissions in FCTF)
+            &.active,
+            &[aria-current="page"],
+            &.sentinel-active,
+            &.fctf-active {
+                background-color: #{$fctf-orange} !important;
+                color: #{$fctf-white} !important;
+                font-weight: 700 !important;
+                box-shadow: none !important;
+                border-left: none !important;
+
+                .mat-icon, mat-icon, .fctf-nav-icon {
+                    color: #{$fctf-white} !important;
+                }
             }
         }
 
