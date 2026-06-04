@@ -125,7 +125,6 @@ $fctf-white: #ffffff;
                 &.sentinel-active,
                 &.fctf-active {
                     background-color: #{$fctf-orange} !important;
-                    border-left: none !important;
                     --mat-button-text-label-text-color: #{$fctf-white} !important;
                     --mat-icon-button-icon-color: #{$fctf-white} !important;
                     font-weight: 700;
@@ -174,17 +173,7 @@ $fctf-white: #ffffff;
             border-color: #{$fctf-border-light} !important;
         }
 
-        sentinel-agenda-element .nested {
-            height: auto;
-        }
 
-        sentinel-agenda-element .top-level {
-            height: auto;
-        }
-
-        sentinel-nested-agenda-container button {
-            margin: 4px 0;
-        }
 
         // ── Injected nav icons (via JS) ──
         .nav-drawer .fctf-nav-icon {
@@ -262,12 +251,12 @@ $fctf-white: #ffffff;
         // ── FCTF Dropdown: child button area (.nested) ──
         // ONE continuous left orange border for the whole block
         sentinel-nested-agenda-container .nested {
-            margin: 0 8px 6px 14px !important;  // left = matches button padding
+            margin: 0 8px 6px 36px !important;  // Indent the entire block (border + background)
             border-left: 3px solid #{$fctf-orange} !important;
             border-right: none !important;      // No right border on container
             background-color: rgba(255, 107, 53, 0.08) !important;
             border-radius: 0 6px 6px 0 !important;
-            padding: 4px 0 !important;
+            padding: 2px 0 !important;          // Reduced padding to make it tighter
             display: flex;
             flex-direction: column;
             overflow: hidden; // Clip rounded corners cleanly
@@ -290,10 +279,11 @@ $fctf-white: #ffffff;
             border-radius: 0 !important; // Flat so they stack cleanly
             border: none !important;     // Remove any individual borders (incl. right border)
             box-shadow: none !important; // Remove any shadow that looks like a right border
-            padding-left: 14px !important;
+            background-color: transparent !important; // Match the container's background
+            padding-left: 12px !important; // Text indentation relative to the left border
             padding-right: 12px !important;
-            min-height: 36px !important;
-            height: 36px !important;
+            min-height: 32px !important;  // Reduced from 36px
+            height: 32px !important;      // Reduced from 36px
             font-size: 0.85rem !important;
             justify-content: flex-start !important;
             color: #{$fctf-text-medium} !important;
