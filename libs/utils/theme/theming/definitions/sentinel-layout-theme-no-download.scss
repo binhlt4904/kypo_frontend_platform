@@ -62,6 +62,7 @@ $fctf-white: #ffffff;
             background-image: none;
             border-right: 1px solid #{$fctf-border-light};
             box-shadow: 2px 0 8px rgba(255, 107, 53, 0.06);
+            width: 190px !important;
         }
 
         // ── Override sentinel-layout1's .nav-content { overflow: hidden } to enable scroll ──
