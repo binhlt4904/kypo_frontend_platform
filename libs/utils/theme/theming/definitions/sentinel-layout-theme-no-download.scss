@@ -264,12 +264,21 @@ $fctf-white: #ffffff;
         sentinel-nested-agenda-container .nested {
             margin: 0 8px 6px 14px !important;  // left = matches button padding
             border-left: 3px solid #{$fctf-orange} !important;
+            border-right: none !important;      // No right border on container
             background-color: rgba(255, 107, 53, 0.08) !important;
             border-radius: 0 6px 6px 0 !important;
             padding: 4px 0 !important;
             display: flex;
             flex-direction: column;
             overflow: hidden; // Clip rounded corners cleanly
+        }
+
+        // Kill ALL borders/shadows on everything inside .nested (catches any inherited right borders)
+        sentinel-nested-agenda-container .nested,
+        sentinel-nested-agenda-container .nested * {
+            border-right: none !important;
+            box-shadow: none !important;
+            outline: none !important;
         }
 
         // Child buttons inside .nested: flush, no gap, so border looks continuous
