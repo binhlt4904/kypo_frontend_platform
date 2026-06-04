@@ -96,19 +96,20 @@ export class AppComponent implements OnInit, AfterViewInit {
 
             const urlLower = currentUrl.toLowerCase().split('?')[0];
 
+            // ── Top-level nav buttons ──
             // Map URL segments → { section, label } to activate
             const segmentMap: Array<{ segment: string; items: Array<{ section: string; label: string }> }> = [
                 { segment: 'adaptive-definition', items: [{ section: 'trainings', label: 'definition' }] },
-                { segment: 'linear-definition', items: [{ section: 'trainings', label: 'definition' }] },
-                { segment: 'adaptive-instance', items: [{ section: 'trainings', label: 'instance' }] },
-                { segment: 'linear-instance', items: [{ section: 'trainings', label: 'instance' }] },
-                { segment: 'run', items: [{ section: 'trainings', label: 'run' }] },
-                { segment: 'sandbox-definition', items: [{ section: 'sandboxes', label: 'definition' }] },
-                { segment: 'pool', items: [{ section: 'sandboxes', label: 'pool' }] },
-                { segment: 'sandbox-image', items: [{ section: 'sandboxes', label: 'images' }] },
-                { segment: 'user', items: [{ section: 'administration', label: 'user' }] },
-                { segment: 'group', items: [{ section: 'administration', label: 'group' }] },
-                { segment: 'microservice', items: [{ section: 'administration', label: 'microservice' }] },
+                { segment: 'linear-definition',   items: [{ section: 'trainings', label: 'definition' }] },
+                { segment: 'adaptive-instance',   items: [{ section: 'trainings', label: 'instance' }] },
+                { segment: 'linear-instance',     items: [{ section: 'trainings', label: 'instance' }] },
+                { segment: 'run',                 items: [{ section: 'trainings', label: 'run' }] },
+                { segment: 'sandbox-definition',  items: [{ section: 'sandboxes', label: 'definition' }] },
+                { segment: 'pool',                items: [{ section: 'sandboxes', label: 'pool' }] },
+                { segment: 'sandbox-image',       items: [{ section: 'sandboxes', label: 'images' }] },
+                { segment: 'user',                items: [{ section: 'administration', label: 'user' }] },
+                { segment: 'group',               items: [{ section: 'administration', label: 'group' }] },
+                { segment: 'microservice',        items: [{ section: 'administration', label: 'microservice' }] },
             ];
 
             // Find best match (longest segment wins)
@@ -123,12 +124,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
             if (!matchedItems.length) return;
 
-            // For each section in nav, find and activate matching buttons
+            // Activate matching TOP-LEVEL buttons
             const sections = navDrawer.querySelectorAll<HTMLElement>('sentinel-root-agenda-container');
             sections.forEach((section) => {
                 const sectionText = section.querySelector('.container')?.textContent?.trim().toLowerCase() ?? '';
                 section.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((btn) => {
-                    // Read only direct text nodes inside .mdc-button__label (exclude injected icon text)
                     const labelEl = btn.querySelector('.mdc-button__label');
                     const label = this.getButtonLabel(labelEl);
                     const shouldActivate = matchedItems.some(
@@ -139,6 +139,46 @@ export class AppComponent implements OnInit, AfterViewInit {
                     }
                 });
             });
+
+            // ── Child (nested) buttons ──
+            // Map URL → which child label inside which parent dropdown should be active
+            const childMap: Array<{ segment: string; parentLabel: string; childLabel: string }> = [
+                { segment: 'adaptive-definition', parentLabel: 'definition', childLabel: 'adaptive' },
+                { segment: 'linear-definition',   parentLabel: 'definition', childLabel: 'linear' },
+                { segment: 'adaptive-instance',   parentLabel: 'instance',   childLabel: 'adaptive' },
+                { segment: 'linear-instance',     parentLabel: 'instance',   childLabel: 'linear' },
+            ];
+
+            // Find the best child match
+            let bestChild: { parentLabel: string; childLabel: string } | null = null;
+            let bestChildLen = 0;
+            for (const { segment, parentLabel, childLabel } of childMap) {
+                if (urlLower.includes(segment) && segment.length > bestChildLen) {
+                    bestChild = { parentLabel, childLabel };
+                    bestChildLen = segment.length;
+                }
+            }
+
+            if (bestChild) {
+                // Find all sentinel-nested-agenda-container elements
+                navDrawer.querySelectorAll<HTMLElement>('sentinel-nested-agenda-container').forEach((container) => {
+                    const parentBtn = container.querySelector<HTMLElement>('.nested-container button, .nested-container a');
+                    if (!parentBtn) return;
+                    const parentLabel = this.getButtonLabel(parentBtn.querySelector('.mdc-button__label'));
+                    if (parentLabel !== bestChild!.parentLabel) return;
+
+                    // Found the right container — mark the matching child button
+                    const nestedDiv = container.querySelector<HTMLElement>('.nested');
+                    if (!nestedDiv) return;
+
+                    nestedDiv.querySelectorAll<HTMLElement>('a.mdc-button, button.mdc-button').forEach((childBtn) => {
+                        const childLabel = this.getButtonLabel(childBtn.querySelector('.mdc-button__label'));
+                        if (childLabel === bestChild!.childLabel) {
+                            childBtn.classList.add('fctf-active');
+                        }
+                    });
+                });
+            }
         }, 150);
     }
 
