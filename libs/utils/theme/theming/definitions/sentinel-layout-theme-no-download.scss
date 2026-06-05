@@ -62,12 +62,7 @@ $fctf-white: #ffffff;
             background-image: none;
             border-right: 1px solid #{$fctf-border-light};
             box-shadow: 2px 0 8px rgba(255, 107, 53, 0.06);
-            width: 220px !important; // Increased from 190px to prevent text clipping
-        }
-
-        // Fix content overlap due to widened sidebar
-        .nav-drawer.mat-drawer.mat-drawer-opened ~ .mat-drawer-content {
-            margin-left: 220px !important;
+            width: 220px; // No !important, so Angular Material autosize can read it naturally
         }
 
         // ── Override sentinel-layout1's .nav-content { overflow: hidden } to enable scroll ──
