@@ -65,6 +65,11 @@ $fctf-white: #ffffff;
             width: 220px !important; // Increased from 190px to prevent text clipping
         }
 
+        // Fix content overlap due to widened sidebar
+        .nav-drawer.mat-drawer.mat-drawer-opened ~ .mat-drawer-content {
+            margin-left: 220px !important;
+        }
+
         // ── Override sentinel-layout1's .nav-content { overflow: hidden } to enable scroll ──
         .nav-drawer .nav-content {
             overflow-y: auto !important;
