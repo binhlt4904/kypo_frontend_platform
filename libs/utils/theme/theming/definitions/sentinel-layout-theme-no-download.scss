@@ -254,7 +254,7 @@ $fctf-white: #ffffff;
             margin: 0 8px 6px 24px !important;  // Indent the entire block (border + background)
             border-left: 3px solid #{$fctf-orange} !important;
             border-right: none !important;      // No right border on container
-            background-color: rgba(255, 107, 53, 0.08) !important;
+            // background-color: rgba(255, 107, 53, 0.08) !important;
             border-radius: 0 6px 6px 0 !important;
             padding: 0px 0 !important;          // Reduced padding to make it tighter
             display: flex;
