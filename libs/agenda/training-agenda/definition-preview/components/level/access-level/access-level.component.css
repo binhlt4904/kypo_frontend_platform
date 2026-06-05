@@ -91,9 +91,9 @@ h3 {
 .bottom-card {
     position: fixed;
     bottom: 0;
-    left: 190px;
+    left: 220px;
     z-index: 10;
-    width: calc(100vw - (100vw - 100%) - 16px - 190px);
+    width: calc(100vw - (100vw - 100%) - 16px - 220px);
     padding: 8px;
 }
 
