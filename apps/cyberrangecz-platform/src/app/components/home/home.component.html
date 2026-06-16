@@ -1,5 +1,30 @@
 <div class="portal-content">
-    <div class="portal-title">Vườn Trẻ</div>
+    <div class="portal-title">Vườn trẻ Dashboard</div>
+    
+    <!-- Proxmox VE style Dashboard Metrics Summary -->
+    <div class="portal-summary-row">
+        <div class="summary-card">
+            <div class="summary-card-label">System Status</div>
+            <div class="summary-card-value" style="color: var(--success);">OK</div>
+            <div class="summary-card-sub">All services operational</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-card-label">CPU Usage</div>
+            <div class="summary-card-value">12.5%</div>
+            <div class="summary-card-sub">4 / 32 Cores</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-card-label">RAM Usage</div>
+            <div class="summary-card-value">42.1%</div>
+            <div class="summary-card-sub">26.9 GB / 64 GB</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-card-label">Stored Definitions</div>
+            <div class="summary-card-value">18</div>
+            <div class="summary-card-sub">Sandboxes & Labs</div>
+        </div>
+    </div>
+
     <div class="portal-menu">
         @for (portalAgendaContainer of portalAgendaContainers; track portalAgendaContainer; let last = $last) {
         <div>
