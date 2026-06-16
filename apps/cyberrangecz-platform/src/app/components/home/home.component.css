@@ -1,24 +1,103 @@
-h1 {
-    font-size: xx-large;
-    margin-bottom: 33px;
-    text-align: center;
+/* ===== Proxmox VE UI – Home Page ===== */
+:host {
+    --bg-main: #f0f0f0;
+    --bg-card: #ffffff;
+    --bg-section-header: #e8e8e8;
+    --accent: #e67e22;
+    --accent-hover: #d35400;
+    --accent-light: #fdf0e6;
+    --text-dark: #333333;
+    --text-muted: #666666;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --error: #e74c3c;
+    --border: #cccccc;
+    --border-dark: #aaaaaa;
+    --radius: 3px;
+    --font-main: 'Helvetica Neue', Arial, Tahoma, sans-serif;
 }
 
+/* ===== Page layout ===== */
 .portal-content {
     width: 100%;
+    font-family: var(--font-main);
+    font-size: 13px;
+    color: var(--text-dark);
+    background: var(--bg-main);
+    padding: 0;
 }
 
+/* ===== Page title ===== */
+.portal-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin: 0 0 12px 0;
+    padding: 0 0 6px 0;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+/* ===== Summary cards row ===== */
+.portal-summary-row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    min-width: 160px;
+    flex: 1;
+}
+
+.summary-card-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.summary-card-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--accent);
+    line-height: 1.1;
+}
+
+.summary-card-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* ===== Menu sections ===== */
 .portal-menu {
-    margin-top: 3rem;
     display: flex;
     flex-direction: column;
+    gap: 0;
+    margin-top: 0;
 }
 
-@media screen and (max-width: 1580px) {
-    .portal-row {
+/* ===== Section divider ===== */
+.portal-section-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0;
+}
+
+@media screen and (max-width: 1024px) {
+    .portal-summary-row {
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
+    }
+    .summary-card {
+        min-width: unset;
     }
 }
-

@@ -1,67 +1,124 @@
-h2 {
-    font-size: 24px;
+/* ===== Proxmox VE – Section Panel ===== */
+
+/* Section container */
+.pve-section {
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    font-family: 'Helvetica Neue', Arial, Tahoma, sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+}
+
+/* Section header row */
+.pve-section-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    background: #e8e8e8;
+    border-bottom: 2px solid #e67e22;
+    padding: 6px 12px;
+    height: 30px;
+}
+
+.section-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    color: #e67e22;
+    line-height: 16px !important;
+}
+
+.section-label {
+    font-size: 13px;
     font-weight: bold;
-    color: #ff6b35;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 1px;
-}
-
-.portal-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-bottom: 40px;
-    width: 100%;
-    gap: 3rem;
-}
-
-.last-agenda {
-    padding-bottom: 0;
-}
-
-.portal-items-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: flex-start;
-    padding-top: 25px;
-    padding-left: 25px;
-    width: 50%;
-}
-
-.portal-items-container>* {
+    color: #333333;
     flex: 1;
+    letter-spacing: 0.2px;
 }
 
-.portal-description-container {
+.section-count {
+    font-size: 11px;
+    color: #888888;
+    padding: 1px 6px;
+    background: #f0f0f0;
+    border: 1px solid #cccccc;
+    border-radius: 2px;
+}
+
+/* Section body = table rows */
+.pve-section-body {
     display: flex;
     flex-direction: column;
-    padding-right: 50px;
-    width: 50%;
 }
 
-.portal-description-container h1 {
+/* Data row */
+.pve-row {
     display: flex;
-    justify-items: flex-start;
-    margin: 0;
-    padding-bottom: 20px;
+    flex-direction: row;
+    align-items: center;
+    min-height: 42px;
+    border-bottom: 1px solid #e8e8e8;
+    background: #ffffff;
+    transition: background 0.1s;
+    gap: 0;
 }
 
-@media screen and (max-width: 1580px) {
-    .portal-row {
+.pve-row:last-child {
+    border-bottom: none;
+}
+
+.pve-row:hover {
+    background: #fdf0e6;
+}
+
+/* Zebra striping */
+.pve-row-alt {
+    background: #f9f9f9;
+}
+
+.pve-row-alt:hover {
+    background: #fdf0e6;
+}
+
+/* Left cell: action button */
+.pve-row-icon-cell {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px 6px 12px;
+    min-width: 200px;
+    border-right: 1px solid #e8e8e8;
+}
+
+/* Right cell: description */
+.pve-row-desc-cell {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    flex: 1;
+    color: #555555;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+@media screen and (max-width: 900px) {
+    .pve-row {
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        align-items: flex-start;
+        min-height: unset;
+        padding: 6px 0;
     }
 
-    .portal-items-container {
-        justify-content: center;
-        padding-left: 0;
+    .pve-row-icon-cell {
+        border-right: none;
+        border-bottom: 1px solid #e8e8e8;
+        min-width: unset;
+        width: 100%;
     }
-}
 
-@media screen and (max-width: 1150px) {
-    .portal-items-container {
-        width: 90%;
+    .pve-row-desc-cell {
+        width: 100%;
     }
-}
+}

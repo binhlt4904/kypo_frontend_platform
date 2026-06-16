@@ -1,11 +1,14 @@
+/* ===== Proxmox VE – Description text ===== */
 span {
-    font-size: 19px;
-    line-height: 24px;
-    transition: 0.3s;
+    font-family: 'Helvetica Neue', Arial, Tahoma, sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #555555;
+    display: block;
+    transition: color 0.1s;
 }
 
-
-
-.text-elevation, .text-reactive:hover {
-    text-shadow: 1px 0 black;
+.text-elevation,
+.text-reactive:hover {
+    color: #e67e22;
 }

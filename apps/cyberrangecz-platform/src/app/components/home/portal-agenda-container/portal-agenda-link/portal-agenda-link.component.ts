@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { AgendaPortalLink } from '../../../../model/agenda-portal-link';
 import { NgClass } from '@angular/common';
-import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ValidPath } from '@crczp/routing-commons';
 
@@ -17,7 +16,7 @@ import { ValidPath } from '@crczp/routing-commons';
     templateUrl: './portal-agenda-link.component.html',
     styleUrls: ['./portal-agenda-link.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [MatIcon, NgClass, MatButton],
+    imports: [MatIcon, NgClass],
 })
 export class PortalAgendaLinkComponent {
     @Input() portalAgendaLink: AgendaPortalLink;
