@@ -4,11 +4,6 @@
     <!-- Proxmox VE style Dashboard Metrics Summary -->
     <div class="portal-summary-row">
         <div class="summary-card">
-            <div class="summary-card-label">System Status</div>
-            <div class="summary-card-value" style="color: var(--success);">OK</div>
-            <div class="summary-card-sub">All services operational</div>
-        </div>
-        <div class="summary-card">
             <div class="summary-card-label">CPU Usage</div>
             <div class="summary-card-value">12.5%</div>
             <div class="summary-card-sub">4 / 32 Cores</div>
@@ -25,8 +20,54 @@
         </div>
     </div>
 
-    <!-- Full Width Dashboard Layout (Removed Portal Agenda Menus) -->
+    <!-- Full Width Dashboard Layout (Removed Node Information) -->
     <div class="dashboard-grid-full">
+        <!-- Resource Quantities (from Navigation Menu items) -->
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">System Agendas & Resource Counts</span>
+            </div>
+            <div class="chart-panel-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                    <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted);">Training Runs</div>
+                        <div style="font-size: 18px; font-weight: bold; color: var(--accent);">1</div>
+                        <div style="font-size: 9px; color: var(--text-muted);">Currently Active</div>
+                    </div>
+                    <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted);">Definitions</div>
+                        <div style="font-size: 18px; font-weight: bold; color: var(--accent);">12</div>
+                        <div style="font-size: 9px; color: var(--text-muted);">Sandbox & Training blueprints</div>
+                    </div>
+                    <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted);">Pools</div>
+                        <div style="font-size: 18px; font-weight: bold; color: var(--accent);">5</div>
+                        <div style="font-size: 9px; color: var(--text-muted);">Sandbox Pools</div>
+                    </div>
+                    <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted);">Instances</div>
+                        <div style="font-size: 18px; font-weight: bold; color: var(--accent);">3</div>
+                        <div style="font-size: 9px; color: var(--text-muted);">Active Training sessions</div>
+                    </div>
+                    <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted);">Groups</div>
+                        <div style="font-size: 18px; font-weight: bold; color: var(--accent);">8</div>
+                        <div style="font-size: 9px; color: var(--text-muted);">User Groups</div>
+                    </div>
+                    <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted);">Users</div>
+                        <div style="font-size: 18px; font-weight: bold; color: var(--accent);">124</div>
+                        <div style="font-size: 9px; color: var(--text-muted);">Registered accounts</div>
+                    </div>
+                    <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
+                        <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted);">Microservices</div>
+                        <div style="font-size: 18px; font-weight: bold; color: var(--accent);">6</div>
+                        <div style="font-size: 9px; color: var(--text-muted);">Operational modules</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="chart-panel">
             <div class="chart-panel-header">
                 <span class="panel-header-title">CPU Utilization (Last 10 mins)</span>
@@ -88,45 +129,6 @@
                         <div class="progress-bar-fill" style="width: 35.7%; background-color: var(--success);"></div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Stored resources metadata -->
-        <div class="chart-panel">
-            <div class="chart-panel-header">
-                <span class="panel-header-title">Cluster Node Information</span>
-            </div>
-            <div class="panel-table-container">
-                <table class="panel-table">
-                    <thead>
-                        <tr>
-                            <th>Node Name</th>
-                            <th>IP Address</th>
-                            <th>Status</th>
-                            <th>Uptime</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>crc-node-01</strong> (Leader)</td>
-                            <td>10.10.20.11</td>
-                            <td><span class="status-badge status-ok">Online</span></td>
-                            <td>14d 8h 22m</td>
-                        </tr>
-                        <tr class="alt-row">
-                            <td><strong>crc-node-02</strong></td>
-                            <td>10.10.20.12</td>
-                            <td><span class="status-badge status-ok">Online</span></td>
-                            <td>14d 8h 19m</td>
-                        </tr>
-                        <tr>
-                            <td><strong>crc-node-03</strong></td>
-                            <td>10.10.20.13</td>
-                            <td><span class="status-badge status-ok">Online</span></td>
-                            <td>9d 2h 45m</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
