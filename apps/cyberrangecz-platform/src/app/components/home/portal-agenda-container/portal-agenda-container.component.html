@@ -1,26 +1,28 @@
 @if (portalAgendaContainer.displayed) {
-    <div class="portal-row">
-        <div class="portal-items-container">
-            @for (agendaPortalLink of portalAgendaContainer.agendas; track agendaPortalLink) {
-                <div>
-                    <crczp-portal-agenda-link
-                        [portalAgendaLink]="agendaPortalLink"
-                        [elevation]="elevation"
-                        (navigate)="navigate($event)"
-                        (elevate)="elevate($event)"/>
-                </div>
-            }
+    <div class="pve-section">
+        <div class="pve-section-header">
+            <mat-icon class="section-icon">{{ portalAgendaContainer.icon }}</mat-icon>
+            <span class="section-label">{{ portalAgendaContainer.label }}</span>
+            <span class="section-count">{{ portalAgendaContainer.agendas.length }} item(s)</span>
         </div>
-        <div class="portal-description-container">
-            <h2>{{ portalAgendaContainer.label }}</h2>
-            @for (agenda of portalAgendaContainer.agendas; track agenda) {
-                <div>
-                    <crczp-portal-agenda-description
-                        [label]="agenda.label"
-                        [description]="agenda.description"
-                        [disabled]="agenda.disabled"
-                        [elevation]="elevation"
-                        (elevate)="elevate($event)"/>
+        <div class="pve-section-body">
+            @for (agendaPortalLink of portalAgendaContainer.agendas; track agendaPortalLink; let i = $index) {
+                <div class="pve-row" [class.pve-row-alt]="i % 2 === 1">
+                    <div class="pve-row-icon-cell">
+                        <crczp-portal-agenda-link
+                            [portalAgendaLink]="agendaPortalLink"
+                            [elevation]="elevation"
+                            (navigate)="navigate($event)"
+                            (elevate)="elevate($event)"/>
+                    </div>
+                    <div class="pve-row-desc-cell">
+                        <crczp-portal-agenda-description
+                            [label]="agendaPortalLink.label"
+                            [description]="agendaPortalLink.description"
+                            [disabled]="agendaPortalLink.disabled"
+                            [elevation]="elevation"
+                            (elevate)="elevate($event)"/>
+                    </div>
                 </div>
             }
         </div>

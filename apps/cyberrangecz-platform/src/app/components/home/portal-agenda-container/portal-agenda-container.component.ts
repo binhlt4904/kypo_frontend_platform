@@ -5,6 +5,7 @@ import {
     Input,
     Output,
 } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
 import { PortalAgendaContainer } from '../../../model/portal-agenda-container';
 import { PortalAgendaDescriptionComponent } from './portal-agenda-description/portal-agenda-description.component';
 import { PortalAgendaLinkComponent } from './portal-agenda-link/portal-agenda-link.component';
@@ -15,7 +16,7 @@ import { ValidPath } from '@crczp/routing-commons';
     templateUrl: './portal-agenda-container.component.html',
     styleUrls: ['./portal-agenda-container.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [PortalAgendaDescriptionComponent, PortalAgendaLinkComponent],
+    imports: [PortalAgendaDescriptionComponent, PortalAgendaLinkComponent, MatIcon],
 })
 export class PortalAgendaContainerComponent {
     @Input() portalAgendaContainer: PortalAgendaContainer;
