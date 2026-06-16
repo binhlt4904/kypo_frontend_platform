@@ -93,24 +93,12 @@
     margin: 8px 0;
 }
 
-/* ===== Two Column Dashboard Grid ===== */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+/* ===== Full Width Dashboard Grid ===== */
+.dashboard-grid-full {
+    display: flex;
+    flex-direction: column;
     gap: 16px;
     margin-top: 16px;
-    align-items: start;
-}
-
-.dashboard-left-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.dashboard-right-panel {
-    display: flex;
-    flex-direction: column;
 }
 
 /* ===== Chart / Info Panels ===== */

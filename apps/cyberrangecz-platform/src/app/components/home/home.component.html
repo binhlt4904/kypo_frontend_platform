@@ -25,123 +25,108 @@
         </div>
     </div>
 
-    <!-- Two Column Dashboard Layout -->
-    <div class="dashboard-grid">
-        <!-- Left Column: Resource Graphs and Statistics -->
-        <div class="dashboard-left-panel">
-            <div class="chart-panel">
-                <div class="chart-panel-header">
-                    <span class="panel-header-title">CPU Utilization (Last 10 mins)</span>
-                </div>
-                <div class="chart-panel-body">
-                    <!-- SVG Chart for CPU -->
-                    <svg viewBox="0 0 400 120" class="realtime-chart">
-                        <defs>
-                            <linearGradient id="cpuGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
-                                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-                            </linearGradient>
-                        </defs>
-                        <!-- Grid lines -->
-                        <line x1="0" y1="30" x2="400" y2="30" stroke="#f1f3f5" stroke-width="1" />
-                        <line x1="0" y1="60" x2="400" y2="60" stroke="#f1f3f5" stroke-width="1" />
-                        <line x1="0" y1="90" x2="400" y2="90" stroke="#f1f3f5" stroke-width="1" />
-                        <!-- Area & Line -->
-                        <path d="M 0 120 L 0 100 L 40 90 L 80 105 L 120 70 L 160 85 L 200 40 L 240 50 L 280 30 L 320 45 L 360 25 L 400 35 L 400 120 Z" fill="url(#cpuGrad)" />
-                        <path d="M 0 100 L 40 90 L 80 105 L 120 70 L 160 85 L 200 40 L 240 50 L 280 30 L 320 45 L 360 25 L 400 35" fill="none" stroke="var(--accent)" stroke-width="2" />
-                    </svg>
-                    <div class="chart-footer">
-                        <span>10m ago</span>
-                        <span>5m ago</span>
-                        <span>Now</span>
-                    </div>
-                </div>
+    <!-- Full Width Dashboard Layout (Removed Portal Agenda Menus) -->
+    <div class="dashboard-grid-full">
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">CPU Utilization (Last 10 mins)</span>
             </div>
-
-            <div class="chart-panel">
-                <div class="chart-panel-header">
-                    <span class="panel-header-title">RAM Distribution</span>
-                </div>
-                <div class="chart-panel-body">
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-label">
-                            <span>Used memory (26.9 GB)</span>
-                            <span>42.1%</span>
-                        </div>
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill" style="width: 42.1%; background-color: var(--accent);"></div>
-                        </div>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-label">
-                            <span>Buffer / Cache (14.2 GB)</span>
-                            <span>22.2%</span>
-                        </div>
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill" style="width: 22.2%; background-color: var(--warning);"></div>
-                        </div>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-label">
-                            <span>Free memory (22.9 GB)</span>
-                            <span>35.7%</span>
-                        </div>
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill" style="width: 35.7%; background-color: var(--success);"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stored resources metadata -->
-            <div class="chart-panel">
-                <div class="chart-panel-header">
-                    <span class="panel-header-title">Cluster Node Information</span>
-                </div>
-                <div class="panel-table-container">
-                    <table class="panel-table">
-                        <thead>
-                            <tr>
-                                <th>Node Name</th>
-                                <th>IP Address</th>
-                                <th>Status</th>
-                                <th>Uptime</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>crc-node-01</strong> (Leader)</td>
-                                <td>10.10.20.11</td>
-                                <td><span class="status-badge status-ok">Online</span></td>
-                                <td>14d 8h 22m</td>
-                            </tr>
-                            <tr class="alt-row">
-                                <td><strong>crc-node-02</strong></td>
-                                <td>10.10.20.12</td>
-                                <td><span class="status-badge status-ok">Online</span></td>
-                                <td>14d 8h 19m</td>
-                            </tr>
-                            <tr>
-                                <td><strong>crc-node-03</strong></td>
-                                <td>10.10.20.13</td>
-                                <td><span class="status-badge status-ok">Online</span></td>
-                                <td>9d 2h 45m</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="chart-panel-body">
+                <!-- SVG Chart for CPU -->
+                <svg viewBox="0 0 400 120" class="realtime-chart">
+                    <defs>
+                        <linearGradient id="cpuGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Grid lines -->
+                    <line x1="0" y1="30" x2="400" y2="30" stroke="#f1f3f5" stroke-width="1" />
+                    <line x1="0" y1="60" x2="400" y2="60" stroke="#f1f3f5" stroke-width="1" />
+                    <line x1="0" y1="90" x2="400" y2="90" stroke="#f1f3f5" stroke-width="1" />
+                    <!-- Area & Line -->
+                    <path d="M 0 120 L 0 100 L 40 90 L 80 105 L 120 70 L 160 85 L 200 40 L 240 50 L 280 30 L 320 45 L 360 25 L 400 35 L 400 120 Z" fill="url(#cpuGrad)" />
+                    <path d="M 0 100 L 40 90 L 80 105 L 120 70 L 160 85 L 200 40 L 240 50 L 280 30 L 320 45 L 360 25 L 400 35" fill="none" stroke="var(--accent)" stroke-width="2" />
+                </svg>
+                <div class="chart-footer">
+                    <span>10m ago</span>
+                    <span>5m ago</span>
+                    <span>Now</span>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column: Portal Agenda Items -->
-        <div class="dashboard-right-panel">
-            <div class="portal-menu">
-                @for (portalAgendaContainer of portalAgendaContainers; track portalAgendaContainer; let last = $last) {
-                <div>
-                    <crczp-portal-agenda-container [portalAgendaContainer]="portalAgendaContainer" [elevation]="elevated"
-                        [isLast]="last" (navigation)="navigateToRoute($event)" (setElevation)="setElevation($event)" />
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">RAM Distribution</span>
+            </div>
+            <div class="chart-panel-body">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-label">
+                        <span>Used memory (26.9 GB)</span>
+                        <span>42.1%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" style="width: 42.1%; background-color: var(--accent);"></div>
+                    </div>
                 </div>
-                }
+                <div class="progress-bar-container">
+                    <div class="progress-bar-label">
+                        <span>Buffer / Cache (14.2 GB)</span>
+                        <span>22.2%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" style="width: 22.2%; background-color: var(--warning);"></div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-label">
+                        <span>Free memory (22.9 GB)</span>
+                        <span>35.7%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" style="width: 35.7%; background-color: var(--success);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stored resources metadata -->
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">Cluster Node Information</span>
+            </div>
+            <div class="panel-table-container">
+                <table class="panel-table">
+                    <thead>
+                        <tr>
+                            <th>Node Name</th>
+                            <th>IP Address</th>
+                            <th>Status</th>
+                            <th>Uptime</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>crc-node-01</strong> (Leader)</td>
+                            <td>10.10.20.11</td>
+                            <td><span class="status-badge status-ok">Online</span></td>
+                            <td>14d 8h 22m</td>
+                        </tr>
+                        <tr class="alt-row">
+                            <td><strong>crc-node-02</strong></td>
+                            <td>10.10.20.12</td>
+                            <td><span class="status-badge status-ok">Online</span></td>
+                            <td>14d 8h 19m</td>
+                        </tr>
+                        <tr>
+                            <td><strong>crc-node-03</strong></td>
+                            <td>10.10.20.13</td>
+                            <td><span class="status-badge status-ok">Online</span></td>
+                            <td>9d 2h 45m</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
