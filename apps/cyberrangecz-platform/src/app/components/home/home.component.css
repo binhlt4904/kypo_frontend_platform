@@ -93,11 +93,151 @@
     margin: 8px 0;
 }
 
+/* ===== Two Column Dashboard Grid ===== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 16px;
+    margin-top: 16px;
+    align-items: start;
+}
+
+.dashboard-left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dashboard-right-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Chart / Info Panels ===== */
+.chart-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.chart-panel-header {
+    background: var(--bg-section-header);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+}
+
+.panel-header-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.chart-panel-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ===== SVG Graph ===== */
+.realtime-chart {
+    width: 100%;
+    height: 120px;
+    background: #fafafa;
+    border: 1px solid #f1f3f5;
+    border-radius: 4px;
+}
+
+.chart-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* ===== Progress Bars ===== */
+.progress-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.progress-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-dark);
+}
+
+.progress-bar-track {
+    height: 6px;
+    background: #f1f3f5;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ===== Node Table ===== */
+.panel-table-container {
+    overflow-x: auto;
+}
+
+.panel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+}
+
+.panel-table th {
+    background: #f8f9fa;
+    color: var(--text-muted);
+    font-weight: bold;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.panel-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f3f5;
+    color: var(--text-dark);
+}
+
+.alt-row {
+    background: #fdfdfd;
+}
+
+/* ===== Status Badges ===== */
+.status-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+.status-ok {
+    background: rgba(46, 196, 182, 0.15);
+    color: var(--success);
+}
+
 @media screen and (max-width: 1024px) {
     .portal-summary-row {
         flex-direction: column;
     }
     .summary-card {
         min-width: unset;
+    }
+    .dashboard-grid {
+        grid-template-columns: 1fr;
     }
 }
