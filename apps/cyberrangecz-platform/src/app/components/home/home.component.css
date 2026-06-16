@@ -1,20 +1,20 @@
-/* ===== Proxmox VE UI – Home Page ===== */
+/* ===== FCTF Orange VE Theme – Home Page ===== */
 :host {
-    --bg-main: #f0f0f0;
+    --bg-main: #fcfcfc;
     --bg-card: #ffffff;
-    --bg-section-header: #e8e8e8;
-    --accent: #e67e22;
-    --accent-hover: #d35400;
-    --accent-light: #fdf0e6;
-    --text-dark: #333333;
-    --text-muted: #666666;
-    --success: #27ae60;
-    --warning: #f39c12;
-    --error: #e74c3c;
-    --border: #cccccc;
-    --border-dark: #aaaaaa;
-    --radius: 3px;
-    --font-main: 'Helvetica Neue', Arial, Tahoma, sans-serif;
+    --bg-section-header: #f8f9fa;
+    --accent: #ff6b35;
+    --accent-hover: #e85d2a;
+    --accent-light: rgba(255, 107, 53, 0.08);
+    --text-dark: #2c3e50;
+    --text-muted: #6c757d;
+    --success: #2ec4b6;
+    --warning: #ff9f1c;
+    --error: #e71d36;
+    --border: #f1f3f5;
+    --border-dark: #e9ecef;
+    --radius: 5px;
+    --font-main: 'Space Mono', monospace, 'Helvetica Neue', Arial;
 }
 
 /* ===== Page layout ===== */

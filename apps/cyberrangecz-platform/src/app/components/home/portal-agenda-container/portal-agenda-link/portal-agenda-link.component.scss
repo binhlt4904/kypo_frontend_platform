@@ -1,6 +1,6 @@
 @use "@angular/material" as mat;
 
-/* ===== Proxmox VE – Compact Button Styles ===== */
+/* ===== FCTF VE Theme – Compact Button Styles ===== */
 
 .pve-link-container {
     display: flex;
@@ -8,17 +8,17 @@
     position: relative;
 }
 
-/* Primary button: cam accent, compact */
+/* Primary button: FCTF orange accent, compact */
 .pve-btn {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     height: 26px;
     padding: 3px 10px;
-    font-family: 'Helvetica Neue', Arial, Tahoma, sans-serif;
+    font-family: 'Space Mono', monospace, Arial, sans-serif;
     font-size: 12px;
     font-weight: normal;
-    border-radius: 3px;
+    border-radius: 5px;
     border: 1px solid transparent;
     cursor: pointer;
     transition: background 0.1s, border-color 0.1s;
@@ -27,19 +27,19 @@
 }
 
 .pve-btn-primary {
-    background: #e67e22;
+    background: #ff6b35;
     color: #ffffff;
-    border-color: #c86a15;
+    border-color: #e85d2a;
 }
 
 .pve-btn-primary:hover {
-    background: #d35400;
-    border-color: #b94600;
+    background: #e85d2a;
+    border-color: #d24d1c;
 }
 
 .pve-btn-active {
-    background: #d35400 !important;
-    border-color: #b94600 !important;
+    background: #e85d2a !important;
+    border-color: #d24d1c !important;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
@@ -76,7 +76,7 @@
 }
 
 .dropdown-btn {
-    border-radius: 3px;
+    border-radius: 5px;
 }
 
 /* Dropdown menu */
@@ -86,10 +86,10 @@
     left: 0;
     z-index: 100;
     background: #ffffff;
-    border: 1px solid #cccccc;
-    border-radius: 3px;
+    border: 1px solid #f1f3f5;
+    border-radius: 5px;
     min-width: 150px;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 2px 2px 8px rgba(255, 107, 53, 0.08);
     animation: dropdownSlide 0.1s ease-out;
 }
 
@@ -111,12 +111,12 @@
     gap: 6px;
     width: 100%;
     padding: 5px 10px;
-    font-family: 'Helvetica Neue', Arial, Tahoma, sans-serif;
+    font-family: 'Space Mono', monospace, Arial, sans-serif;
     font-size: 12px;
-    color: #333333;
+    color: #2c3e50;
     background: transparent;
     border: none;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid #f8f9fa;
     cursor: pointer;
     text-align: left;
     transition: background 0.1s;
@@ -127,8 +127,8 @@
 }
 
 .pve-dropdown-item:hover {
-    background: #fdf0e6;
-    color: #e67e22;
+    background: rgba(255, 107, 53, 0.08);
+    color: #ff6b35;
 }
 
 .pve-dropdown-item-icon {
@@ -136,5 +136,5 @@
     width: 13px !important;
     height: 13px !important;
     line-height: 13px !important;
-    color: #e67e22;
-}
+    color: #ff6b35;
+}
