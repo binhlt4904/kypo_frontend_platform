@@ -1,16 +1,10 @@
 @let topoCollapsed = (topologyService.topologyCollapsed$ | async) ?? false;
 
 @if (runService.runInfo$.observeProperty().isStepperDisplayed.$() | async) {
-    <div
-        (sentinelResize)="onStepperResized($event.height)"
-        class="training-run-stepper round-scrollbar">
-        <crczp-stepper
-            (stepClicked)="runService.displayLevelByOrder($event)"
-            [lastEnabledIndex]="stepperLastIndex()"
-            [selectedIndex]="stepperSelectedIndex()"
-            [steps]="stepperSteps()"
-        />
-    </div>
+<div (sentinelResize)="onStepperResized($event.height)" class="training-run-stepper round-scrollbar">
+    <crczp-stepper (stepClicked)="runService.displayLevelByOrder($event)" [lastEnabledIndex]="stepperLastIndex()"
+        [selectedIndex]="stepperSelectedIndex()" [steps]="stepperSteps()" />
+</div>
 }
 
 <div class="status-row">
@@ -25,87 +19,99 @@
         </div>
     </div>
     @if (sandboxInstanceId()) {
-        <div class="stat">
-            <div class="stat-lbl">Sandbox</div>
-            <div class="stat-val">{{ sandboxInstanceId() }}</div>
-        </div>
+    <div class="stat">
+        <div class="stat-lbl">Sandbox</div>
+        <div class="stat-val">{{ sandboxInstanceId() }}</div>
+    </div>
     }
     @if (stepperSteps().length > 0) {
-        <div class="stat">
-            <div class="stat-lbl">Progress</div>
-            <div class="stat-val">{{ (stepperLastIndex() ?? 0) + 1 }} / {{ stepperSteps().length }}</div>
-        </div>
+    <div class="stat">
+        <div class="stat-lbl">Progress</div>
+        <div class="stat-val">{{ (stepperLastIndex() ?? 0) + 1 }} / {{ stepperSteps().length }}</div>
+    </div>
     }
     @let startTime = (startTime$ | async);
     @if (startTime) {
-        <div class="stat stat--timer">
-            <div class="stat-lbl">Elapsed</div>
-            <crczp-training-timer
-                [startTime]="startTime"
-                class="timer"
-                matTooltip="Time since the start of the run"
-                matTooltipPosition="above"
-            />
+    <div class="stat stat--timer">
+        <div class="stat-lbl">Elapsed</div>
+        <crczp-training-timer [startTime]="startTime" class="timer" matTooltip="Time since the start of the run"
+            matTooltipPosition="above" />
+    </div>
+    }
+</div>
+
+<!-- ── Horizontal workspace (task | topology) ──────────────────────── -->
+<div #splitContainer class="workspace-shell" [class.topo-fullscreen]="topoFullscreen()"
+    [class.task-hidden]="!taskDescriptionVisible()">
+
+    <!-- LEFT: Task description pane -->
+    <div class="task-pane" [class.task-pane--hidden]="!taskDescriptionVisible()"
+        [style.width.px]="taskDescriptionVisible() ? taskPaneWidth() : 0">
+
+        <!-- Task zone bar with toggle button -->
+        <div class="zone-bar zone-bar--task">
+            <span class="zone-bar__label">Task description</span>
+            @if (stepperSteps().length > 0) {
+            <span class="zone-bar__badge">Phase {{ (stepperSelectedIndex() ?? 0) + 1 }}</span>
+            }
+            <button type="button" class="zone-action-btn zone-action-btn--hide" (click)="toggleTaskDescription()"
+                title="Hide task description" aria-label="Hide task description">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
         </div>
-    }
-</div>
 
-<div class="zone-bar">
-    <span class="zone-bar__label">Task description</span>
-    @if (stepperSteps().length > 0) {
-        <span class="zone-bar__badge">Phase {{ (stepperSelectedIndex() ?? 0) + 1 }}</span>
-    }
-</div>
-
-<div
-    #splitContainer
-    class="workspace-shell"
-    [style.--run-submit-flag-bottom.px]="topologyAllowed() ? (topoCollapsed ? 43 : topoHeight() + 43) : 14"
-    [style.--run-task-bottom-padding.px]="topologyAllowed() ? (topoCollapsed ? 80 : topoHeight() + 96) : 96">
-    <div #levelContent class="workspace">
-        <div class="task-zone">
-            @switch (levelType()) {
+        <div class="task-scroll-area">
+            <div class="task-zone">
+                @switch (levelType()) {
                 @case (AbstractLevelTypeEnum.Info) {
-                    <crczp-info-level />
+                <crczp-info-level />
                 }
                 @case (AbstractPhaseTypeEnum.Info) {
-                    <crczp-info-level />
+                <crczp-info-level />
                 }
                 @case (AbstractLevelTypeEnum.Access) {
-                    <crczp-linear-access-level />
+                <crczp-linear-access-level />
                 }
                 @case (AbstractPhaseTypeEnum.Access) {
-                    <crczp-adaptive-access-level />
+                <crczp-adaptive-access-level />
                 }
                 @case (AbstractLevelTypeEnum.Training) {
-                    <crczp-linear-training-level />
+                <crczp-linear-training-level />
                 }
                 @case (AbstractPhaseTypeEnum.Training) {
-                    <crczp-adaptive-training-level />
+                <crczp-adaptive-training-level />
                 }
                 @case (AbstractLevelTypeEnum.Assessment) {
-                    <crczp-assessment-level />
+                <crczp-assessment-level />
                 }
                 @case (AbstractPhaseTypeEnum.Questionnaire) {
-                    <crczp-questionnaire-level />
+                <crczp-questionnaire-level />
                 }
-            }
+                }
+            </div>
         </div>
     </div>
 
-    @if (topologyAllowed() && !topoCollapsed) {
-        <div
-            class="resize-handle"
-            [style.bottom.px]="topoHeight() + 29"
-            (mousedown)="onResizeHandleMouseDown($event)">
-        </div>
+    <!-- Collapsed task description tab (show button) -->
+    @if (!taskDescriptionVisible()) {
+    <button type="button" class="task-show-tab" (click)="toggleTaskDescription()" title="Show task description"
+        aria-label="Show task description">
+        <mat-icon>chevron_right</mat-icon>
+        <span class="task-show-tab__label">Task</span>
+    </button>
     }
 
-    <crczp-run-topology-wrapper
-        [topologyAllowed]="topologyAllowed()"
-        [style.height.px]="!topologyAllowed() ? 0 : (topoCollapsed ? 29 : topoHeight() + 29)"
-        (resetSplitRequested)="resetSplit()"
-        (maximizeTopoRequested)="maximizeTopo()"
-        class="level-topology-wrapper"
-    />
+    <!-- Resize divider between task and topology -->
+    @if (taskDescriptionVisible() && topologyAllowed() && !topoFullscreen()) {
+    <div class="h-resize-handle" (mousedown)="onHResizeHandleMouseDown($event)" title="Drag to resize">
+    </div>
+    }
+
+    <!-- RIGHT: Topology pane -->
+    <div class="topo-pane" [class.topo-pane--fullscreen]="topoFullscreen()">
+
+        <crczp-run-topology-wrapper [topologyAllowed]="topologyAllowed()" [topoFullscreen]="topoFullscreen()"
+            (resetSplitRequested)="resetSplit()" (maximizeTopoRequested)="maximizeTopo()"
+            (fullscreenRequested)="toggleTopoFullscreen()" class="wh-100" />
+    </div>
 </div>
