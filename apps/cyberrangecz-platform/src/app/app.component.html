@@ -32,13 +32,12 @@
 
 @if (authService.activeUser$ | async) {
     @if (!sidebarCollapsed()) {
-    <!-- Sidebar header bar — sits in the sidebar's top zone, same height as toolbar -->
+    <!-- Sidebar header bar — same height as toolbar, sits at top-left -->
     <button class="sidebar-header-btn" (click)="toggleSidebar()" aria-label="Hide sidebar">
-        <span class="sidebar-header-btn__title">NAV</span>
         <span class="sidebar-header-btn__hide">HIDE</span>
     </button>
     } @else {
-    <!-- Hamburger show button — appears below toolbar when sidebar is hidden -->
+    <!-- Hamburger inside the toolbar area — top-left, transparent to blend with orange toolbar -->
     <button class="sidebar-show-btn" (click)="toggleSidebar()" aria-label="Show sidebar">
         <span class="material-icons">menu</span>
     </button>
