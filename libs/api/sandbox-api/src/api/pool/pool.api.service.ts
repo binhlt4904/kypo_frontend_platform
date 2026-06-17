@@ -37,10 +37,12 @@ import {
     OffsetPaginatedResource,
     PaginationMapper,
     ParamsBuilder,
+    QueryParam,
     SKIPPED_ERROR_CODES
 } from '@crczp/api-common';
 import { PortalConfig } from '@crczp/utils';
 import { AllocationRequestSort, PoolSort, SandboxDefinitionSort } from '../sorts';
+import { SentinelParamsMerger } from '@sentinel/common';
 
 export interface AllocationQueueEntry {
     id: string;
@@ -78,11 +80,14 @@ export class PoolApi {
      */
     getPools(
         pagination: OffsetPaginationEvent<PoolSort>,
+        filter?: string,
     ): Observable<OffsetPaginatedResource<Pool>> {
+        const params = SentinelParamsMerger.merge([
+            ParamsBuilder.djangoPaginationParams(pagination),
+            ParamsBuilder.queryParams(filter ? [new QueryParam('title', filter)] : []),
+        ]);
         return this.http
-            .get<DjangoResourceDTO<PoolDTO>>(this.apiUrl, {
-                params: ParamsBuilder.djangoPaginationParams(pagination),
-            })
+            .get<DjangoResourceDTO<PoolDTO>>(this.apiUrl, { params })
             .pipe(
                 map(
                     (response) =>

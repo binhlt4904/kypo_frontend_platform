@@ -8,14 +8,15 @@
 
     <div class="page-filter-card">
         <div class="filter-row">
-                <select class="filter-select"><option>All OS Types</option><option>Linux</option><option>Windows</option></select>
-                <select class="filter-select"><option>All Access</option><option>GUI</option><option>CLI only</option></select>
-                <input type="text" class="filter-input" placeholder="Search by image name...">
+            <mat-checkbox (change)="osImagesToggled()">Only custom images</mat-checkbox>
+            <mat-checkbox (change)="guiAccessToggled()">Only GUI access</mat-checkbox>
+            <input type="text" class="filter-input" placeholder="Search by image name..."
+                   [value]="filterText" (input)="filterText = $any($event.target).value">
             <div class="filter-row-actions">
-                <button class="filter-btn-search">
+                <button class="filter-btn-search" (click)="onSearchClicked()">
                     <span class="material-icons">search</span> Search
                 </button>
-                <button class="filter-btn-refresh" title="Refresh">
+                <button class="filter-btn-refresh" title="Refresh" (click)="onRefreshClicked()">
                     <span class="material-icons">refresh</span>
                 </button>
             </div>
@@ -24,22 +25,14 @@
 
     <div class="dashboard-grid full-width">
         <div class="chart-panel">
-            <div class="chart-panel-header">
-                <span class="panel-header-title">Images Overview</span>
-            </div>
-            <div class="chart-panel-body">
-                <div style="padding: 12px; display: flex; justify-content: flex-end; gap: 16px;">
-                    <mat-checkbox (change)="osImagesToggled()">Only custom images</mat-checkbox>
-                    <mat-checkbox (change)="guiAccessToggled()">Only GUI access</mat-checkbox>
-                </div>
+            <div class="chart-panel-body" style="padding:0">
                 <sentinel-table
                     [defaultSortName]="DEFAULT_SORT_COLUMN"
                     [defaultSortDirection]="DEFAULT_SORT_DIRECTION"
                     [data]="images$ | async"
                     [isLoading]="isLoadingImages$ | async"
                     [hasError]="imagesTableHasError$ | async"
-                    (tableLoad)="onTableLoadEvent($event)"
-                >
+                    (tableLoad)="onTableLoadEvent($event)">
                 </sentinel-table>
             </div>
         </div>

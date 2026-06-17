@@ -8,35 +8,32 @@
 
     <div class="page-filter-card">
         <div class="filter-row">
-                <input type="text" class="filter-input" placeholder="Search by name or email...">
+            <input type="text" class="filter-input" placeholder="Search by name or email..."
+                   [value]="filterText" (input)="filterText = $any($event.target).value"
+                   (keyup.enter)="onSearchClicked()">
             <div class="filter-row-actions">
-                <button class="filter-btn-search">
+                <button class="filter-btn-search" (click)="onSearchClicked()">
                     <span class="material-icons">search</span> Search
                 </button>
-                <button class="filter-btn-refresh" title="Refresh">
+                <button class="filter-btn-refresh" title="Refresh" (click)="onRefreshClicked()">
                     <span class="material-icons">refresh</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="dashboard-grid full-width">
-        <div class="chart-panel">
-            <div class="chart-panel-header">
-                <span class="panel-header-title">Users Overview</span>
-            </div>
-            <div class="chart-panel-body" style="padding: 0;">
-                <sentinel-controls [controls]="controls"
-                                   [titlecased]="false" />
-                <sentinel-table
-                    (rowSelection)="onUserSelected($event)"
-                    (tableLoad)="onLoadEvent($event)"
-                    [data]="users$ | async"
-                    [defaultSortDirection]="INIT_SORT_DIR"
-                    [defaultSortName]="INIT_SORT_NAME"
-                    [hasError]="usersHasError$ | async">
-                </sentinel-table>
-            </div>
+    <sentinel-controls [controls]="controls" [titlecased]="false" />
+
+    <div class="chart-panel">
+        <div class="chart-panel-body" style="padding:0">
+            <sentinel-table
+                (rowSelection)="onUserSelected($event)"
+                (tableLoad)="onLoadEvent($event)"
+                [data]="users$ | async"
+                [defaultSortDirection]="INIT_SORT_DIR"
+                [defaultSortName]="INIT_SORT_NAME"
+                [hasError]="usersHasError$ | async">
+            </sentinel-table>
         </div>
     </div>
 </div>

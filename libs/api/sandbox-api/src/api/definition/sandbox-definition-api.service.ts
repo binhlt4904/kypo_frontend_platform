@@ -8,9 +8,10 @@ import { SandboxDefinitionDTO } from '../../dto/sandbox-definition/sandbox-defin
 import { SandboxDefinitionRefDTO } from '../../dto/sandbox-definition/sandbox-definition-ref-dto';
 import { SandboxDefinitionMapper } from '../../mappers/sandbox-definition/sandbox-definition-mapper';
 import { SandboxDefinitionRefMapper } from '../../mappers/sandbox-definition/sandbox-definition-ref-mapper';
-import { DjangoResourceDTO, OffsetPaginatedResource, PaginationMapper, ParamsBuilder } from '@crczp/api-common';
+import { DjangoResourceDTO, OffsetPaginatedResource, PaginationMapper, ParamsBuilder, QueryParam } from '@crczp/api-common';
 import { PortalConfig } from '@crczp/utils';
 import { SandboxDefinitionRefSort, SandboxDefinitionSort } from '../sorts';
+import { SentinelParamsMerger } from '@sentinel/common';
 
 /**
  * Service abstracting http communication with sandbox definition endpoints.
@@ -27,11 +28,16 @@ export class SandboxDefinitionApi {
      */
     getAll(
         pagination?: OffsetPaginationEvent<SandboxDefinitionSort>,
+        filter?: string,
     ): Observable<OffsetPaginatedResource<SandboxDefinition>> {
+        const params = SentinelParamsMerger.merge([
+            ParamsBuilder.djangoPaginationParams(pagination),
+            ParamsBuilder.queryParams(filter ? [new QueryParam('title', filter)] : []),
+        ]);
         return this.http
             .get<DjangoResourceDTO<SandboxDefinitionDTO>>(this.apiUrl, {
                 headers: this.createDefaultHeaders(),
-                params: ParamsBuilder.djangoPaginationParams(pagination),
+                params,
             })
             .pipe(
                 map(

@@ -32,6 +32,7 @@ import { GroupSort } from '@crczp/user-and-group-api';
 export class GroupOverviewComponent implements OnInit {
     readonly INIT_SORT_NAME = 'name';
     readonly INIT_SORT_DIR = 'asc';
+    filterText = '';
     /**
      * Data for groups table component
      */
@@ -83,6 +84,15 @@ export class GroupOverviewComponent implements OnInit {
      * Changes internal state of the component when selection is changed in table component
      * @param selected groups selected in table component
      */
+    onSearchClicked(): void {
+        this.onTableLoadEvent({ pagination: this.initPagination, filter: this.filterText });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.onTableLoadEvent({ pagination: this.initPagination });
+    }
+
     onGroupSelected(selected: Group[]): void {
         this.groupService.setSelection(selected);
     }

@@ -45,6 +45,7 @@ import { MicroserviceSort } from '@crczp/user-and-group-api';
 export class MicroserviceOverviewComponent implements OnInit {
     readonly INIT_SORT_NAME = 'name';
     readonly INIT_SORT_DIR = 'asc';
+    filterText = '';
     /**
      * Data for microservices table component
      */
@@ -90,6 +91,15 @@ export class MicroserviceOverviewComponent implements OnInit {
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
+    }
+
+    onSearchClicked(): void {
+        this.onTableLoadEvent({ pagination: this.initPagination, filter: this.filterText });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.onTableLoadEvent({ pagination: this.initPagination });
     }
 
     private initControls() {

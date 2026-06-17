@@ -32,6 +32,7 @@ export class UserOverviewComponent implements OnInit {
     readonly INIT_SORT_NAME: UserSort = 'familyName';
     readonly INIT_SORT_DIR: SortDir = 'asc';
     destroyRef = inject(DestroyRef);
+    filterText = '';
 
     /**
      * Data for users table
@@ -84,6 +85,15 @@ export class UserOverviewComponent implements OnInit {
      * Changes internal state of the component, stores ids of users selected in table component
      * @param selected users selected in table component
      */
+    onSearchClicked(): void {
+        this.onLoadEvent({ pagination: this.initPagination, filter: this.filterText });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.onLoadEvent({ pagination: this.initPagination });
+    }
+
     onUserSelected(selected: User[]): void {
         this.userService.setSelection(selected);
     }

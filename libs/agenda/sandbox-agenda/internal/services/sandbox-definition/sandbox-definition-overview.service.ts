@@ -16,9 +16,11 @@ export abstract class SandboxDefinitionOverviewService extends CrczpOffsetElemen
 
     /**
      * @param pagination requested pagination
+     * @param filter optional filter string applied on definition title
      */
     abstract getAll(
         pagination: OffsetPaginationEvent<SandboxDefinitionSort>,
+        filter?: string,
     ): Observable<OffsetPaginatedResource<SandboxDefinition>>;
 
     /**

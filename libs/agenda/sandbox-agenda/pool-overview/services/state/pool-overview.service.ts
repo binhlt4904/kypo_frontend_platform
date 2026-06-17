@@ -28,6 +28,7 @@ export class PoolOverviewService extends CrczpOffsetElementsPaginatedService<Poo
     private errorHandler = inject(ErrorHandlerService);
 
     private lastPagination: OffsetPaginationEvent<PoolSort>;
+    private lastFilter: string;
 
     constructor() {
         super(inject(PortalConfig).defaultPageSize);
@@ -36,13 +37,16 @@ export class PoolOverviewService extends CrczpOffsetElementsPaginatedService<Poo
     /**
      * Gets all pools with passed pagination and updates related observables or handles an error
      * @param pagination requested pagination
+     * @param filter optional filter string applied on pool title/id
      */
     getAll(
         pagination: OffsetPaginationEvent<PoolSort>,
+        filter: string = null,
     ): Observable<OffsetPaginatedResource<Pool>> {
         this.lastPagination = pagination;
+        this.lastFilter = filter;
         this.hasErrorSubject$.next(false);
-        return this.poolApi.getPools(pagination).pipe(
+        return this.poolApi.getPools(pagination, filter).pipe(
             tap(
                 (paginatedPools) => {
                     this.resourceSubject$.next(paginatedPools);
@@ -249,7 +253,7 @@ export class PoolOverviewService extends CrczpOffsetElementsPaginatedService<Poo
                         'Clearing pool ' + poolId.toString(),
                     ),
             ),
-            switchMap(() => this.getAll(this.lastPagination)),
+            switchMap(() => this.getAll(this.lastPagination, this.lastFilter)),
         );
     }
 
