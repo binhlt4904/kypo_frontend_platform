@@ -49,7 +49,7 @@ $fctf-white: #ffffff;
             --sys-body-large: 400 var(--sys-body-large-size) / var(--sys-body-large-line-height) #{vars.$sentinel-base-font};
         }
 
-        // ── Top toolbar: solid FCTF orange ──
+        // ── Top toolbar: solid FCTF orange, single row height ──
         .mat-toolbar {
             --mat-toolbar-container-text-color: #{$fctf-white};
             --mat-toolbar-container-background-color: transparent;
@@ -58,8 +58,13 @@ $fctf-white: #ffffff;
             border-bottom: 2px solid rgba(255, 255, 255, 0.18) !important;
             box-shadow: 0 2px 12px rgba(232, 93, 42, 0.35) !important;
             letter-spacing: 0.3px;
+            // Lock toolbar to single-row height so hidden second row leaves no gap
+            height: 58px !important;
+            min-height: 58px !important;
+            max-height: 58px !important;
+            overflow: hidden !important;
 
-            // Toolbar row: slightly taller for a premium feel
+            // Toolbar row: match toolbar height
             .mat-toolbar-row,
             mat-toolbar-row {
                 height: 58px !important;
