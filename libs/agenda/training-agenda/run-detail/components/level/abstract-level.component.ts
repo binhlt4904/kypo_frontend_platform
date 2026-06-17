@@ -129,6 +129,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         if (this.ancestorPaddedContent) {
             this.ancestorPaddedContent.style.padding = this.originalPadding;
         }
+        document.body.classList.remove('topology-fullscreen');
     }
 
     protected onStepperResized(height: number): void {
@@ -148,6 +149,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
     /** Toggle topology fullscreen */
     protected toggleTopoFullscreen(): void {
         this.topoFullscreen.update(v => !v);
+        document.body.classList.toggle('topology-fullscreen', this.topoFullscreen());
         this.scheduleTopologyRefresh();
     }
 
@@ -193,6 +195,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         this.taskPaneWidth.set(this.clampTaskPaneWidth(Math.round(containerW * 0.42)));
         this.taskDescriptionVisible.set(true);
         this.topoFullscreen.set(false);
+        document.body.classList.remove('topology-fullscreen');
         this.topologyService.setTopologyCollapsed(false);
         this.scheduleTopologyRefresh();
     }
