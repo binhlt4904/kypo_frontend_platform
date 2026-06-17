@@ -98,7 +98,6 @@ $fctf-white: #ffffff;
 
         // ── Override sentinel-layout1's .nav-content { overflow: hidden } to enable scroll ──
         .nav-drawer .nav-content {
-            padding-top: 58px !important; /* room for the fixed sidebar-header-btn */
             overflow-y: auto !important;
             overflow-x: hidden;
             scrollbar-width: none; /* Firefox */
@@ -108,7 +107,7 @@ $fctf-white: #ffffff;
             }
         }
 
-        // Also prevent the mat-drawer element itself from showing a scrollbar
+        // Prevent the mat-drawer element itself from showing a scrollbar
         .nav-drawer.mat-drawer {
             overflow: hidden !important;
         }
@@ -175,7 +174,7 @@ $fctf-white: #ffffff;
         .nav-drawer .sentinel-logo-wrapper {
             width: 100% !important;
             margin-left: 0 !important;
-            margin-top: 16px !important;
+            margin-top: 32px !important;
             margin-bottom: 16px !important;
             display: flex !important;
             justify-content: center !important;
