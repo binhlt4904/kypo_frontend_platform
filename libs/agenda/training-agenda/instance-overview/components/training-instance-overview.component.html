@@ -1,19 +1,52 @@
-<div class="content">
-    <sentinel-controls [controls]="controls" />
-    <sentinel-table
-        (tableLoad)="onInstancesLoadEvent($event)"
-        [data]="instances$ | async"
-        [defaultSortDirection]="INITIAL_SORT_DIR"
-        [defaultSortName]="INITIAL_SORT_NAME"
-        [displayedActionsCount]="9"
-        [hasError]="hasError$ | async"
-        [titlecasedActions]="false">
-        <ng-container *sentinelRow="'startTime'; template: startTime" />
-        <ng-container *sentinelRow="'endTime'; template: endTime" />
-        <ng-container *sentinelRow="'expiresIn'; template: instanceCountdown" />
-        <ng-container *sentinelRow="'accessToken'; template: accessToken" />
-        <ng-container *sentinelRow="'poolSize'; template: poolSize" />
-    </sentinel-table>
+<div class="portal-content">
+    <div class="portal-title">
+        <span class="portal-title-icon">
+            <span class="material-icons">play_circle</span>
+        </span>
+        Training Instances
+    </div>
+
+    <div class="page-filter-card">
+        <div class="filter-rows">
+            <div class="filter-row">
+                <select class="filter-select"><option>All States</option><option>Active</option><option>Expired</option><option>Finished</option></select>
+                <input type="text" class="filter-input" placeholder="Search by instance name...">
+            </div>
+        </div>
+        <div class="filter-footer">
+            <button class="filter-btn-search">
+                <span class="material-icons">search</span> Search
+            </button>
+            <button class="filter-btn-refresh" title="Refresh">
+                <span class="material-icons">refresh</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid full-width">
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">Instances Overview</span>
+            </div>
+            <div class="chart-panel-body" style="padding: 0;">
+                <sentinel-controls [controls]="controls" />
+                <sentinel-table
+                    (tableLoad)="onInstancesLoadEvent($event)"
+                    [data]="instances$ | async"
+                    [defaultSortDirection]="INITIAL_SORT_DIR"
+                    [defaultSortName]="INITIAL_SORT_NAME"
+                    [displayedActionsCount]="9"
+                    [hasError]="hasError$ | async"
+                    [titlecasedActions]="false">
+                    <ng-container *sentinelRow="'startTime'; template: startTime" />
+                    <ng-container *sentinelRow="'endTime'; template: endTime" />
+                    <ng-container *sentinelRow="'expiresIn'; template: instanceCountdown" />
+                    <ng-container *sentinelRow="'accessToken'; template: accessToken" />
+                    <ng-container *sentinelRow="'poolSize'; template: poolSize" />
+                </sentinel-table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <ng-template #instanceCountdown let-row>
