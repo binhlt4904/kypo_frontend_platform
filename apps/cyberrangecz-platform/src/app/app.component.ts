@@ -34,6 +34,7 @@ import { ToolbarComponent } from '@sentinel/layout/common-components';
 export class AppComponent implements OnInit, AfterViewInit {
     title$: Observable<string>;
     subtitle$: Observable<string>;
+    breadcrumb$: Observable<string>;
     agendaContainers$: Observable<AgendaContainer[]>;
     notificationRoute: ValidPath = 'notifications';
     version = '';
@@ -54,6 +55,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         this.title$ = this.getTitleFromRouter();
         this.subtitle$ = this.getSubtitleFromRouter();
+        this.breadcrumb$ = this.getBreadcrumbFromRouter();
         this.agendaContainers$ = this.authService.activeUser$.pipe(
             filter((user) => user != null),
             map((user) =>
@@ -419,6 +421,22 @@ export class AppComponent implements OnInit, AfterViewInit {
             filter((route) => route.outlet === 'primary'),
             map((route) => route.snapshot),
             map((snapshot) => snapshot.data['subtitle']),
+        );
+    }
+
+    private getBreadcrumbFromRouter(): Observable<string> {
+        return this.router.events.pipe(
+            filter((event) => event instanceof NavigationEnd),
+            map(() => {
+                let route = this.activatedRoute;
+                while (route.firstChild) {
+                    route = route.firstChild;
+                }
+                return route;
+            }),
+            filter((route) => route.outlet === 'primary'),
+            map((route) => route.snapshot),
+            map((snapshot) => snapshot.data['breadcrumb']),
         );
     }
 }
