@@ -1,7 +1,19 @@
-<sentinel-controls [controls]="controls" />
-<sentinel-table
-    (tableLoad)="onLoadEvent($event)"
-    [data]="sandboxDefinitions$ | async"
-    [defaultSortName]="'id'"
-    [hasError]="hasError$ | async">
-</sentinel-table>
+<div class="portal-content">
+    <div class="portal-title">Sandbox Definitions</div>
+    <div class="dashboard-grid full-width">
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">Definitions Overview</span>
+            </div>
+            <div class="chart-panel-body" style="padding: 0;">
+                <sentinel-controls [controls]="controls" />
+                <sentinel-table
+                    (tableLoad)="onLoadEvent($event)"
+                    [data]="sandboxDefinitions$ | async"
+                    [defaultSortName]="'id'"
+                    [hasError]="hasError$ | async">
+                </sentinel-table>
+            </div>
+        </div>
+    </div>
+</div>
