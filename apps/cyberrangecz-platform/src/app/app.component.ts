@@ -443,7 +443,8 @@ export class AppComponent implements OnInit, AfterViewInit {
                     if (route.snapshot.url.length > 0) {
                         url += '/' + route.snapshot.url.map((seg) => seg.path).join('/');
                     }
-                    const label = route.snapshot.data['breadcrumb'] as string | undefined;
+                    // Use routeConfig.data (own data only) to avoid inheriting parent breadcrumbs
+                    const label = route.snapshot.routeConfig?.data?.['breadcrumb'] as string | undefined;
                     if (label) {
                         crumbs.push({ label, url });
                     }
