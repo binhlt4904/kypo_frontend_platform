@@ -259,6 +259,14 @@
     transform: rotate(180deg);
 }
 
+.task-show-tab--fullscreen {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1001;
+}
+
 /* ─── Task scroll area ──────────────────────────────────────────────── */
 .task-scroll-area {
     flex: 1;
