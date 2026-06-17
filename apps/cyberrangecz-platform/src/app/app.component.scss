@@ -24,17 +24,19 @@ main {
 }
 
 /* ─── Sidebar toggle button ─────────────────────────────────────────── */
+:root {
+    --sidebar-toggle-left: 0px;
+}
+
 .sidebar-toggle-btn {
     position: fixed;
-    /* Align with the top of the sentinel nav drawer.
-       Sentinel layout1 toolbar is typically 56px tall. */
-    top: 64px;
-    left: 236px;
-    /* just outside the nav drawer edge */
-    z-index: 1100;
-    width: 22px;
-    height: 40px;
+    top: 68px;
+    left: var(--sidebar-toggle-left, 0px);
+    z-index: 500;
+    width: 20px;
+    height: 36px;
     border: 1px solid var(--neutral-80, #ddd);
+    border-left: none;
     border-radius: 0 4px 4px 0;
     background: var(--surface, #fff);
     color: var(--neutral-50, #888);
@@ -43,8 +45,8 @@ main {
     justify-content: center;
     cursor: pointer;
     padding: 0;
-    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.08);
-    transition: left 0.25s ease, background 0.12s, color 0.12s, border-color 0.12s;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.06);
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
 
     &:hover {
         background: var(--neutral-95, #f4f4f4);
@@ -52,14 +54,10 @@ main {
         color: var(--primary-60, #e65c00);
     }
 
-    &--collapsed {
-        left: 0;
-    }
-
     &__icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-        line-height: 16px;
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+        line-height: 15px;
     }
 }

@@ -80,6 +80,15 @@ export class AppComponent implements OnInit, AfterViewInit {
 
         // Auto-select first child when parent dropdown is expanded
         this.setupNestedNavAutoSelect();
+
+        // Init sidebar toggle button position once sidenav has rendered
+        setTimeout(() => {
+            const sidenav = document.querySelector<HTMLElement>('mat-sidenav');
+            if (sidenav) {
+                const w = sidenav.offsetWidth;
+                document.documentElement.style.setProperty('--sidebar-toggle-left', w + 'px');
+            }
+        }, 400);
     }
 
     /**
@@ -336,30 +345,67 @@ export class AppComponent implements OnInit, AfterViewInit {
      */
     toggleSidebar(): void {
         this.sidebarCollapsed.update(v => !v);
+
+        const sidenav = document.querySelector<HTMLElement>('mat-sidenav');
+        const sidenavContent = document.querySelector<HTMLElement>('mat-sidenav-content');
         const navDrawer = document.querySelector<HTMLElement>('.nav-drawer');
-        if (navDrawer) {
-            if (this.sidebarCollapsed()) {
-                navDrawer.style.width = '0';
-                navDrawer.style.overflow = 'hidden';
-                navDrawer.style.minWidth = '0';
-                navDrawer.style.transition = 'width 0.25s ease';
-                // Also shrink the mat-sidenav if present
-                const sidenav = navDrawer.closest<HTMLElement>('mat-sidenav');
-                if (sidenav) {
-                    sidenav.style.width = '0';
-                    sidenav.style.overflow = 'hidden';
-                    sidenav.style.transition = 'width 0.25s ease';
-                }
-            } else {
-                navDrawer.style.width = '';
-                navDrawer.style.overflow = '';
-                navDrawer.style.minWidth = '';
-                const sidenav = navDrawer.closest<HTMLElement>('mat-sidenav');
-                if (sidenav) {
-                    sidenav.style.width = '';
-                    sidenav.style.overflow = '';
-                }
+        const T = 'all 0.25s ease';
+
+        if (this.sidebarCollapsed()) {
+            // Collapse: lưu lại chiều rộng tự nhiên trước khi ẩn
+            const naturalW = sidenav ? sidenav.offsetWidth : 240;
+            if (sidenav) {
+                (sidenav as any).__naturalWidth = naturalW;
+                sidenav.style.transition = T;
+                sidenav.style.width = '0';
+                sidenav.style.minWidth = '0';
+                sidenav.style.overflow = 'hidden';
+                sidenav.style.visibility = 'hidden';
             }
+            if (navDrawer) {
+                navDrawer.style.transition = T;
+                navDrawer.style.width = '0';
+                navDrawer.style.minWidth = '0';
+                navDrawer.style.overflow = 'hidden';
+            }
+            if (sidenavContent) {
+                sidenavContent.style.transition = T;
+                sidenavContent.style.marginLeft = '0';
+            }
+            // Nút trượt về cạnh trái
+            document.documentElement.style.setProperty('--sidebar-toggle-left', '0px');
+
+        } else {
+            // Expand: khôi phục từ chiều rộng đã lưu
+            const naturalW = (sidenav as any)?.__naturalWidth ?? 240;
+            if (sidenav) {
+                sidenav.style.transition = T;
+                sidenav.style.visibility = '';
+                sidenav.style.overflow = '';
+                sidenav.style.minWidth = '';
+                sidenav.style.width = naturalW + 'px';
+            }
+            if (navDrawer) {
+                navDrawer.style.transition = T;
+                navDrawer.style.width = '';
+                navDrawer.style.minWidth = '';
+                navDrawer.style.overflow = '';
+            }
+            if (sidenavContent) {
+                sidenavContent.style.transition = T;
+                sidenavContent.style.marginLeft = naturalW + 'px';
+            }
+            // Nút trượt về theo cạnh phải của sidebar
+            document.documentElement.style.setProperty('--sidebar-toggle-left', naturalW + 'px');
+
+            // Sau khi transition xong, trả quyền kiểm soát lại cho Sentinel CSS
+            setTimeout(() => {
+                if (sidenav) sidenav.style.width = '';
+                if (sidenavContent) {
+                    sidenavContent.style.marginLeft = '';
+                    sidenavContent.style.transition = '';
+                }
+            }, 300);
         }
     }
 
