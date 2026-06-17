@@ -2,13 +2,14 @@
 .flag-dock {
     position: fixed;
     bottom: 0;
-    left: 220px;
+    left: var(--content-margin-left, 220px);
     right: 0;
     z-index: 1000;
     background: var(--surface, #fff);
     border-top: 2px solid var(--primary-60, #e65c00);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
     animation: 0.18s ease-out 1 slideUpDock;
+    transition: left 0.25s ease;
 }
 
 @keyframes slideUpDock {
