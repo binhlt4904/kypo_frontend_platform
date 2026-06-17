@@ -49,11 +49,42 @@ $fctf-white: #ffffff;
             --sys-body-large: 400 var(--sys-body-large-size) / var(--sys-body-large-line-height) #{vars.$sentinel-base-font};
         }
 
-        // ── Top toolbar: FCTF orange ──
+        // ── Top toolbar: modern FCTF gradient ──
         .mat-toolbar {
             --mat-toolbar-container-text-color: #{$fctf-white};
-            --mat-toolbar-container-background-color: #{$fctf-orange};
+            --mat-toolbar-container-background-color: transparent;
             --mat-icon-button-icon-color: #{$fctf-white};
+            background: linear-gradient(135deg, #{$fctf-orange-dark} 0%, #{$fctf-orange} 60%, #{$fctf-orange-light} 100%) !important;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.18) !important;
+            box-shadow: 0 2px 12px rgba(232, 93, 42, 0.35) !important;
+            letter-spacing: 0.3px;
+
+            // Toolbar row: slightly taller for a premium feel
+            .mat-toolbar-row,
+            mat-toolbar-row {
+                height: 58px !important;
+                min-height: 58px !important;
+            }
+
+            // App name / title text
+            .mat-toolbar-row span,
+            .mat-toolbar-row h1,
+            .mat-toolbar-row .username {
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            }
+
+            // Icon buttons get a soft hover circle
+            .mat-icon-button,
+            button[mat-icon-button] {
+                transition: background 0.18s ease, transform 0.15s ease !important;
+
+                &:hover {
+                    background: rgba(255, 255, 255, 0.18) !important;
+                    transform: scale(1.08);
+                }
+            }
         }
 
         // ── Sidebar: FCTF pinkish-white background ──

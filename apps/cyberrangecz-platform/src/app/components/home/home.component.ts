@@ -8,6 +8,32 @@ import { AgendaMenuItem } from '../../model/agenda-menu-item';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PortalAgendaContainerComponent } from './portal-agenda-container/portal-agenda-container.component';
 import { ValidPath } from '@crczp/routing-commons';
+import { catchError, of } from 'rxjs';
+import { OffsetPaginationEvent } from '@sentinel/common/pagination';
+
+import { LinearRunApi, LinearTrainingDefinitionApi, LinearTrainingInstanceApi } from '@crczp/training-api';
+import { PoolApi, ResourcesApi } from '@crczp/sandbox-api';
+import { GroupApi, UserApi, MicroserviceApi } from '@crczp/user-and-group-api';
+
+export interface ResourceStats {
+    trainingRuns: number | string;
+    definitions: number | string;
+    pools: number | string;
+    instances: number | string;
+    groups: number | string;
+    users: number | string;
+}
+
+export interface HardwareStats {
+    cpuUsed: number | string;
+    cpuTotal: number | string;
+    ramUsed: number | string;
+    ramTotal: number | string;
+    activeSandboxes: number | string;
+    maxSandboxes: number | string;
+    cpuPercentage: number;
+    ramPercentage: number;
+}
 
 /**
  * Main component of homepage (portal) page. Portal page is a main crossroad of possible sub pages. Only those matching with user
@@ -23,6 +49,30 @@ export class HomeComponent implements OnInit {
     elevated: string;
     roles: UserRole[];
     portalAgendaContainers: PortalAgendaContainer[] = [];
+
+    stats: ResourceStats = {
+        trainingRuns: '-',
+        definitions: '-',
+        pools: '-',
+        instances: '-',
+        groups: '-',
+        users: '-'
+    };
+
+    hardwareStats: HardwareStats = {
+        cpuUsed: '-', cpuTotal: '-',
+        ramUsed: '-', ramTotal: '-',
+        activeSandboxes: '-', maxSandboxes: '-',
+        cpuPercentage: 0, ramPercentage: 0
+    };
+
+    private runApi = inject(LinearRunApi, { optional: true });
+    private definitionApi = inject(LinearTrainingDefinitionApi, { optional: true });
+    private instanceApi = inject(LinearTrainingInstanceApi, { optional: true });
+    private poolApi = inject(PoolApi, { optional: true });
+    private resourcesApi = inject(ResourcesApi, { optional: true });
+    private groupApi = inject(GroupApi, { optional: true });
+    private userApi = inject(UserApi, { optional: true });
 
     destroyRef = inject(DestroyRef);
 
@@ -40,6 +90,7 @@ export class HomeComponent implements OnInit {
         this.roles = this.authService.getRoles();
         this.initRoutes();
         this.subscribeUserChange();
+        this.fetchStats();
     }
 
     /**
@@ -194,5 +245,91 @@ export class HomeComponent implements OnInit {
             .subscribe(() => {
                 this.initRoutes();
             });
+    }
+
+    private fetchStats() {
+        // Fetch only 1 element to efficiently retrieve total counts via pagination headers
+        const pagination = { page: 0, size: 1, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
+
+        if (this.runApi) {
+            this.runApi.getAll(pagination).pipe(catchError(() => of(null)))
+                .subscribe(res => { if (res) this.stats.trainingRuns = res.pagination.totalElements; });
+        }
+
+        if (this.definitionApi) {
+            this.definitionApi.getAll(pagination).pipe(catchError(() => of(null)))
+                .subscribe(res => { if (res) this.stats.definitions = res.pagination.totalElements; });
+        }
+
+        if (this.instanceApi) {
+            this.instanceApi.getAll(pagination).pipe(catchError(() => of(null)))
+                .subscribe(res => { if (res) this.stats.instances = res.pagination.totalElements; });
+        }
+
+        if (this.groupApi) {
+            this.groupApi.getAll(pagination).pipe(catchError(() => of(null)))
+                .subscribe(res => { if (res) this.stats.groups = res.pagination.totalElements; });
+        }
+
+        if (this.userApi) {
+            this.userApi.getAll(pagination).pipe(catchError(() => of(null)))
+                .subscribe(res => { if (res) this.stats.users = res.pagination.totalElements; });
+        }
+
+        if (this.resourcesApi) {
+            this.resourcesApi.getLimits().pipe(catchError(() => of(null)))
+                .subscribe(limits => {
+                    if (limits) {
+                        this.hardwareStats.cpuTotal = limits.vcpu || 0;
+                        this.hardwareStats.ramTotal = limits.ram || 0;
+                        this.updatePercentages();
+                    }
+                });
+        }
+
+        if (this.poolApi) {
+            const largePagination = { page: 0, size: 1000, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
+            this.poolApi.getPools(largePagination).pipe(catchError(() => of(null)))
+                .subscribe(res => {
+                    if (res && res.elements) {
+                        this.stats.pools = res.pagination.totalElements;
+
+                        let cpuUsed = 0;
+                        let ramUsed = 0;
+                        let activeSandboxes = 0;
+                        let maxSandboxes = 0;
+
+                        res.elements.forEach((pool: any) => {
+                            if (pool.hardwareUsage) {
+                                cpuUsed += pool.hardwareUsage.vcpu || 0;
+                                ramUsed += pool.hardwareUsage.ram || 0;
+                            }
+                            activeSandboxes += pool.usedSize || 0;
+                            maxSandboxes += pool.maxSize || 0;
+                        });
+
+                        this.hardwareStats.cpuUsed = cpuUsed;
+                        this.hardwareStats.ramUsed = ramUsed;
+                        this.hardwareStats.activeSandboxes = activeSandboxes;
+                        this.hardwareStats.maxSandboxes = maxSandboxes;
+                        this.updatePercentages();
+                    }
+                });
+        }
+    }
+
+    private updatePercentages() {
+        if (typeof this.hardwareStats.cpuUsed === 'number' && typeof this.hardwareStats.cpuTotal === 'number' && this.hardwareStats.cpuTotal > 0) {
+            this.hardwareStats.cpuPercentage = Math.round((this.hardwareStats.cpuUsed / this.hardwareStats.cpuTotal) * 100);
+        }
+        if (typeof this.hardwareStats.ramUsed === 'number' && typeof this.hardwareStats.ramTotal === 'number' && this.hardwareStats.ramTotal > 0) {
+            this.hardwareStats.ramPercentage = Math.round((this.hardwareStats.ramUsed / this.hardwareStats.ramTotal) * 100);
+        }
+    }
+
+    formatRam(ramInMb: number | string): string {
+        if (ramInMb === '-') return '-';
+        const num = Number(ramInMb);
+        return (num / 1024).toFixed(1) + ' GB';
     }
 }
