@@ -30,16 +30,12 @@
 <router-outlet />
 }
 
+<!-- Single sidebar toggle — lives inside the toolbar, slides with sidebar width -->
 @if (authService.activeUser$ | async) {
-    @if (!sidebarCollapsed()) {
-    <!-- Sidebar header bar — same height as toolbar, sits at top-left -->
-    <button class="sidebar-header-btn" (click)="toggleSidebar()" aria-label="Hide sidebar">
-        <span class="sidebar-header-btn__hide">HIDE</span>
-    </button>
-    } @else {
-    <!-- Hamburger inside the toolbar area — top-left, transparent to blend with orange toolbar -->
-    <button class="sidebar-show-btn" (click)="toggleSidebar()" aria-label="Show sidebar">
-        <span class="material-icons">menu</span>
-    </button>
-    }
+<button class="sidebar-toggle-btn" (click)="toggleSidebar()"
+    [attr.aria-label]="sidebarCollapsed() ? 'Show sidebar' : 'Hide sidebar'">
+    <span class="material-icons">
+        {{ sidebarCollapsed() ? 'view_sidebar' : 'menu' }}
+    </span>
+</button>
 }
