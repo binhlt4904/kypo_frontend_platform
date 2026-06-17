@@ -1,19 +1,25 @@
-<div class="content">
-
-    <div>
-        <div class="checkbox-images">
-            <mat-checkbox (change)="osImagesToggled()">Only custom images</mat-checkbox>
-            <mat-checkbox (change)="guiAccessToggled()">Only GUI access</mat-checkbox>
+<div class="portal-content">
+    <div class="portal-title">Sandbox Images</div>
+    <div class="dashboard-grid full-width">
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">Images Overview</span>
+            </div>
+            <div class="chart-panel-body" style="padding: 0;">
+                <div style="padding: 12px; display: flex; justify-content: flex-end; gap: 16px;">
+                    <mat-checkbox (change)="osImagesToggled()">Only custom images</mat-checkbox>
+                    <mat-checkbox (change)="guiAccessToggled()">Only GUI access</mat-checkbox>
+                </div>
+                <sentinel-table
+                    [defaultSortName]="DEFAULT_SORT_COLUMN"
+                    [defaultSortDirection]="DEFAULT_SORT_DIRECTION"
+                    [data]="images$ | async"
+                    [isLoading]="isLoadingImages$ | async"
+                    [hasError]="imagesTableHasError$ | async"
+                    (tableLoad)="onTableLoadEvent($event)"
+                >
+                </sentinel-table>
+            </div>
         </div>
-        <sentinel-table
-            [defaultSortName]="DEFAULT_SORT_COLUMN"
-            [defaultSortDirection]="DEFAULT_SORT_DIRECTION"
-            [data]="images$ | async"
-            [isLoading]="isLoadingImages$ | async"
-            [hasError]="imagesTableHasError$ | async"
-            (tableLoad)="onTableLoadEvent($event)"
-        >
-        </sentinel-table>
     </div>
-
 </div>

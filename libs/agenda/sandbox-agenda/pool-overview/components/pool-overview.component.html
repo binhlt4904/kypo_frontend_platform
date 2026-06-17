@@ -1,29 +1,44 @@
-<sentinel-controls [controls]="controls" />
-<sentinel-table
-    (tableLoad)="onLoadEvent($event)"
-    [data]="pools$ | async"
-    [defaultSortDirection]="DEFAULT_SORT_DIRECTION"
-    [defaultSortName]="DEFAULT_SORT_COLUMN"
-    [displayedActionsCount]="8"
-    [hasError]="hasError$ | async"
-    [titlecasedActions]="false"
-    [titlecasedColumnHeaders]="false">
-    <ng-container *sentinelRow="'lockState'; template: lockState" />
-    <ng-container *sentinelRow="'comment'; template: comment" />
-</sentinel-table>
+<div class="portal-content">
+    <div class="portal-title">Sandbox Pools</div>
+    <div class="dashboard-grid full-width">
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">Pools Overview</span>
+            </div>
+            <div class="chart-panel-body" style="padding: 0;">
+                <sentinel-controls [controls]="controls" />
+                <sentinel-table
+                    (tableLoad)="onLoadEvent($event)"
+                    [data]="pools$ | async"
+                    [defaultSortDirection]="DEFAULT_SORT_DIRECTION"
+                    [defaultSortName]="DEFAULT_SORT_COLUMN"
+                    [displayedActionsCount]="8"
+                    [hasError]="hasError$ | async"
+                    [titlecasedActions]="false"
+                    [titlecasedColumnHeaders]="false">
+                    <ng-container *sentinelRow="'lockState'; template: lockState" />
+                    <ng-container *sentinelRow="'comment'; template: comment" />
+                </sentinel-table>
 
-<ng-template #lockState let-row>
-    <crczp-table-state-cell [iconColor]="" [icon]="getPoolStateIcon(row)" [text]="row.element.lockState" />
-</ng-template>
+                <ng-template #lockState let-row>
+                    <crczp-table-state-cell [iconColor]="" [icon]="getPoolStateIcon(row)" [text]="row.element.lockState" />
+                </ng-template>
 
-<ng-template #comment let-row>
-    <crczp-editable-comment (commentChanged)="updatePoolComment(row.element,$event)" [value]="row.element.comment" />
-</ng-template>
+                <ng-template #comment let-row>
+                    <crczp-editable-comment (commentChanged)="updatePoolComment(row.element,$event)" [value]="row.element.comment" />
+                </ng-template>
+            </div>
+        </div>
 
-<br>
-
-<crczp-quotas [resources]="resources$" />
-
-<br>
-
-<crczp-hardware-quota-summary [quota]="currentQuota" (configSaved)="loadQuota()" />
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">Resource Quotas</span>
+            </div>
+            <div class="chart-panel-body">
+                <crczp-quotas [resources]="resources$" />
+                <br>
+                <crczp-hardware-quota-summary [quota]="currentQuota" (configSaved)="loadQuota()" />
+            </div>
+        </div>
+    </div>
+</div>

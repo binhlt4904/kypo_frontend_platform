@@ -32,3 +32,81 @@
 ::ng-deep sentinel-table .mat-mdc-icon-button .mat-mdc-button-ripple {
     display: none !important;
 }
+
+/* ===== FCTF Orange VE Theme – Shared ===== */
+:host {
+    --bg-main: #fcfcfc;
+    --bg-card: #ffffff;
+    --bg-section-header: #f8f9fa;
+    --accent: #ff6b35;
+    --accent-hover: #e85d2a;
+    --accent-light: rgba(255, 107, 53, 0.08);
+    --text-dark: #2c3e50;
+    --text-muted: #6c757d;
+    --success: #2ec4b6;
+    --warning: #ff9f1c;
+    --error: #e71d36;
+    --border: #f1f3f5;
+    --border-dark: #e9ecef;
+    --radius: 5px;
+    --font-main: 'Space Mono', monospace, 'Helvetica Neue', Arial;
+}
+
+/* ===== Page layout ===== */
+.portal-content {
+    width: 100%;
+    font-family: var(--font-main);
+    font-size: 13px;
+    color: var(--text-dark);
+    background: var(--bg-main);
+    padding: 0;
+}
+
+/* ===== Page title ===== */
+.portal-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin: 0 0 12px 0;
+    padding: 0 0 6px 0;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+/* ===== Dashboard Grid ===== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+/* ===== Chart / Info Panels ===== */
+.chart-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.chart-panel-header {
+    background: var(--bg-section-header);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+}
+
+.panel-header-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.chart-panel-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
