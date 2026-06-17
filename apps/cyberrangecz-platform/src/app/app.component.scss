@@ -25,7 +25,7 @@ main {
 
 /* ─── Sidebar layout variables ──────────────────────────────────────── */
 :root {
-    --sidebar-toggle-left: 0px;
+    --sidebar-width: 220px;
     --content-margin-left: 220px;
 }
 
@@ -35,36 +35,78 @@ main {
     }
 }
 
-.sidebar-toggle-btn {
+/* ─── Sidebar header bar (visible when sidebar is shown) ─────────────── */
+.sidebar-header-btn {
     position: fixed;
-    top: 68px;
-    left: var(--sidebar-toggle-left, 0px);
-    z-index: 500;
-    width: 20px;
+    top: 0;
+    left: 0;
+    z-index: 600;
+    width: var(--sidebar-width, 220px);
+    height: 58px; /* match toolbar row height */
+    background: #f9f3f1;
+    border: none;
+    border-right: 1px solid rgba(255, 107, 53, 0.2);
+    border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    cursor: pointer;
+
+    &__title {
+        font-family: 'Space Mono', monospace;
+        font-size: 13px;
+        font-weight: 700;
+        color: #e65c00;
+        letter-spacing: 0.5px;
+
+        &::before { content: '['; }
+        &::after  { content: ']'; }
+    }
+
+    &__hide {
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: #e65c00;
+        border: 1px solid #e65c00;
+        padding: 3px 10px;
+        border-radius: 3px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    &:hover &__hide {
+        background: #e65c00;
+        color: #fff;
+    }
+}
+
+/* ─── Hamburger show button (visible when sidebar is hidden) ─────────── */
+.sidebar-show-btn {
+    position: fixed;
+    top: 66px; /* 58px toolbar + 8px gap */
+    left: 12px;
+    z-index: 600;
+    width: 36px;
     height: 36px;
-    border: 1px solid var(--neutral-80, #ddd);
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-    background: var(--surface, #fff);
-    color: var(--neutral-50, #888);
+    background: #fff;
+    border: 1px solid rgba(255, 107, 53, 0.4);
+    border-radius: 6px;
+    color: #e65c00;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    padding: 0;
-    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.06);
-    transition: background 0.12s, color 0.12s, border-color 0.12s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+    transition: background 0.15s, border-color 0.15s;
 
     &:hover {
-        background: var(--neutral-95, #f4f4f4);
-        border-color: var(--primary-60, #e65c00);
-        color: var(--primary-60, #e65c00);
+        background: rgba(255, 107, 53, 0.08);
+        border-color: #e65c00;
     }
 
-    &__icon {
-        font-size: 15px;
-        width: 15px;
-        height: 15px;
-        line-height: 15px;
+    .material-icons {
+        font-size: 20px;
     }
 }
