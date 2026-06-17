@@ -29,3 +29,14 @@
 
 <router-outlet />
 }
+
+<!-- Sidebar toggle button — always visible, floats at left edge -->
+@if (authService.activeUser$ | async) {
+<button class="sidebar-toggle-btn" [class.sidebar-toggle-btn--collapsed]="sidebarCollapsed()" (click)="toggleSidebar()"
+    [title]="sidebarCollapsed() ? 'Show sidebar' : 'Hide sidebar'"
+    [attr.aria-label]="sidebarCollapsed() ? 'Show sidebar' : 'Hide sidebar'">
+    <span class="material-icons sidebar-toggle-btn__icon">
+        {{ sidebarCollapsed() ? 'menu' : 'menu_open' }}
+    </span>
+</button>
+}
