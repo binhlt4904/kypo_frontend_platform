@@ -5,16 +5,19 @@
     logoSrc="./assets/logo/logo.png">
     <div role="toolbar">
         @if (authService.activeUser$ | async) {
+        <div class="header-nav">
+            <span class="header-divider"></span>
+            <nav class="header-breadcrumb" aria-label="breadcrumb">
+                <span class="bc-item bc-home">Home</span>
+                @if (breadcrumb$ | async; as breadcrumb) {
+                <span class="bc-sep">/</span>
+                <span class="bc-item bc-current">{{ breadcrumb }}</span>
+                }
+            </nav>
+        </div>
         <span class="username">{{ (authService.activeUser$ | async).nameWithAcademicTitles }}</span>
         }
     </div>
-    @if (title$ | async; as title) {
-    <h1>{{ title }}</h1>
-    }
-    @if (subtitle$ | async; as subtitle) {
-    <p class="subtitle">{{ subtitle }}</p>
-    }
-
     <router-outlet />
 </sentinel-layout1>
 } @else {
@@ -22,6 +25,16 @@
     [notificationsRoute]="notificationRoute" [user]="authService.activeUser$ | async">
     <div role="toolbar">
         @if (authService.activeUser$ | async) {
+        <div class="header-nav">
+            <span class="header-divider"></span>
+            <nav class="header-breadcrumb" aria-label="breadcrumb">
+                <span class="bc-item bc-home">Home</span>
+                @if (breadcrumb$ | async; as breadcrumb) {
+                <span class="bc-sep">/</span>
+                <span class="bc-item bc-current">{{ breadcrumb }}</span>
+                }
+            </nav>
+        </div>
         <span class="username">{{ (authService.activeUser$ | async).nameWithAcademicTitles }}</span>
         }
     </div>
