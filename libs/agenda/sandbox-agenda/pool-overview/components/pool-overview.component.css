@@ -41,7 +41,7 @@
 
 /* ===== FCTF Orange VE Theme – Shared ===== */
 :host {
-    --bg-main: #fcfcfc;
+    --bg-main: #ffffff;
     --bg-card: #ffffff;
     --bg-section-header: #f8f9fa;
     --accent: #ff6b35;
@@ -90,16 +90,19 @@
 
 /* ===== Chart / Info Panels ===== */
 .chart-panel {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
+    background: transparent;
+    border: none;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .chart-panel-header {
     background: var(--bg-section-header);
-    border-bottom: 1px solid var(--border);
-    padding: 8px 12px;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius);
+    padding: 12px 16px;
 }
 
 .panel-header-title {
@@ -111,8 +114,13 @@
 }
 
 .chart-panel-body {
-    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius);
+    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
+
+/* Background is overridden globally in apply-all.scss */

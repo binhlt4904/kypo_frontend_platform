@@ -49,3 +49,16 @@ a.link-button:hover .mat-mdc-button-ripple::before {
 .mat-mdc-outlined-button {
     border-radius: 4px !important;
 }
+
+// ===== FCTF Orange VE Theme: Force white background on main content areas =====
+// The sentinel layout library sets mat-drawer-container / mat-drawer-content
+// to the Material theme's "card" color (a light gray). We override it to white
+// so that the padded-content page area matches our card/panel backgrounds.
+mat-drawer-container.mat-drawer-container,
+mat-drawer-content.mat-drawer-content {
+    background-color: #ffffff !important;
+}
+
+.padded-content {
+    background-color: #ffffff !important;
+}
