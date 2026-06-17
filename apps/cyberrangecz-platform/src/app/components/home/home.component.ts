@@ -44,6 +44,16 @@ export interface HardwareStats {
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css'],
     imports: [PortalAgendaContainerComponent],
+    providers: [
+        LinearRunApi,
+        LinearTrainingDefinitionApi,
+        LinearTrainingInstanceApi,
+        PoolApi,
+        ResourcesApi,
+        GroupApi,
+        UserApi,
+        MicroserviceApi
+    ]
 })
 export class HomeComponent implements OnInit {
     elevated: string;
@@ -66,13 +76,13 @@ export class HomeComponent implements OnInit {
         cpuPercentage: 0, ramPercentage: 0
     };
 
-    private runApi = inject(LinearRunApi, { optional: true });
-    private definitionApi = inject(LinearTrainingDefinitionApi, { optional: true });
-    private instanceApi = inject(LinearTrainingInstanceApi, { optional: true });
-    private poolApi = inject(PoolApi, { optional: true });
-    private resourcesApi = inject(ResourcesApi, { optional: true });
-    private groupApi = inject(GroupApi, { optional: true });
-    private userApi = inject(UserApi, { optional: true });
+    private runApi = inject(LinearRunApi);
+    private definitionApi = inject(LinearTrainingDefinitionApi);
+    private instanceApi = inject(LinearTrainingInstanceApi);
+    private poolApi = inject(PoolApi);
+    private resourcesApi = inject(ResourcesApi);
+    private groupApi = inject(GroupApi);
+    private userApi = inject(UserApi);
 
     destroyRef = inject(DestroyRef);
 
