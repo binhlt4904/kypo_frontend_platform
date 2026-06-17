@@ -11,7 +11,7 @@
         <div class="summary-card">
             <div class="summary-card-label">RAM Usage</div>
             <div class="summary-card-value">{{ hardwareStats.ramPercentage }}%</div>
-            <div class="summary-card-sub">{{ formatRam(hardwareStats.ramUsed) }} / {{ formatRam(hardwareStats.ramTotal) }}</div>
+            <div class="summary-card-sub">{{ formatRam(hardwareStats.ramUsed, hardwareStats.ramUnits) }} / {{ formatRam(hardwareStats.ramTotal, hardwareStats.ramUnits) }}</div>
         </div>
         <div class="summary-card">
             <div class="summary-card-label">Active Sandboxes</div>

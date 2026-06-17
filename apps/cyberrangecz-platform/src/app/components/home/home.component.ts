@@ -33,6 +33,7 @@ export interface HardwareStats {
     maxSandboxes: number | string;
     cpuPercentage: number;
     ramPercentage: number;
+    ramUnits?: string;
 }
 
 /**
@@ -68,7 +69,7 @@ export class HomeComponent implements OnInit {
         cpuUsed: '-', cpuTotal: '-',
         ramUsed: '-', ramTotal: '-',
         activeSandboxes: '-', maxSandboxes: '-',
-        cpuPercentage: 0, ramPercentage: 0
+        cpuPercentage: 0, ramPercentage: 0, ramUnits: 'GB'
     };
 
     private runApi = inject(LinearRunApi);
@@ -289,6 +290,7 @@ export class HomeComponent implements OnInit {
                         this.hardwareStats.cpuTotal = res.quotas.vcpu?.limit || 0;
                         this.hardwareStats.ramUsed = res.quotas.ram?.inUse || 0;
                         this.hardwareStats.ramTotal = res.quotas.ram?.limit || 0;
+                        this.hardwareStats.ramUnits = res.quotas.ram?.units || 'GB';
                         this.updatePercentages();
                     }
                 });
@@ -326,9 +328,9 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    formatRam(ramInMb: number | string): string {
-        if (ramInMb === '-') return '-';
-        const num = Number(ramInMb);
-        return (num / 1024).toFixed(1) + ' GB';
+    formatRam(ramVal: number | string, units = 'GB'): string {
+        if (ramVal === '-') return '-';
+        const num = Number(ramVal);
+        return num.toFixed(1) + ' ' + units;
     }
 }
