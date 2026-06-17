@@ -23,9 +23,16 @@ main {
     font-stretch: semi-expanded;
 }
 
-/* ─── Sidebar toggle button ─────────────────────────────────────────── */
+/* ─── Sidebar layout variables ──────────────────────────────────────── */
 :root {
     --sidebar-toggle-left: 0px;
+    --content-margin-left: 220px;
+}
+
+@media (max-width: 748px) {
+    :root {
+        --content-margin-left: 0px;
+    }
 }
 
 .sidebar-toggle-btn {

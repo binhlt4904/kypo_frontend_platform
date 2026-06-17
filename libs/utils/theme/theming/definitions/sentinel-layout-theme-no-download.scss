@@ -370,6 +370,13 @@ $fctf-white: #ffffff;
             font-family: 'Space Mono', monospace;
         }
 
+        // Sentinel uses mode="over" on desktop, so AM never sets marginLeft on the content.
+        // We manage it via CSS variable updated by the toggle JS.
+        mat-drawer-content {
+            margin-left: var(--content-margin-left, 220px) !important;
+            transition: margin-left 0.25s ease !important;
+        }
+
     }
 
     @else {
