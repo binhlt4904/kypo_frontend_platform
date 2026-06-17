@@ -74,6 +74,7 @@ export class AdaptiveInstanceOverviewComponent implements OnInit {
     instances$: Observable<SentinelTable<TrainingInstance, string>>;
     hasError$: Observable<boolean>;
     controls: SentinelControlItem[];
+    filterText = '';
     destroyRef = inject(DestroyRef);
     private service = inject(AdaptiveInstanceOverviewService);
     private paginationService = inject(PaginationStorageService);
@@ -101,6 +102,15 @@ export class AdaptiveInstanceOverviewComponent implements OnInit {
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
+    }
+
+    onSearchClicked(): void {
+        this.onInstancesLoadEvent({ pagination: this.initialPagination, filter: this.filterText });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.onInstancesLoadEvent({ pagination: this.initialPagination });
     }
 
     onCopyToken(): void {
