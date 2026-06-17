@@ -38,6 +38,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     notificationRoute: ValidPath = 'notifications';
     version = '';
     hideSidebar = signal<boolean>(false);
+    /** Whether the nav sidebar is currently collapsed (hidden) */
+    sidebarCollapsed = signal<boolean>(false);
     protected readonly loadingService = inject(LoadingService);
     protected readonly authService = inject(SentinelAuthService);
     private readonly router = inject(Router);
@@ -100,16 +102,16 @@ export class AppComponent implements OnInit, AfterViewInit {
             // Map URL segments → { section, label } to activate
             const segmentMap: Array<{ segment: string; items: Array<{ section: string; label: string }> }> = [
                 { segment: 'adaptive-definition', items: [{ section: 'trainings', label: 'definition' }] },
-                { segment: 'linear-definition',   items: [{ section: 'trainings', label: 'definition' }] },
-                { segment: 'adaptive-instance',   items: [{ section: 'trainings', label: 'instance' }] },
-                { segment: 'linear-instance',     items: [{ section: 'trainings', label: 'instance' }] },
-                { segment: 'run',                 items: [{ section: 'trainings', label: 'run' }] },
-                { segment: 'sandbox-definition',  items: [{ section: 'sandboxes', label: 'definition' }] },
-                { segment: 'pool',                items: [{ section: 'sandboxes', label: 'pool' }] },
-                { segment: 'sandbox-image',       items: [{ section: 'sandboxes', label: 'images' }] },
-                { segment: 'user',                items: [{ section: 'administration', label: 'user' }] },
-                { segment: 'group',               items: [{ section: 'administration', label: 'group' }] },
-                { segment: 'microservice',        items: [{ section: 'administration', label: 'microservice' }] },
+                { segment: 'linear-definition', items: [{ section: 'trainings', label: 'definition' }] },
+                { segment: 'adaptive-instance', items: [{ section: 'trainings', label: 'instance' }] },
+                { segment: 'linear-instance', items: [{ section: 'trainings', label: 'instance' }] },
+                { segment: 'run', items: [{ section: 'trainings', label: 'run' }] },
+                { segment: 'sandbox-definition', items: [{ section: 'sandboxes', label: 'definition' }] },
+                { segment: 'pool', items: [{ section: 'sandboxes', label: 'pool' }] },
+                { segment: 'sandbox-image', items: [{ section: 'sandboxes', label: 'images' }] },
+                { segment: 'user', items: [{ section: 'administration', label: 'user' }] },
+                { segment: 'group', items: [{ section: 'administration', label: 'group' }] },
+                { segment: 'microservice', items: [{ section: 'administration', label: 'microservice' }] },
             ];
 
             // Find best match (longest segment wins)
@@ -144,9 +146,9 @@ export class AppComponent implements OnInit, AfterViewInit {
             // Map URL → which child label inside which parent dropdown should be active
             const childMap: Array<{ segment: string; parentLabel: string; childLabel: string }> = [
                 { segment: 'adaptive-definition', parentLabel: 'definition', childLabel: 'adaptive' },
-                { segment: 'linear-definition',   parentLabel: 'definition', childLabel: 'linear' },
-                { segment: 'adaptive-instance',   parentLabel: 'instance',   childLabel: 'adaptive' },
-                { segment: 'linear-instance',     parentLabel: 'instance',   childLabel: 'linear' },
+                { segment: 'linear-definition', parentLabel: 'definition', childLabel: 'linear' },
+                { segment: 'adaptive-instance', parentLabel: 'instance', childLabel: 'adaptive' },
+                { segment: 'linear-instance', parentLabel: 'instance', childLabel: 'linear' },
             ];
 
             // Find the best child match
@@ -205,15 +207,15 @@ export class AppComponent implements OnInit, AfterViewInit {
      */
     private injectNavIcons(): void {
         const iconMap: Record<string, string> = {
-            'definition':   'description',
-            'adaptive':     'auto_awesome',
-            'linear':       'linear_scale',
-            'instance':     'play_circle_outline',
-            'run':          'directions_run',
-            'pool':         'storage',
-            'images':       'photo_library',
-            'user':         'person',
-            'group':        'group',
+            'definition': 'description',
+            'adaptive': 'auto_awesome',
+            'linear': 'linear_scale',
+            'instance': 'play_circle_outline',
+            'run': 'directions_run',
+            'pool': 'storage',
+            'images': 'photo_library',
+            'user': 'person',
+            'group': 'group',
             'microservice': 'settings',
         };
 
@@ -326,6 +328,39 @@ export class AppComponent implements OnInit, AfterViewInit {
             }
         };
         [200, 600, 1200].forEach((d) => setTimeout(tryAttachListenerObserver, d));
+    }
+
+    /**
+     * Collapses or expands the sidebar by toggling .nav-drawer visibility.
+     * The Sentinel layout does not expose a collapse API, so we manipulate the DOM directly.
+     */
+    toggleSidebar(): void {
+        this.sidebarCollapsed.update(v => !v);
+        const navDrawer = document.querySelector<HTMLElement>('.nav-drawer');
+        if (navDrawer) {
+            if (this.sidebarCollapsed()) {
+                navDrawer.style.width = '0';
+                navDrawer.style.overflow = 'hidden';
+                navDrawer.style.minWidth = '0';
+                navDrawer.style.transition = 'width 0.25s ease';
+                // Also shrink the mat-sidenav if present
+                const sidenav = navDrawer.closest<HTMLElement>('mat-sidenav');
+                if (sidenav) {
+                    sidenav.style.width = '0';
+                    sidenav.style.overflow = 'hidden';
+                    sidenav.style.transition = 'width 0.25s ease';
+                }
+            } else {
+                navDrawer.style.width = '';
+                navDrawer.style.overflow = '';
+                navDrawer.style.minWidth = '';
+                const sidenav = navDrawer.closest<HTMLElement>('mat-sidenav');
+                if (sidenav) {
+                    sidenav.style.width = '';
+                    sidenav.style.overflow = '';
+                }
+            }
+        }
     }
 
     onLogin(): void {
