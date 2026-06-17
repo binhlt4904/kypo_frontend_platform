@@ -211,6 +211,11 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
     /** Notify topology service of the available topology width */
     private notifyTopoWidth(): void {
         if (!this.splitContainer?.nativeElement) return;
+        if (this.topoFullscreen()) {
+            this.topologyService.emitTopologyWidthChange(window.innerWidth);
+            this.topologyService.emitTopologyHeightChange(window.innerHeight);
+            return;
+        }
         const containerW = this.splitContainer.nativeElement.clientWidth;
         const taskW = this.taskDescriptionVisible() ? this.taskPaneWidth() : 0;
         const topoW = containerW - taskW - 5; // 5px for resize handle

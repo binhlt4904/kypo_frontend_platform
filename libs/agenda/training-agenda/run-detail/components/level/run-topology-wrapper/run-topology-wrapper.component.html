@@ -22,9 +22,6 @@
                 <mat-icon>{{ topoFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
             </button>
         </div>
-        <mat-icon class="collapse-icon">
-            {{ topologyCollapsed ? 'expand_less' : 'expand_more' }}
-        </mat-icon>
     </div>
     <div class="topo-content">
         <crczp-topology-wrapper (getAccessFile)="onAccessFileRequested()" [id]="{instanceId: sandboxInstanceId}"
