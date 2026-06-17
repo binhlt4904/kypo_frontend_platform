@@ -29,10 +29,14 @@ import { RunTopologyWrapperComponent } from './run-topology-wrapper/run-topology
 import { Stepper, StepperItem, TopologySynchronizerService } from '@crczp/components';
 import { SentinelResizeDirective } from '@sentinel/common/resize';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatIcon } from '@angular/material/icon';
 
 /**
  * Component to display one level in a training run. Serves mainly as a wrapper which determines the type of the training
- * and displays child component accordingly
+ * and displays child component accordingly.
+ *
+ * Layout: horizontal split — task description (left) | topology (right).
+ * Task pane can be toggled. Topology can be fullscreened.
  */
 @Component({
     selector: 'crczp-abstract-level',
@@ -46,7 +50,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         AsyncPipe,
         InfoLevelComponent,
         AdaptiveAccessLevelComponent,
-        AdaptiveAccessLevelComponent,
         LinearAccessLevelComponent,
         LinearTrainingLevelComponent,
         AdaptiveTrainingLevelComponent,
@@ -55,19 +58,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         RunTopologyWrapperComponent,
         Stepper,
         SentinelResizeDirective,
+        MatIcon,
     ],
 })
 export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy {
-    @ViewChild('levelContent')
-    protected readonly levelContent: ElementRef<HTMLDivElement>;
     @ViewChild('splitContainer')
     protected readonly splitContainer: ElementRef<HTMLDivElement>;
 
     private readonly hostElement = inject(ElementRef<HTMLElement>);
     protected readonly runService = inject(AbstractTrainingRunService);
-    protected readonly levelType = signal<
-        AbstractLevelTypeEnum | AbstractPhaseTypeEnum
-    >(null);
+    protected readonly levelType = signal<AbstractLevelTypeEnum | AbstractPhaseTypeEnum>(null);
     protected readonly destroyRef = inject(DestroyRef);
     protected readonly AbstractLevelTypeEnum = AbstractLevelTypeEnum;
     protected readonly AbstractPhaseTypeEnum = AbstractPhaseTypeEnum;
@@ -79,12 +79,20 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
     protected readonly stepperSelectedIndex = signal<number | null>(null);
     protected readonly stepperLastIndex = signal<number | null>(null);
     protected readonly stepperHeight = signal<number>(148);
-    protected readonly topoHeight = signal<number>(240);
     protected readonly sandboxInstanceId = signal<string | null>(null);
 
-    private isResizing = false;
-    private dragStartY = 0;
-    private dragStartHeight = 0;
+    /** Whether the task description pane is visible */
+    protected readonly taskDescriptionVisible = signal<boolean>(true);
+    /** Whether topology is in fullscreen mode */
+    protected readonly topoFullscreen = signal<boolean>(false);
+    /** Current width of the task pane in px */
+    protected readonly taskPaneWidth = signal<number>(480);
+
+    /** Horizontal resize dragging state */
+    private isHResizing = false;
+    private hDragStartX = 0;
+    private hDragStartWidth = 0;
+
     private ancestorPaddedContent: HTMLElement | null = null;
     private originalPadding = '';
 
@@ -101,32 +109,18 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
     ngAfterViewInit(): void {
         this.removeLayoutPadding();
         this.fitSplitContainerToViewport();
-        const splitH = this.splitContainer.nativeElement.clientHeight;
-        const initialTopoH = Math.max(
-            96,
-            Math.min(320, Math.round(splitH * 0.34)),
-        );
-        this.topoHeight.set(initialTopoH);
-        this.topologyService.emitTopologyWidthChange(
-            this.splitContainer.nativeElement.clientWidth,
-        );
-        this.topologyService.emitTopologyHeightChange(initialTopoH);
-        this.onResize();
+
+        // Set initial task pane width to ~42% of container
+        const containerW = this.splitContainer?.nativeElement?.clientWidth ?? 1024;
+        const initialTaskW = this.clampTaskPaneWidth(Math.round(containerW * 0.42));
+        this.taskPaneWidth.set(initialTaskW);
+
+        // Notify topology of its initial width
+        this.notifyTopoWidth();
+
         this.topologyService.topologyCollapsed$
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((collapsed) => {
-                if (collapsed) {
-                    this.topologyService.emitTopologyHeightChange(49);
-                    return;
-                }
-                // Emit current height immediately so the topology canvas
-                // knows its new size before the first paint
-                this.topologyService.emitTopologyHeightChange(this.topoHeight());
-                if (this.splitContainer?.nativeElement) {
-                    this.topologyService.emitTopologyWidthChange(
-                        this.splitContainer.nativeElement.clientWidth,
-                    );
-                }
+            .subscribe(() => {
                 this.scheduleTopologyRefresh();
             });
     }
@@ -141,42 +135,96 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         this.stepperHeight.set(height);
         if (!this.splitContainer?.nativeElement) return;
         this.fitSplitContainerToViewport();
-        this.topologyService.emitTopologyWidthChange(
-            this.splitContainer.nativeElement.clientWidth,
-        );
+        this.notifyTopoWidth();
     }
 
-    protected onResizeHandleMouseDown(event: MouseEvent): void {
-        this.isResizing = true;
-        this.dragStartY = event.clientY;
-        this.dragStartHeight = this.topoHeight();
+    /** Toggle task description pane */
+    protected toggleTaskDescription(): void {
+        this.taskDescriptionVisible.update(v => !v);
+        // After DOM settles, notify topology of new width
+        this.scheduleTopologyRefresh();
+    }
+
+    /** Toggle topology fullscreen */
+    protected toggleTopoFullscreen(): void {
+        this.topoFullscreen.update(v => !v);
+        this.scheduleTopologyRefresh();
+    }
+
+    /** Horizontal resize: mousedown on divider */
+    protected onHResizeHandleMouseDown(event: MouseEvent): void {
+        this.isHResizing = true;
+        this.hDragStartX = event.clientX;
+        this.hDragStartWidth = this.taskPaneWidth();
         event.preventDefault();
     }
 
     @HostListener('window:mousemove', ['$event'])
     onMouseMove(event: MouseEvent): void {
-        if (!this.isResizing) return;
-        const delta = this.dragStartY - event.clientY;
-        const newHeight = this.clampTopologyHeight(
-            this.dragStartHeight + delta,
-        );
-        this.topoHeight.set(newHeight);
-        this.topologyService.emitTopologyHeightChange(newHeight);
+        if (!this.isHResizing) return;
+        const delta = event.clientX - this.hDragStartX;
+        const newW = this.clampTaskPaneWidth(this.hDragStartWidth + delta);
+        this.taskPaneWidth.set(newW);
+        this.notifyTopoWidth();
+    }
+
+    @HostListener('window:mouseup')
+    onMouseUp(): void {
+        if (this.isHResizing) {
+            this.isHResizing = false;
+            this.scheduleTopologyRefresh();
+        }
+    }
+
+    @HostListener('window:resize')
+    onResize() {
+        if (!this.splitContainer?.nativeElement) return;
+        this.fitSplitContainerToViewport();
+        // Re-clamp task pane width
+        const clamped = this.clampTaskPaneWidth(this.taskPaneWidth());
+        if (clamped !== this.taskPaneWidth()) {
+            this.taskPaneWidth.set(clamped);
+        }
+        this.notifyTopoWidth();
+    }
+
+    resetSplit(): void {
+        const containerW = this.splitContainer?.nativeElement?.clientWidth ?? 1024;
+        this.taskPaneWidth.set(this.clampTaskPaneWidth(Math.round(containerW * 0.42)));
+        this.taskDescriptionVisible.set(true);
+        this.topoFullscreen.set(false);
+        this.topologyService.setTopologyCollapsed(false);
+        this.scheduleTopologyRefresh();
+    }
+
+    maximizeTopo(): void {
+        this.taskDescriptionVisible.set(false);
+        this.scheduleTopologyRefresh();
+    }
+
+    /** Clamp task pane width between 240px and 65% of container */
+    private clampTaskPaneWidth(w: number): number {
+        const containerW = this.splitContainer?.nativeElement?.clientWidth ?? 1024;
+        return Math.max(240, Math.min(Math.round(containerW * 0.65), w));
+    }
+
+    /** Notify topology service of the available topology width */
+    private notifyTopoWidth(): void {
+        if (!this.splitContainer?.nativeElement) return;
+        const containerW = this.splitContainer.nativeElement.clientWidth;
+        const taskW = this.taskDescriptionVisible() ? this.taskPaneWidth() : 0;
+        const topoW = containerW - taskW - 5; // 5px for resize handle
+        this.topologyService.emitTopologyWidthChange(Math.max(100, topoW));
+        const containerH = this.splitContainer.nativeElement.clientHeight;
+        this.topologyService.emitTopologyHeightChange(containerH);
     }
 
     private refreshTopologyDimensions(): void {
-        if (!this.splitContainer?.nativeElement) return;
-        this.fitSplitContainerToViewport();
-        this.topologyService.emitTopologyWidthChange(
-            this.splitContainer.nativeElement.clientWidth,
-        );
-        this.topologyService.emitTopologyHeightChange(this.topoHeight());
-        // Dispatch a synthetic resize so the topology canvas repaints
+        this.notifyTopoWidth();
         window.dispatchEvent(new Event('resize'));
     }
 
     private scheduleTopologyRefresh(): void {
-        // Use a triple rAF chain to ensure Angular CD + CSS layout have settled
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => this.refreshTopologyDimensions());
@@ -184,65 +232,9 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
         });
     }
 
-    @HostListener('window:mouseup')
-    onMouseUp(): void {
-        this.isResizing = false;
-    }
-
-    @HostListener('window:resize')
-    onResize() {
-        if (!this.splitContainer?.nativeElement) return;
-        this.fitSplitContainerToViewport();
-        const newHeight = this.clampTopologyHeight(this.topoHeight());
-        if (this.topoHeight() !== newHeight) {
-            this.topoHeight.set(newHeight);
-            this.topologyService.emitTopologyHeightChange(newHeight);
-        }
-        this.topologyService.emitTopologyWidthChange(
-            this.splitContainer.nativeElement.clientWidth,
-        );
-        this.topologyService.setMaxTopologyWidth(null);
-        this.topologyService.setMinTopologyWidth(null);
-    }
-
-    resetSplit(): void {
-        if (!this.splitContainer?.nativeElement) return;
-        const h = this.splitContainer.nativeElement.clientHeight;
-        const newHeight = this.clampTopologyHeight(Math.round(h * 0.45));
-        this.topoHeight.set(newHeight);
-        this.topologyService.setTopologyCollapsed(false);
-        // Emit dimensions immediately then schedule a follow-up repaint
-        this.topologyService.emitTopologyHeightChange(newHeight);
-        this.topologyService.emitTopologyWidthChange(
-            this.splitContainer.nativeElement.clientWidth,
-        );
-        this.scheduleTopologyRefresh();
-    }
-
-    maximizeTopo(): void {
-        if (!this.splitContainer?.nativeElement) return;
-        const h = this.splitContainer.nativeElement.clientHeight;
-        const newHeight = this.clampTopologyHeight(Math.round(h * 0.78));
-        this.topoHeight.set(newHeight);
-        this.topologyService.setTopologyCollapsed(false);
-        // Emit dimensions immediately then schedule a follow-up repaint
-        this.topologyService.emitTopologyHeightChange(newHeight);
-        this.topologyService.emitTopologyWidthChange(
-            this.splitContainer.nativeElement.clientWidth,
-        );
-        this.scheduleTopologyRefresh();
-    }
-
-    private clampTopologyHeight(height: number): number {
-        const splitH = this.splitContainer?.nativeElement?.clientHeight ?? 800;
-        const maxTopoH = Math.max(96, splitH - 96);
-        return Math.max(96, Math.min(maxTopoH, height));
-    }
-
     private fitSplitContainerToViewport(): void {
         if (!this.splitContainer?.nativeElement) return;
-        const hostRect =
-            this.hostElement.nativeElement.getBoundingClientRect();
+        const hostRect = this.hostElement.nativeElement.getBoundingClientRect();
         const rect = this.splitContainer.nativeElement.getBoundingClientRect();
         const hostAvailableH = Math.max(160, window.innerHeight - hostRect.top);
         const availableH = Math.max(160, window.innerHeight - rect.top);
@@ -256,25 +248,17 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
             this.hostElement.nativeElement,
             'padded-content',
         );
-
         if (!this.ancestorPaddedContent) return;
         this.originalPadding = this.ancestorPaddedContent.style.padding;
         this.ancestorPaddedContent.style.padding = '0';
     }
 
-    private findAncestorByClass(
-        element: HTMLElement,
-        className: string,
-    ): HTMLElement | null {
+    private findAncestorByClass(element: HTMLElement, className: string): HTMLElement | null {
         let currentElement = element.parentElement;
-
         while (currentElement) {
-            if (currentElement.classList.contains(className)) {
-                return currentElement;
-            }
+            if (currentElement.classList.contains(className)) return currentElement;
             currentElement = currentElement.parentElement;
         }
-
         return null;
     }
 
@@ -288,8 +272,7 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
     }
 
     private updateLevelType(runInfo: AccessTrainingRunInfo) {
-        const levelType = runInfo.displayedLevel.type;
-        this.levelType.set(levelType);
+        this.levelType.set(runInfo.displayedLevel.type);
     }
 
     private updateTopologyAllowed(runInfo: AccessTrainingRunInfo) {
@@ -299,30 +282,20 @@ export class AbstractLevelComponent implements OnInit, AfterViewInit, OnDestroy 
             runInfo.displayedLevel.type !== AbstractPhaseTypeEnum.Training &&
             runInfo.displayedLevel.type !== AbstractPhaseTypeEnum.Access;
         this.topologyAllowed.set(!shouldCollapse && !runInfo.localEnvironment);
-        this.topologyService.setTopologyCollapsed(
-            shouldCollapse || runInfo.localEnvironment,
-        );
+        this.topologyService.setTopologyCollapsed(shouldCollapse || runInfo.localEnvironment);
     }
 
-    private levelTypeToIcon(
-        levelType: AbstractLevelTypeEnum | AbstractPhaseTypeEnum,
-    ): string {
+    private levelTypeToIcon(levelType: AbstractLevelTypeEnum | AbstractPhaseTypeEnum): string {
         switch (levelType) {
             case AbstractLevelTypeEnum.Info:
-            case AbstractPhaseTypeEnum.Info:
-                return 'info';
+            case AbstractPhaseTypeEnum.Info: return 'info';
             case AbstractLevelTypeEnum.Training:
-            case AbstractPhaseTypeEnum.Training:
-                return 'videogame_asset';
+            case AbstractPhaseTypeEnum.Training: return 'videogame_asset';
             case AbstractLevelTypeEnum.Access:
-            case AbstractPhaseTypeEnum.Access:
-                return 'settings';
-            case AbstractLevelTypeEnum.Assessment:
-                return 'assignment';
-            case AbstractPhaseTypeEnum.Questionnaire:
-                return 'quiz';
-            default:
-                return 'help';
+            case AbstractPhaseTypeEnum.Access: return 'settings';
+            case AbstractLevelTypeEnum.Assessment: return 'assignment';
+            case AbstractPhaseTypeEnum.Questionnaire: return 'quiz';
+            default: return 'help';
         }
     }
 

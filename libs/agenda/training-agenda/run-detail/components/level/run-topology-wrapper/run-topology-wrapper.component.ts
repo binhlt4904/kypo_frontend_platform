@@ -20,12 +20,18 @@ import {
 })
 export class RunTopologyWrapperComponent implements OnInit, OnDestroy {
     topologyAllowed = input<boolean>(true);
+    topoFullscreen = input<boolean>(false);
+
     readonly resetSplitRequested = output<void>();
     readonly maximizeTopoRequested = output<void>();
+    /** Emitted when user clicks the fullscreen button */
+    readonly fullscreenRequested = output<void>();
+
     protected readonly runService = inject(AbstractTrainingRunService);
     protected readonly sshAccessService = inject(SshAccessService);
     protected readonly topologyService = inject(TopologySynchronizerService);
     protected readonly collapsed = signal<boolean>(false);
+
     private readonly renderer = inject(Renderer2);
     private readonly elementRef = inject(ElementRef);
     private ancestorPaddedContent: HTMLElement | null = null;
@@ -44,14 +50,8 @@ export class RunTopologyWrapperComponent implements OnInit, OnDestroy {
         );
 
         if (this.ancestorPaddedContent) {
-            this.originalPaddingRight =
-                this.ancestorPaddedContent.style.paddingRight;
-
-            this.renderer.setStyle(
-                this.ancestorPaddedContent,
-                'padding-right',
-                '0',
-            );
+            this.originalPaddingRight = this.ancestorPaddedContent.style.paddingRight;
+            this.renderer.setStyle(this.ancestorPaddedContent, 'padding-right', '0');
         }
     }
 
@@ -66,24 +66,15 @@ export class RunTopologyWrapperComponent implements OnInit, OnDestroy {
     }
 
     protected onAccessFileRequested(): void {
-        this.sshAccessService.getAccessFile(
-            this.runService.runInfo.sandboxInstanceId,
-        );
+        this.sshAccessService.getAccessFile(this.runService.runInfo.sandboxInstanceId);
     }
 
-    private findAncestorByClass(
-        element: HTMLElement,
-        className: string,
-    ): HTMLElement | null {
+    private findAncestorByClass(element: HTMLElement, className: string): HTMLElement | null {
         let currentElement = element.parentElement;
-
         while (currentElement) {
-            if (currentElement.classList.contains(className)) {
-                return currentElement;
-            }
+            if (currentElement.classList.contains(className)) return currentElement;
             currentElement = currentElement.parentElement;
         }
-
         return null;
     }
 }

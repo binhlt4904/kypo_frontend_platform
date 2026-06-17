@@ -111,19 +111,157 @@
     letter-spacing: 2px;
 }
 
-/* ─── Workspace ─────────────────────────────────────────────────────── */
+/* ─── Workspace shell: horizontal split ────────────────────────────── */
 .workspace-shell {
     flex: 1;
-    position: relative;
+    display: flex;
+    flex-direction: row;
     overflow: hidden;
     min-height: 0;
+    position: relative;
+
+    /* Fullscreen topology: hide task pane entirely */
+    &.topo-fullscreen {
+        .task-pane {
+            display: none;
+        }
+
+        .h-resize-handle {
+            display: none;
+        }
+
+        .topo-pane {
+            flex: 1;
+            width: 100%;
+        }
+    }
 }
 
-.workspace {
-    position: absolute;
-    inset: 0;
+/* ─── Task pane (left) ──────────────────────────────────────────────── */
+.task-pane {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-right: 1px solid var(--neutral-85, #e0e0e0);
+    background: var(--surface, #fff);
+    transition: width 0.2s ease;
+    min-width: 0;
+
+    &--hidden {
+        width: 0 !important;
+        border-right: none;
+        overflow: hidden;
+    }
+}
+
+/* ─── Zone bar (task) ───────────────────────────────────────────────── */
+.zone-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 8px 0 12px;
+    gap: 7px;
+    flex-shrink: 0;
+    z-index: 2;
+
+    &--task {
+        background: var(--neutral-95, #f4f4f4);
+        border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+        height: 29px;
+    }
+}
+
+.zone-bar__label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--neutral-50, #888);
+    flex: 1;
+}
+
+.zone-bar__badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 2px;
+    background: rgba(230, 92, 0, 0.1);
+    color: var(--primary-60, #e65c00);
+    letter-spacing: 0.5px;
+}
+
+/* ─── Zone action button (hide/show task) ───────────────────────────── */
+.zone-action-btn {
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--neutral-80, #ddd);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: transparent;
+    color: var(--neutral-50, #888);
+    padding: 0;
+    flex-shrink: 0;
+    transition: border-color 0.12s, color 0.12s;
+
+    mat-icon {
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+        line-height: 15px;
+    }
+
+    &:hover {
+        border-color: var(--primary-60, #e65c00);
+        color: var(--primary-60, #e65c00);
+    }
+}
+
+/* ─── Collapsed task tab (vertical strip on left edge) ─────────────── */
+.task-show-tab {
+    width: 22px;
+    height: 100%;
+    background: var(--neutral-95, #f4f4f4);
+    border: none;
+    border-right: 1px solid var(--neutral-85, #e0e0e0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--neutral-50, #888);
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.12s, color 0.12s;
+
+    mat-icon {
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+        line-height: 15px;
+    }
+
+    &:hover {
+        background: var(--neutral-90, #ececec);
+        color: var(--primary-60, #e65c00);
+    }
+}
+
+.task-show-tab__label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+
+/* ─── Task scroll area ──────────────────────────────────────────────── */
+.task-scroll-area {
+    flex: 1;
     overflow-y: auto;
     min-height: 0;
 
@@ -141,57 +279,20 @@
     }
 }
 
-/* ─── Zone bar ──────────────────────────────────────────────────────── */
-.zone-bar {
-    background: var(--neutral-95, #f4f4f4);
-    border-bottom: 1px solid var(--neutral-85, #e0e0e0);
-    height: 24px;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    gap: 7px;
-    flex-shrink: 0;
-    z-index: 2;
-}
-
-.zone-bar__label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--neutral-50, #888);
-}
-
-.zone-bar__badge {
-    font-size: 8px;
-    font-weight: 700;
-    padding: 1px 7px;
-    border-radius: 2px;
-    background: rgba(230, 92, 0, 0.1);
-    color: var(--primary-60, #e65c00);
-    letter-spacing: 0.5px;
-}
-
-/* ─── Task zone (natural height, workspace scrolls) ─────────────────── */
 .task-zone {
-    flex-shrink: 0;
-    overflow: visible;
-    padding-bottom: var(--run-task-bottom-padding, 160px);
+    padding: 0 0 48px;
 }
 
-/* ─── Resize handle ─────────────────────────────────────────────────── */
-.resize-handle {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 6px;
-    cursor: ns-resize;
+/* ─── Horizontal resize handle ──────────────────────────────────────── */
+.h-resize-handle {
+    width: 5px;
+    height: 100%;
+    cursor: col-resize;
     background: var(--neutral-85, #e0e0e0);
-    transition: background 0.15s;
-    z-index: 12;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.12s;
+    position: relative;
+    z-index: 10;
 
     &:hover {
         background: var(--primary-60, #e65c00);
@@ -199,22 +300,40 @@
 
     &::after {
         content: "";
-        width: 40px;
-        height: 2px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 2px;
+        height: 32px;
         border-radius: 2px;
         background: currentColor;
-        opacity: 0.36;
-        box-shadow: 0 3px 0 currentColor, 0 -3px 0 currentColor;
+        opacity: 0.4;
+        box-shadow: 4px 0 0 currentColor, -4px 0 0 currentColor;
     }
 }
 
-/* ─── Topology wrapper ──────────────────────────────────────────────── */
-.level-topology-wrapper {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 11;
+/* ─── Topology pane (right) ─────────────────────────────────────────── */
+.topo-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+
+    &--fullscreen {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: var(--surface, #fff);
+    }
+}
+
+.wh-100 {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ─── Responsive ────────────────────────────────────────────────────── */
@@ -225,5 +344,41 @@
 
     .stat {
         padding: 3px 8px;
+    }
+
+    /* Stack vertically on mobile */
+    .workspace-shell {
+        flex-direction: column;
+    }
+
+    .task-pane {
+        width: 100% !important;
+        height: 50%;
+        border-right: none;
+        border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+    }
+
+    .topo-pane {
+        flex: 1;
+        width: 100%;
+    }
+
+    .h-resize-handle {
+        width: 100%;
+        height: 5px;
+        cursor: row-resize;
+    }
+
+    .task-show-tab {
+        width: 100%;
+        height: 22px;
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 1px solid var(--neutral-85, #e0e0e0);
+    }
+
+    .task-show-tab__label {
+        writing-mode: horizontal-tb;
+        transform: none;
     }
 }
