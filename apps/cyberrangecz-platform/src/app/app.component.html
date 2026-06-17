@@ -30,13 +30,17 @@
 <router-outlet />
 }
 
-<!-- Sidebar toggle button — always visible, floats at left edge -->
 @if (authService.activeUser$ | async) {
-<button class="sidebar-toggle-btn" (click)="toggleSidebar()"
-    [title]="sidebarCollapsed() ? 'Show sidebar' : 'Hide sidebar'"
-    [attr.aria-label]="sidebarCollapsed() ? 'Show sidebar' : 'Hide sidebar'">
-    <span class="material-icons sidebar-toggle-btn__icon">
-        {{ sidebarCollapsed() ? 'menu' : 'menu_open' }}
-    </span>
-</button>
+    @if (!sidebarCollapsed()) {
+    <!-- Sidebar header bar — sits in the sidebar's top zone, same height as toolbar -->
+    <button class="sidebar-header-btn" (click)="toggleSidebar()" aria-label="Hide sidebar">
+        <span class="sidebar-header-btn__title">NAV</span>
+        <span class="sidebar-header-btn__hide">HIDE</span>
+    </button>
+    } @else {
+    <!-- Hamburger show button — appears below toolbar when sidebar is hidden -->
+    <button class="sidebar-show-btn" (click)="toggleSidebar()" aria-label="Show sidebar">
+        <span class="material-icons">menu</span>
+    </button>
+    }
 }

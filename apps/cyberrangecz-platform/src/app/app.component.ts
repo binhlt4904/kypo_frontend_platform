@@ -81,12 +81,12 @@ export class AppComponent implements OnInit, AfterViewInit {
         // Auto-select first child when parent dropdown is expanded
         this.setupNestedNavAutoSelect();
 
-        // Init sidebar variables once drawer has rendered
+        // Sync CSS variables with actual drawer width once rendered
         setTimeout(() => {
             const drawer = document.querySelector<HTMLElement>('.nav-drawer');
             if (drawer) {
                 const w = drawer.offsetWidth;
-                document.documentElement.style.setProperty('--sidebar-toggle-left', w + 'px');
+                document.documentElement.style.setProperty('--sidebar-width', w + 'px');
                 document.documentElement.style.setProperty('--content-margin-left', w + 'px');
             }
         }, 400);
@@ -362,7 +362,6 @@ export class AppComponent implements OnInit, AfterViewInit {
                 drawer.style.visibility = 'hidden';
             }
             document.documentElement.style.setProperty('--content-margin-left', '0px');
-            document.documentElement.style.setProperty('--sidebar-toggle-left', '0px');
         } else {
             const naturalW = (drawer as any)?.__naturalWidth ?? 220;
             if (drawer) {
@@ -373,7 +372,6 @@ export class AppComponent implements OnInit, AfterViewInit {
                 drawer.style.width = naturalW + 'px';
             }
             document.documentElement.style.setProperty('--content-margin-left', naturalW + 'px');
-            document.documentElement.style.setProperty('--sidebar-toggle-left', naturalW + 'px');
 
             setTimeout(() => {
                 if (drawer) drawer.style.width = '';
