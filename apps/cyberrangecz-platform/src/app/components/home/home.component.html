@@ -5,133 +5,58 @@
     <div class="portal-summary-row">
         <div class="summary-card">
             <div class="summary-card-label">CPU Usage</div>
-            <div class="summary-card-value">12.5%</div>
-            <div class="summary-card-sub">4 / 32 Cores</div>
+            <div class="summary-card-value">{{ hardwareStats.cpuPercentage }}%</div>
+            <div class="summary-card-sub">{{ hardwareStats.cpuUsed }} / {{ hardwareStats.cpuTotal }} Cores</div>
         </div>
         <div class="summary-card">
             <div class="summary-card-label">RAM Usage</div>
-            <div class="summary-card-value">42.1%</div>
-            <div class="summary-card-sub">26.9 GB / 64 GB</div>
+            <div class="summary-card-value">{{ hardwareStats.ramPercentage }}%</div>
+            <div class="summary-card-sub">{{ formatRam(hardwareStats.ramUsed) }} / {{ formatRam(hardwareStats.ramTotal) }}</div>
         </div>
         <div class="summary-card">
             <div class="summary-card-label">Active Sandboxes</div>
-            <div class="summary-card-value" style="color: var(--warning);">7 / 20</div>
+            <div class="summary-card-value" style="color: var(--warning);">{{ hardwareStats.activeSandboxes }} / {{ hardwareStats.maxSandboxes }}</div>
             <div class="summary-card-sub">Allocated Nodes</div>
         </div>
     </div>
 
-    <!-- Two Column Dashboard Layout (Charts on left, resource counts on right) -->
-    <div class="dashboard-grid">
-        <!-- Left Panel: CPU and RAM charts -->
-        <div class="dashboard-left-panel">
-            <div class="chart-panel">
-                <div class="chart-panel-header">
-                    <span class="panel-header-title">CPU Utilization (Last 10 mins)</span>
-                </div>
-                <div class="chart-panel-body">
-                    <!-- SVG Chart for CPU -->
-                    <svg viewBox="0 0 400 120" class="realtime-chart">
-                        <defs>
-                            <linearGradient id="cpuGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
-                                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-                            </linearGradient>
-                        </defs>
-                        <!-- Grid lines -->
-                        <line x1="0" y1="30" x2="400" y2="30" stroke="#f1f3f5" stroke-width="1" />
-                        <line x1="0" y1="60" x2="400" y2="60" stroke="#f1f3f5" stroke-width="1" />
-                        <line x1="0" y1="90" x2="400" y2="90" stroke="#f1f3f5" stroke-width="1" />
-                        <!-- Area & Line -->
-                        <path d="M 0 120 L 0 100 L 40 90 L 80 105 L 120 70 L 160 85 L 200 40 L 240 50 L 280 30 L 320 45 L 360 25 L 400 35 L 400 120 Z" fill="url(#cpuGrad)" />
-                        <path d="M 0 100 L 40 90 L 80 105 L 120 70 L 160 85 L 200 40 L 240 50 L 280 30 L 320 45 L 360 25 L 400 35" fill="none" stroke="var(--accent)" stroke-width="2" />
-                    </svg>
-                    <div class="chart-footer">
-                        <span>10m ago</span>
-                        <span>5m ago</span>
-                        <span>Now</span>
-                    </div>
-                </div>
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid full-width">
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">System Agendas & Resource Counts</span>
             </div>
-
-            <div class="chart-panel">
-                <div class="chart-panel-header">
-                    <span class="panel-header-title">RAM Distribution</span>
-                </div>
-                <div class="chart-panel-body">
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-label">
-                            <span>Used memory (26.9 GB)</span>
-                            <span>42.1%</span>
-                        </div>
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill" style="width: 42.1%; background-color: var(--accent);"></div>
-                        </div>
+            <div class="chart-panel-body">
+                <div class="resource-grid">
+                    <div class="resource-card">
+                        <div class="resource-label">Training Runs</div>
+                        <div class="resource-value">{{ stats.trainingRuns }}</div>
+                        <div class="resource-sub">Currently Active</div>
                     </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-label">
-                            <span>Buffer / Cache (14.2 GB)</span>
-                            <span>22.2%</span>
-                        </div>
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill" style="width: 22.2%; background-color: var(--warning);"></div>
-                        </div>
+                    <div class="resource-card">
+                        <div class="resource-label">Definitions</div>
+                        <div class="resource-value">{{ stats.definitions }}</div>
+                        <div class="resource-sub">Blueprints</div>
                     </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-label">
-                            <span>Free memory (22.9 GB)</span>
-                            <span>35.7%</span>
-                        </div>
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill" style="width: 35.7%; background-color: var(--success);"></div>
-                        </div>
+                    <div class="resource-card">
+                        <div class="resource-label">Pools</div>
+                        <div class="resource-value">{{ stats.pools }}</div>
+                        <div class="resource-sub">Sandbox Pools</div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Panel: System Agendas & Resource Counts -->
-        <div class="dashboard-right-panel">
-            <div class="chart-panel">
-                <div class="chart-panel-header">
-                    <span class="panel-header-title">System Agendas & Resource Counts</span>
-                </div>
-                <div class="chart-panel-body">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
-                        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
-                            <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap;">Training Runs</div>
-                            <div style="font-size: 18px; font-weight: bold; color: var(--accent);">1</div>
-                            <div style="font-size: 9px; color: var(--text-muted);">Currently Active</div>
-                        </div>
-                        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
-                            <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap;">Definitions</div>
-                            <div style="font-size: 18px; font-weight: bold; color: var(--accent);">12</div>
-                            <div style="font-size: 9px; color: var(--text-muted);">Blueprints</div>
-                        </div>
-                        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
-                            <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap;">Pools</div>
-                            <div style="font-size: 18px; font-weight: bold; color: var(--accent);">5</div>
-                            <div style="font-size: 9px; color: var(--text-muted);">Sandbox Pools</div>
-                        </div>
-                        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
-                            <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap;">Instances</div>
-                            <div style="font-size: 18px; font-weight: bold; color: var(--accent);">3</div>
-                            <div style="font-size: 9px; color: var(--text-muted);">Active Sessions</div>
-                        </div>
-                        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
-                            <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap;">Groups</div>
-                            <div style="font-size: 18px; font-weight: bold; color: var(--accent);">8</div>
-                            <div style="font-size: 9px; color: var(--text-muted);">User Groups</div>
-                        </div>
-                        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
-                            <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap;">Users</div>
-                            <div style="font-size: 18px; font-weight: bold; color: var(--accent);">124</div>
-                            <div style="font-size: 9px; color: var(--text-muted);">Accounts</div>
-                        </div>
-                        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; text-align: center; background: var(--bg-section-header);">
-                            <div style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap;">Microservices</div>
-                            <div style="font-size: 18px; font-weight: bold; color: var(--accent);">6</div>
-                            <div style="font-size: 9px; color: var(--text-muted);">Modules</div>
-                        </div>
+                    <div class="resource-card">
+                        <div class="resource-label">Instances</div>
+                        <div class="resource-value">{{ stats.instances }}</div>
+                        <div class="resource-sub">Active Sessions</div>
+                    </div>
+                    <div class="resource-card">
+                        <div class="resource-label">Groups</div>
+                        <div class="resource-value">{{ stats.groups }}</div>
+                        <div class="resource-sub">User Groups</div>
+                    </div>
+                    <div class="resource-card">
+                        <div class="resource-label">Users</div>
+                        <div class="resource-value">{{ stats.users }}</div>
+                        <div class="resource-sub">Accounts</div>
                     </div>
                 </div>
             </div>
