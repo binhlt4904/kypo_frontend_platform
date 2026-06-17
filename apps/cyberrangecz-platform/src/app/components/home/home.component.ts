@@ -282,11 +282,13 @@ export class HomeComponent implements OnInit {
         }
 
         if (this.resourcesApi) {
-            this.resourcesApi.getLimits().pipe(catchError(() => of(null)))
-                .subscribe(limits => {
-                    if (limits) {
-                        this.hardwareStats.cpuTotal = limits.vcpu || 0;
-                        this.hardwareStats.ramTotal = limits.ram || 0;
+            this.resourcesApi.getResources().pipe(catchError(() => of(null)))
+                .subscribe(res => {
+                    if (res && res.quotas) {
+                        this.hardwareStats.cpuUsed = res.quotas.vcpu?.inUse || 0;
+                        this.hardwareStats.cpuTotal = res.quotas.vcpu?.limit || 0;
+                        this.hardwareStats.ramUsed = res.quotas.ram?.inUse || 0;
+                        this.hardwareStats.ramTotal = res.quotas.ram?.limit || 0;
                         this.updatePercentages();
                     }
                 });
@@ -299,22 +301,14 @@ export class HomeComponent implements OnInit {
                     if (res && res.elements) {
                         this.stats.pools = res.pagination.totalElements;
 
-                        let cpuUsed = 0;
-                        let ramUsed = 0;
                         let activeSandboxes = 0;
                         let maxSandboxes = 0;
 
                         res.elements.forEach((pool: any) => {
-                            if (pool.hardwareUsage) {
-                                cpuUsed += pool.hardwareUsage.vcpu || 0;
-                                ramUsed += pool.hardwareUsage.ram || 0;
-                            }
                             activeSandboxes += pool.usedSize || 0;
                             maxSandboxes += pool.maxSize || 0;
                         });
 
-                        this.hardwareStats.cpuUsed = cpuUsed;
-                        this.hardwareStats.ramUsed = ramUsed;
                         this.hardwareStats.activeSandboxes = activeSandboxes;
                         this.hardwareStats.maxSandboxes = maxSandboxes;
                         this.updatePercentages();
