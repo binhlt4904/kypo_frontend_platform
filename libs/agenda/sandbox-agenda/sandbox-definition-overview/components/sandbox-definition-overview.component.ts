@@ -46,6 +46,7 @@ export class SandboxDefinitionOverviewComponent implements OnInit {
     controls: SentinelControlItem[];
     sandboxDefinitions$: Observable<SandboxDefinitionTable>;
     hasError$: Observable<boolean>;
+    filterText = '';
     destroyRef = inject(DestroyRef);
     private sandboxDefinitionService = inject(SandboxDefinitionOverviewService);
     private paginationService = inject(PaginationStorageService);
@@ -67,9 +68,18 @@ export class SandboxDefinitionOverviewComponent implements OnInit {
     onLoadEvent(event: TableLoadEvent<SandboxDefinitionSort>): void {
         this.paginationService.savePageSize(event.pagination.size);
         this.sandboxDefinitionService
-            .getAll(PaginationMapper.toOffsetPaginationEvent(event.pagination))
+            .getAll(PaginationMapper.toOffsetPaginationEvent(event.pagination), event.filter)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
+    }
+
+    onSearchClicked(): void {
+        this.onLoadEvent({ pagination: this.lastLoadEvent.pagination, filter: this.filterText });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.onLoadEvent(this.lastLoadEvent);
     }
 
     private initTable() {

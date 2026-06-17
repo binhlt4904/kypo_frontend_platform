@@ -29,6 +29,7 @@ export class SandboxDefinitionOverviewConcreteService extends SandboxDefinitionO
     private errorHandler = inject(ErrorHandlerService);
 
     private lastPagination: OffsetPaginationEvent<SandboxDefinitionSort>;
+    private lastFilter: string;
 
     constructor() {
         super(inject(PortalConfig).defaultPageSize);
@@ -37,13 +38,16 @@ export class SandboxDefinitionOverviewConcreteService extends SandboxDefinitionO
     /**
      * Gets all sandbox definitions with passed pagination and updates related observables or handles an error
      * @param pagination requested pagination
+     * @param filter optional filter string applied on definition title
      */
     getAll(
         pagination: OffsetPaginationEvent<SandboxDefinitionSort>,
+        filter: string = null,
     ): Observable<OffsetPaginatedResource<SandboxDefinition>> {
         this.hasErrorSubject$.next(false);
         this.lastPagination = pagination;
-        return this.api.getAll(pagination).pipe(
+        this.lastFilter = filter;
+        return this.api.getAll(pagination, filter).pipe(
             tap(
                 (paginatedResource) => {
                     this.resourceSubject$.next(paginatedResource);
@@ -126,7 +130,7 @@ export class SandboxDefinitionOverviewConcreteService extends SandboxDefinitionO
                         'Removing sandbox definition',
                     ),
             ),
-            switchMap(() => this.getAll(this.lastPagination)),
+            switchMap(() => this.getAll(this.lastPagination, this.lastFilter)),
         );
     }
 }

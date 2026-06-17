@@ -8,27 +8,24 @@
 
     <div class="page-filter-card">
         <div class="filter-row">
-                <select class="filter-select"><option>All States</option><option>Active</option><option>Locked</option><option>Failed</option></select>
-                <select class="filter-select"><option>All Types</option><option>Local</option><option>Remote</option></select>
-                <input type="text" class="filter-input" placeholder="Search by name or ID...">
+            <input type="text" class="filter-input" placeholder="Search by name or ID..."
+                   [value]="filterText" (input)="filterText = $any($event.target).value">
             <div class="filter-row-actions">
-                <button class="filter-btn-search">
+                <button class="filter-btn-search" (click)="onSearchClicked()">
                     <span class="material-icons">search</span> Search
                 </button>
-                <button class="filter-btn-refresh" title="Refresh">
+                <button class="filter-btn-refresh" title="Refresh" (click)="onRefreshClicked()">
                     <span class="material-icons">refresh</span>
                 </button>
             </div>
         </div>
     </div>
 
+    <sentinel-controls [controls]="controls" />
+
     <div class="dashboard-grid full-width">
         <div class="chart-panel">
-            <div class="chart-panel-header">
-                <span class="panel-header-title">Pools Overview</span>
-            </div>
-            <div class="chart-panel-body">
-                <sentinel-controls [controls]="controls" />
+            <div class="chart-panel-body" style="padding:0">
                 <sentinel-table
                     (tableLoad)="onLoadEvent($event)"
                     [data]="pools$ | async"

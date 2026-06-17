@@ -44,6 +44,7 @@ export class ImagesPageComponent implements OnInit {
     isLoadingImages$: Observable<boolean> = of();
     guiAccess = false;
     crczpImages = false;
+    filterText = '';
     destroyRef = inject(DestroyRef);
     readonly DEFAULT_SORT_COLUMN = 'name';
     readonly DEFAULT_SORT_DIRECTION = 'asc';
@@ -74,6 +75,17 @@ export class ImagesPageComponent implements OnInit {
             true,
             loadEvent.filter,
         );
+    }
+
+    onSearchClicked(): void {
+        this.lastFilter = this.filterText;
+        this.getAvailableImages(this.initialImagesPagination, true, this.filterText);
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.lastFilter = '';
+        this.getAvailableImages(this.initialImagesPagination, true);
     }
 
     osImagesToggled(): void {

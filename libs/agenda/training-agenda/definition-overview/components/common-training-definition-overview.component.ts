@@ -51,6 +51,7 @@ export class CommonTrainingDefinitionOverviewComponent implements OnInit {
     isLoading$: Observable<boolean>;
     topControls: SentinelControlItem[] = [];
     bottomControls: SentinelControlItem[] = [];
+    filterText = '';
     destroyRef = inject(DestroyRef);
     private trainingDefinitionService = inject(TrainingDefinitionService);
     private paginationService = inject(PaginationStorageService);
@@ -85,6 +86,18 @@ export class CommonTrainingDefinitionOverviewComponent implements OnInit {
      * Resolves controls action and calls appropriate handler
      * @param control selected control emitted by controls component
      */
+
+    onSearchClicked(): void {
+        this.onLoadEvent({
+            pagination: createPaginationEvent({ sort: 'id', pageSize: this.paginationService.loadPageSize() }),
+            filter: this.filterText,
+        });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.onLoadEvent({ pagination: createPaginationEvent({ sort: 'id', pageSize: this.paginationService.loadPageSize() }) });
+    }
 
     stateToIcon(value: TrainingDefinitionStateEnum): string {
         switch (value) {

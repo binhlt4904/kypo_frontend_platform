@@ -34,6 +34,7 @@ export class TrainingRunOverviewComponent implements OnInit {
     hasError$: Observable<boolean>;
     isLoading = false;
     controls: SentinelControlItem[];
+    filterText = '';
     destroyRef = inject(DestroyRef);
     private trainingRunOverviewService = inject(AccessedTrainingRunService);
 
@@ -59,6 +60,15 @@ export class TrainingRunOverviewComponent implements OnInit {
      * According to PIN number calls service to access training run or adaptive run.
      * @param accessToken token to access the training run or adaptive run
      */
+    onSearchClicked(): void {
+        this.loadAccessedTrainingRuns({ pagination: this.initialRunPagination, filter: this.filterText });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.loadAccessedTrainingRuns({ pagination: this.initialRunPagination });
+    }
+
     access(accessToken: string): void {
         this.isLoading = true;
         this.trainingRunOverviewService

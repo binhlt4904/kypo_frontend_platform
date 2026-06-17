@@ -69,6 +69,7 @@ export class PoolOverviewComponent implements OnInit {
 
     readonly DEFAULT_SORT_COLUMN = 'id';
     readonly DEFAULT_SORT_DIRECTION = 'asc';
+    filterText = '';
 
     destroyRef = inject(DestroyRef);
     private sandboxResourcesService = inject(SandboxResourcesService);
@@ -101,9 +102,18 @@ export class PoolOverviewComponent implements OnInit {
     onLoadEvent(loadEvent: TableLoadEvent<PoolSort>): void {
         this.paginationService.savePageSize(loadEvent.pagination.size);
         this.abstractPoolService
-            .getAll(PaginationMapper.toOffsetPaginationEvent(loadEvent.pagination))
+            .getAll(PaginationMapper.toOffsetPaginationEvent(loadEvent.pagination), loadEvent.filter)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
+    }
+
+    onSearchClicked(): void {
+        this.onLoadEvent({ pagination: this.initialPoolPagination, filter: this.filterText });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.onLoadEvent({ pagination: this.initialPoolPagination });
     }
 
     updatePoolComment(pool: Pool, newComment: string) {

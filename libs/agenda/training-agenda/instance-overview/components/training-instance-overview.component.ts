@@ -60,6 +60,7 @@ export class TrainingInstanceOverviewComponent {
     hasError$: Observable<boolean>;
     destroyRef = inject(DestroyRef);
     controls: SentinelControlItem[];
+    filterText = '';
     private service = inject(TrainingInstanceOverviewService);
     private paginationService = inject(PaginationStorageService);
     private notificationService = inject(NotificationService);
@@ -85,6 +86,15 @@ export class TrainingInstanceOverviewComponent {
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
+    }
+
+    onSearchClicked(): void {
+        this.onInstancesLoadEvent({ pagination: this.initialInstancePagination, filter: this.filterText });
+    }
+
+    onRefreshClicked(): void {
+        this.filterText = '';
+        this.onInstancesLoadEvent({ pagination: this.initialInstancePagination });
     }
 
     onCopyToken(): void {

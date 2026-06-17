@@ -9,12 +9,15 @@
     <div class="page-filter-card">
         <div class="filter-row">
             <select class="filter-select"><option>All States</option><option>Unreleased</option><option>Released</option></select>
-            <input type="text" class="filter-input" placeholder="Search by name...">
+            <input type="text" class="filter-input" placeholder="Search by name..."
+                [value]="filterText"
+                (input)="filterText = $any($event.target).value"
+                (keyup.enter)="onSearchClicked()">
             <div class="filter-row-actions">
-                <button class="filter-btn-search">
+                <button class="filter-btn-search" (click)="onSearchClicked()">
                     <span class="material-icons">search</span> Search
                 </button>
-                <button class="filter-btn-refresh" title="Refresh">
+                <button class="filter-btn-refresh" title="Refresh" (click)="onRefreshClicked()">
                     <span class="material-icons">refresh</span>
                 </button>
             </div>
