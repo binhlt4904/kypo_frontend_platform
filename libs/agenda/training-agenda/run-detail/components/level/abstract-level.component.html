@@ -93,9 +93,8 @@
     </div>
 
     <!-- Collapsed task description tab (show button) -->
-    @if (!taskDescriptionVisible()) {
-    <button type="button" class="task-show-tab" [class.task-show-tab--fullscreen]="topoFullscreen()"
-        (click)="toggleTaskDescription()" title="Show task description"
+    @if (!taskDescriptionVisible() && !topoFullscreen()) {
+    <button type="button" class="task-show-tab" (click)="toggleTaskDescription()" title="Show task description"
         aria-label="Show task description">
         <mat-icon>chevron_right</mat-icon>
         <span class="task-show-tab__label">Task</span>
