@@ -16,7 +16,7 @@ export class SandboxDefinitionOverviewControls {
         return [
             new SentinelControlItem(
                 this.CREATE_ACTION_ID,
-                'Create',
+                'Create Definition',
                 'primary',
                 of(false),
                 defer(() => service.create()),
