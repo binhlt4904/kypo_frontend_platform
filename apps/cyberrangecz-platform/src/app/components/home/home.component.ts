@@ -54,6 +54,7 @@ export interface HardwareStats {
 export class HomeComponent implements OnInit {
     elevated: string;
     roles: UserRole[];
+    isAdmin: boolean = false;
     portalAgendaContainers: PortalAgendaContainer[] = [];
 
     stats: ResourceStats = {
@@ -94,6 +95,7 @@ export class HomeComponent implements OnInit {
 
     ngOnInit(): void {
         this.roles = this.authService.getRoles();
+        this.isAdmin = RoleResolver.isUserAndGroupAdmin(this.roles);
         this.initRoutes();
         this.subscribeUserChange();
         this.fetchStats();
@@ -249,11 +251,15 @@ export class HomeComponent implements OnInit {
         this.authService.activeUser$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
+                this.roles = this.authService.getRoles();
+                this.isAdmin = RoleResolver.isUserAndGroupAdmin(this.roles);
                 this.initRoutes();
             });
     }
 
     private fetchStats() {
+        if (!this.isAdmin) return;
+
         // Fetch only 1 element to efficiently retrieve total counts via pagination headers
         const pagination = { page: 0, size: 1, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
 

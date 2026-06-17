@@ -1,65 +1,81 @@
 <div class="portal-content">
     <div class="portal-title">System Dashboard</div>
     
-    <!-- Proxmox VE style Dashboard Metrics Summary -->
-    <div class="portal-summary-row">
-        <div class="summary-card">
-            <div class="summary-card-label">CPU Usage</div>
-            <div class="summary-card-value">{{ hardwareStats.cpuPercentage }}%</div>
-            <div class="summary-card-sub">{{ hardwareStats.cpuUsed }} / {{ hardwareStats.cpuTotal }} Cores</div>
-        </div>
-        <div class="summary-card">
-            <div class="summary-card-label">RAM Usage</div>
-            <div class="summary-card-value">{{ hardwareStats.ramPercentage }}%</div>
-            <div class="summary-card-sub">{{ formatRam(hardwareStats.ramUsed, hardwareStats.ramUnits) }} / {{ formatRam(hardwareStats.ramTotal, hardwareStats.ramUnits) }}</div>
-        </div>
-        <div class="summary-card">
-            <div class="summary-card-label">Active Sandboxes</div>
-            <div class="summary-card-value" style="color: var(--warning);">{{ hardwareStats.activeSandboxes }} / {{ hardwareStats.maxSandboxes }}</div>
-            <div class="summary-card-sub">Allocated Nodes</div>
-        </div>
-    </div>
-
-    <!-- Dashboard Grid -->
-    <div class="dashboard-grid full-width">
-        <div class="chart-panel">
-            <div class="chart-panel-header">
-                <span class="panel-header-title">System Agendas & Resource Counts</span>
+    @if (isAdmin) {
+        <!-- Proxmox VE style Dashboard Metrics Summary -->
+        <div class="portal-summary-row">
+            <div class="summary-card">
+                <div class="summary-card-label">CPU Usage</div>
+                <div class="summary-card-value">{{ hardwareStats.cpuPercentage }}%</div>
+                <div class="summary-card-sub">{{ hardwareStats.cpuUsed }} / {{ hardwareStats.cpuTotal }} Cores</div>
             </div>
-            <div class="chart-panel-body">
-                <div class="resource-grid">
-                    <div class="resource-card">
-                        <div class="resource-label">Training Runs</div>
-                        <div class="resource-value">{{ stats.trainingRuns }}</div>
-                        <div class="resource-sub">Currently Active</div>
-                    </div>
-                    <div class="resource-card">
-                        <div class="resource-label">Definitions</div>
-                        <div class="resource-value">{{ stats.definitions }}</div>
-                        <div class="resource-sub">Blueprints</div>
-                    </div>
-                    <div class="resource-card">
-                        <div class="resource-label">Pools</div>
-                        <div class="resource-value">{{ stats.pools }}</div>
-                        <div class="resource-sub">Sandbox Pools</div>
-                    </div>
-                    <div class="resource-card">
-                        <div class="resource-label">Instances</div>
-                        <div class="resource-value">{{ stats.instances }}</div>
-                        <div class="resource-sub">Active Sessions</div>
-                    </div>
-                    <div class="resource-card">
-                        <div class="resource-label">Groups</div>
-                        <div class="resource-value">{{ stats.groups }}</div>
-                        <div class="resource-sub">User Groups</div>
-                    </div>
-                    <div class="resource-card">
-                        <div class="resource-label">Users</div>
-                        <div class="resource-value">{{ stats.users }}</div>
-                        <div class="resource-sub">Accounts</div>
+            <div class="summary-card">
+                <div class="summary-card-label">RAM Usage</div>
+                <div class="summary-card-value">{{ hardwareStats.ramPercentage }}%</div>
+                <div class="summary-card-sub">{{ formatRam(hardwareStats.ramUsed, hardwareStats.ramUnits) }} / {{ formatRam(hardwareStats.ramTotal, hardwareStats.ramUnits) }}</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-label">Active Sandboxes</div>
+                <div class="summary-card-value" style="color: var(--warning);">{{ hardwareStats.activeSandboxes }} / {{ hardwareStats.maxSandboxes }}</div>
+                <div class="summary-card-sub">Allocated Nodes</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid full-width">
+            <div class="chart-panel">
+                <div class="chart-panel-header">
+                    <span class="panel-header-title">System Agendas & Resource Counts</span>
+                </div>
+                <div class="chart-panel-body">
+                    <div class="resource-grid">
+                        <div class="resource-card">
+                            <div class="resource-label">Training Runs</div>
+                            <div class="resource-value">{{ stats.trainingRuns }}</div>
+                            <div class="resource-sub">Currently Active</div>
+                        </div>
+                        <div class="resource-card">
+                            <div class="resource-label">Definitions</div>
+                            <div class="resource-value">{{ stats.definitions }}</div>
+                            <div class="resource-sub">Blueprints</div>
+                        </div>
+                        <div class="resource-card">
+                            <div class="resource-label">Pools</div>
+                            <div class="resource-value">{{ stats.pools }}</div>
+                            <div class="resource-sub">Sandbox Pools</div>
+                        </div>
+                        <div class="resource-card">
+                            <div class="resource-label">Instances</div>
+                            <div class="resource-value">{{ stats.instances }}</div>
+                            <div class="resource-sub">Active Sessions</div>
+                        </div>
+                        <div class="resource-card">
+                            <div class="resource-label">Groups</div>
+                            <div class="resource-value">{{ stats.groups }}</div>
+                            <div class="resource-sub">User Groups</div>
+                        </div>
+                        <div class="resource-card">
+                            <div class="resource-label">Users</div>
+                            <div class="resource-value">{{ stats.users }}</div>
+                            <div class="resource-sub">Accounts</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    }
+
+    <!-- Portal Menu for Agendas -->
+    <div class="portal-menu">
+        @for (portalAgendaContainer of portalAgendaContainers; track portalAgendaContainer; let last = $last) {
+            <div>
+                <crczp-portal-agenda-container
+                    [portalAgendaContainer]="portalAgendaContainer"
+                    [elevation]="elevated"
+                    [isLast]="last"
+                    (navigation)="navigateToRoute($event)"
+                    (setElevation)="setElevation($event)"/>
+            </div>
+        }
     </div>
 </div>
