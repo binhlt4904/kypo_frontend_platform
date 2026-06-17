@@ -65,7 +65,6 @@ main {
     display: flex;
     align-items: center;
     gap: 10px;
-    pointer-events: none;
     z-index: 1;
 
     .header-divider {
@@ -84,9 +83,19 @@ main {
         font-size: 14px;
         white-space: nowrap;
 
-        .bc-home {
+        .bc-home,
+        .bc-link {
+            color: #fff;
+            text-decoration: none;
             opacity: 0.8;
             font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.15s;
+
+            &:hover {
+                opacity: 1;
+                text-decoration: underline;
+            }
         }
 
         .bc-sep {
@@ -97,6 +106,7 @@ main {
         .bc-current {
             font-weight: 700;
             letter-spacing: 0.2px;
+            opacity: 1;
         }
     }
 }

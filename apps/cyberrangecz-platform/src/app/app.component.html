@@ -8,10 +8,14 @@
         <div class="header-nav">
             <span class="header-divider"></span>
             <nav class="header-breadcrumb" aria-label="breadcrumb">
-                <span class="bc-item bc-home">Home</span>
-                @if (breadcrumb$ | async; as breadcrumb) {
+                <a class="bc-item bc-home" routerLink="/home">Home</a>
+                @for (crumb of breadcrumbs$ | async; track crumb.url; let last = $last) {
                 <span class="bc-sep">/</span>
-                <span class="bc-item bc-current">{{ breadcrumb }}</span>
+                @if (!last) {
+                <a class="bc-item bc-link" [routerLink]="crumb.url">{{ crumb.label }}</a>
+                } @else {
+                <span class="bc-item bc-current">{{ crumb.label }}</span>
+                }
                 }
             </nav>
         </div>
@@ -28,10 +32,14 @@
         <div class="header-nav">
             <span class="header-divider"></span>
             <nav class="header-breadcrumb" aria-label="breadcrumb">
-                <span class="bc-item bc-home">Home</span>
-                @if (breadcrumb$ | async; as breadcrumb) {
+                <a class="bc-item bc-home" routerLink="/home">Home</a>
+                @for (crumb of breadcrumbs$ | async; track crumb.url; let last = $last) {
                 <span class="bc-sep">/</span>
-                <span class="bc-item bc-current">{{ breadcrumb }}</span>
+                @if (!last) {
+                <a class="bc-item bc-link" [routerLink]="crumb.url">{{ crumb.label }}</a>
+                } @else {
+                <span class="bc-item bc-current">{{ crumb.label }}</span>
+                }
                 }
             </nav>
         </div>

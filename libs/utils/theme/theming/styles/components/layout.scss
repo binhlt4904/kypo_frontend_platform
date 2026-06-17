@@ -1,5 +1,10 @@
 /* ─── Merge 2-row toolbar into single header bar ── */
-/* Hide sentinel's built-in breadcrumb row (row 2 of mat-toolbar) */
+/* Hide sentinel's built-in breadcrumbs (custom element + second mat-toolbar row) */
+sentinel-breadcrumbs,
+.sentinel-breadcrumbs {
+    display: none !important;
+}
+
 .mat-toolbar .mat-toolbar-row:nth-child(n+2) {
     display: none !important;
 }

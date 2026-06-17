@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { SentinelAuthService } from '@sentinel/auth';
 import { AgendaContainer } from '@sentinel/layout';
-import { Observable } from 'rxjs';
+import { merge, Observable, of } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
+
 import { NavConfigFactory } from './utils/nav-config-factory';
 import { PortalDynamicEnvironment } from './portal-dynamic-environment';
 
@@ -16,6 +17,11 @@ import { CommonModule } from '@angular/common';
 import { SentinelLayout1Component } from '@sentinel/layout/layout1';
 import { ToolbarComponent } from '@sentinel/layout/common-components';
 
+interface BreadcrumbItem {
+    label: string;
+    url: string;
+}
+
 /**
  * Main component serving as wrapper for layout and router outlet
  */
@@ -27,6 +33,7 @@ import { ToolbarComponent } from '@sentinel/layout/common-components';
     imports: [
         CommonModule,
         RouterOutlet,
+        RouterLink,
         SentinelLayout1Component,
         ToolbarComponent,
     ],
@@ -34,7 +41,7 @@ import { ToolbarComponent } from '@sentinel/layout/common-components';
 export class AppComponent implements OnInit, AfterViewInit {
     title$: Observable<string>;
     subtitle$: Observable<string>;
-    breadcrumb$: Observable<string>;
+    breadcrumbs$: Observable<BreadcrumbItem[]>;
     agendaContainers$: Observable<AgendaContainer[]>;
     notificationRoute: ValidPath = 'notifications';
     version = '';
@@ -55,7 +62,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         this.title$ = this.getTitleFromRouter();
         this.subtitle$ = this.getSubtitleFromRouter();
-        this.breadcrumb$ = this.getBreadcrumbFromRouter();
+        this.breadcrumbs$ = this.getBreadcrumbsFromRouter();
         this.agendaContainers$ = this.authService.activeUser$.pipe(
             filter((user) => user != null),
             map((user) =>
@@ -424,19 +431,31 @@ export class AppComponent implements OnInit, AfterViewInit {
         );
     }
 
-    private getBreadcrumbFromRouter(): Observable<string> {
-        return this.router.events.pipe(
-            filter((event) => event instanceof NavigationEnd),
+    private getBreadcrumbsFromRouter(): Observable<BreadcrumbItem[]> {
+        return merge(
+            of(null),
+            this.router.events.pipe(filter((event) => event instanceof NavigationEnd)),
+        ).pipe(
             map(() => {
-                let route = this.activatedRoute;
-                while (route.firstChild) {
-                    route = route.firstChild;
+                const crumbs: BreadcrumbItem[] = [];
+                let url = '';
+                const traverse = (route: ActivatedRoute): void => {
+                    if (route.snapshot.url.length > 0) {
+                        url += '/' + route.snapshot.url.map((seg) => seg.path).join('/');
+                    }
+                    const label = route.snapshot.data['breadcrumb'] as string | undefined;
+                    if (label) {
+                        crumbs.push({ label, url });
+                    }
+                    if (route.firstChild?.outlet === 'primary') {
+                        traverse(route.firstChild);
+                    }
+                };
+                if (this.activatedRoute.root.firstChild) {
+                    traverse(this.activatedRoute.root.firstChild);
                 }
-                return route;
+                return crumbs;
             }),
-            filter((route) => route.outlet === 'primary'),
-            map((route) => route.snapshot),
-            map((snapshot) => snapshot.data['breadcrumb']),
         );
     }
 }
