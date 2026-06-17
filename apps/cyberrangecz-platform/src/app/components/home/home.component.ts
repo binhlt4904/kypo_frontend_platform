@@ -11,9 +11,9 @@ import { ValidPath } from '@crczp/routing-commons';
 import { catchError, of } from 'rxjs';
 import { OffsetPaginationEvent } from '@sentinel/common/pagination';
 
-import { LinearRunApi, LinearTrainingDefinitionApi, LinearTrainingInstanceApi } from '@crczp/training-api';
-import { PoolApi, ResourcesApi } from '@crczp/sandbox-api';
-import { GroupApi, UserApi, MicroserviceApi } from '@crczp/user-and-group-api';
+import { LinearRunApi, LinearTrainingDefinitionApi, LinearTrainingInstanceApi, TrainingApiModule } from '@crczp/training-api';
+import { PoolApi, ResourcesApi, SandboxApiModule } from '@crczp/sandbox-api';
+import { GroupApi, UserApi, MicroserviceApi, UserAndGroupApiModule } from '@crczp/user-and-group-api';
 
 export interface ResourceStats {
     trainingRuns: number | string;
@@ -43,16 +43,11 @@ export interface HardwareStats {
     selector: 'crczp-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css'],
-    imports: [PortalAgendaContainerComponent],
-    providers: [
-        LinearRunApi,
-        LinearTrainingDefinitionApi,
-        LinearTrainingInstanceApi,
-        PoolApi,
-        ResourcesApi,
-        GroupApi,
-        UserApi,
-        MicroserviceApi
+    imports: [
+        PortalAgendaContainerComponent,
+        TrainingApiModule,
+        SandboxApiModule,
+        UserAndGroupApiModule
     ]
 })
 export class HomeComponent implements OnInit {
