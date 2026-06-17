@@ -1,40 +1,75 @@
-<sentinel-controls [controls]="topControls" />
-<sentinel-table
-    (tableLoad)="onLoadEvent($event)"
-    [data]="trainingDefinitions$ | async"
-    [defaultSortDirection]="INIT_SORT_DIR"
-    [defaultSortName]="INIT_SORT_NAME"
-    [displayedActionsCount]="7"
-    [hasError]="hasError$ | async"
-    [isLoading]="isLoading$ | async">
+<div class="portal-content">
+    <div class="portal-title">
+        <span class="portal-title-icon">
+            <span class="material-icons">school</span>
+        </span>
+        Training Definitions
+    </div>
 
-    <ng-container *sentinelRow="'createdAt'; template: createdAt" />
-    <ng-container *sentinelRow="'lastEditTime'; template: lastEditTime" />
-    <ng-container *sentinelRow="'state'; template: state" />
+    <div class="page-filter-card">
+        <div class="filter-rows">
+            <div class="filter-row">
+                <select class="filter-select"><option>All States</option><option>Unreleased</option><option>Released</option><option>Archived</option></select>
+                <input type="text" class="filter-input" placeholder="Search by name...">
+            </div>
+        </div>
+        <div class="filter-footer">
+            <button class="filter-btn-search">
+                <span class="material-icons">search</span> Search
+            </button>
+            <button class="filter-btn-refresh" title="Refresh">
+                <span class="material-icons">refresh</span>
+            </button>
+        </div>
+    </div>
 
-    <ng-template #state let-row>
-        <crczp-table-state-cell
-            [icon]="stateToIcon(row.element.state)"
-            [text]="row.element.state"
-        />
-    </ng-template>
+    <div class="dashboard-grid full-width">
+        <div class="chart-panel">
+            <div class="chart-panel-header">
+                <span class="panel-header-title">Definitions Overview</span>
+            </div>
+            <div class="chart-panel-body" style="padding: 0;">
+                <sentinel-controls [controls]="topControls" />
+                <sentinel-table
+                    (tableLoad)="onLoadEvent($event)"
+                    [data]="trainingDefinitions$ | async"
+                    [defaultSortDirection]="INIT_SORT_DIR"
+                    [defaultSortName]="INIT_SORT_NAME"
+                    [displayedActionsCount]="7"
+                    [hasError]="hasError$ | async"
+                    [isLoading]="isLoading$ | async">
 
-    <ng-template #createdAt let-row>
-        <crczp-table-date-cell
-            [displayedDate]="row.element.createdAt"
-            [isLoading]="isLoading$ | async"
-            [showTimeWhenPossible]="true" />
-    </ng-template>
+                    <ng-container *sentinelRow="'createdAt'; template: createdAt" />
+                    <ng-container *sentinelRow="'lastEditTime'; template: lastEditTime" />
+                    <ng-container *sentinelRow="'state'; template: state" />
 
-    <ng-template #lastEditTime let-row>
-        <crczp-table-date-cell
-            [displayedDate]="row.element.lastEditTime"
-            [isLoading]="isLoading$ | async"
-            [showTimeWhenPossible]="true" />
-    </ng-template>
-</sentinel-table>
+                    <ng-template #state let-row>
+                        <crczp-table-state-cell
+                            [icon]="stateToIcon(row.element.state)"
+                            [text]="row.element.state"
+                        />
+                    </ng-template>
 
-<div class="bottom-controls">
-    <sentinel-controls [controls]="bottomControls"
-                       [titlecased]="false" />
+                    <ng-template #createdAt let-row>
+                        <crczp-table-date-cell
+                            [displayedDate]="row.element.createdAt"
+                            [isLoading]="isLoading$ | async"
+                            [showTimeWhenPossible]="true" />
+                    </ng-template>
+
+                    <ng-template #lastEditTime let-row>
+                        <crczp-table-date-cell
+                            [displayedDate]="row.element.lastEditTime"
+                            [isLoading]="isLoading$ | async"
+                            [showTimeWhenPossible]="true" />
+                    </ng-template>
+                </sentinel-table>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-controls">
+        <sentinel-controls [controls]="bottomControls"
+                           [titlecased]="false" />
+    </div>
 </div>
