@@ -49,12 +49,12 @@ $fctf-white: #ffffff;
             --sys-body-large: 400 var(--sys-body-large-size) / var(--sys-body-large-line-height) #{vars.$sentinel-base-font};
         }
 
-        // ── Top toolbar: modern FCTF gradient ──
+        // ── Top toolbar: solid FCTF orange ──
         .mat-toolbar {
             --mat-toolbar-container-text-color: #{$fctf-white};
             --mat-toolbar-container-background-color: transparent;
             --mat-icon-button-icon-color: #{$fctf-white};
-            background: linear-gradient(135deg, #{$fctf-orange-dark} 0%, #{$fctf-orange} 60%, #{$fctf-orange-light} 100%) !important;
+            background: #{$fctf-orange} !important;
             border-bottom: 2px solid rgba(255, 255, 255, 0.18) !important;
             box-shadow: 0 2px 12px rgba(232, 93, 42, 0.35) !important;
             letter-spacing: 0.3px;
