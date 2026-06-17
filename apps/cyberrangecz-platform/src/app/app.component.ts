@@ -81,12 +81,13 @@ export class AppComponent implements OnInit, AfterViewInit {
         // Auto-select first child when parent dropdown is expanded
         this.setupNestedNavAutoSelect();
 
-        // Init sidebar toggle button position once drawer has rendered
+        // Init sidebar variables once drawer has rendered
         setTimeout(() => {
             const drawer = document.querySelector<HTMLElement>('.nav-drawer');
             if (drawer) {
                 const w = drawer.offsetWidth;
                 document.documentElement.style.setProperty('--sidebar-toggle-left', w + 'px');
+                document.documentElement.style.setProperty('--content-margin-left', w + 'px');
             }
         }, 400);
     }
@@ -346,9 +347,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     toggleSidebar(): void {
         this.sidebarCollapsed.update(v => !v);
 
-        // Sentinel layout1 uses mat-drawer (not mat-sidenav)
+        // Sentinel layout1 uses mat-drawer; margin is controlled via --content-margin-left CSS var
         const drawer = document.querySelector<HTMLElement>('.nav-drawer');
-        const drawerContent = document.querySelector<HTMLElement>('mat-drawer-content');
         const T = 'all 0.25s ease';
 
         if (this.sidebarCollapsed()) {
@@ -361,10 +361,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                 drawer.style.overflow = 'hidden';
                 drawer.style.visibility = 'hidden';
             }
-            if (drawerContent) {
-                drawerContent.style.transition = T;
-                drawerContent.style.marginLeft = '0';
-            }
+            document.documentElement.style.setProperty('--content-margin-left', '0px');
             document.documentElement.style.setProperty('--sidebar-toggle-left', '0px');
         } else {
             const naturalW = (drawer as any)?.__naturalWidth ?? 220;
@@ -375,19 +372,11 @@ export class AppComponent implements OnInit, AfterViewInit {
                 drawer.style.minWidth = '';
                 drawer.style.width = naturalW + 'px';
             }
-            if (drawerContent) {
-                drawerContent.style.transition = T;
-                drawerContent.style.marginLeft = naturalW + 'px';
-            }
+            document.documentElement.style.setProperty('--content-margin-left', naturalW + 'px');
             document.documentElement.style.setProperty('--sidebar-toggle-left', naturalW + 'px');
 
-            // After transition, let Angular Material autosize take back control
             setTimeout(() => {
                 if (drawer) drawer.style.width = '';
-                if (drawerContent) {
-                    drawerContent.style.marginLeft = '';
-                    drawerContent.style.transition = '';
-                }
             }, 300);
         }
     }
