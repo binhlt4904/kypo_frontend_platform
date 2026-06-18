@@ -90,3 +90,16 @@
     overflow: hidden !important;
   }
 }
+
+.mat-mdc-paginator, .mat-paginator {
+  background-color: #ffffff !important;
+}
+
+sentinel-table-show-more, .show-more {
+  background-color: #ffffff !important;
+  transition: background-color 0.2s ease !important;
+
+  &:hover {
+    background-color: #f9fafb !important; /* Tailwind gray-50 */
+  }
+}
