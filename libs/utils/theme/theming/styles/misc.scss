@@ -6,6 +6,10 @@
     // increase table row size
     --mat-table-row-item-container-height: 3.5rem;
 
+    // Force white background for tables and surfaces
+    --mat-table-background-color: #ffffff;
+    --mat-sys-surface: #ffffff;
+
     .mat-mdc-dialog-title {
         font-size: 2rem !important;
         font-weight: 500;
@@ -19,4 +23,9 @@ sentinel-error {
 
 sentinel-nav a {
     width: 100%;
+}
+
+// Hide the sentinel loading placeholder that creates unwanted whitespace
+.sentinel-loading-placeholder {
+    display: none !important;
 }
