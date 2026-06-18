@@ -5,6 +5,12 @@
     logoSrc="./assets/logo/logo.png">
     <div role="toolbar">
         @if (authService.activeUser$ | async) {
+        <button class="sidebar-toggle-btn" (click)="toggleSidebar()"
+            [attr.aria-label]="sidebarCollapsed() ? 'Show sidebar' : 'Hide sidebar'">
+            <span class="material-icons">
+                {{ sidebarCollapsed() ? 'view_sidebar' : 'menu' }}
+            </span>
+        </button>
         <div class="header-nav">
             <span class="header-divider"></span>
             <nav class="header-breadcrumb" aria-label="breadcrumb">
@@ -49,14 +55,4 @@
 </sentinel-toolbar>
 
 <router-outlet />
-}
-
-<!-- Single sidebar toggle — lives inside the toolbar, slides with sidebar width -->
-@if (authService.activeUser$ | async) {
-<button class="sidebar-toggle-btn" (click)="toggleSidebar()"
-    [attr.aria-label]="sidebarCollapsed() ? 'Show sidebar' : 'Hide sidebar'">
-    <span class="material-icons">
-        {{ sidebarCollapsed() ? 'view_sidebar' : 'menu' }}
-    </span>
-</button>
 }

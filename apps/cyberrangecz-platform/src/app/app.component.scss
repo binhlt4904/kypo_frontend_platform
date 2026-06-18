@@ -33,9 +33,10 @@ main {
 }
 
 .sidebar-toggle-btn {
-    position: fixed;
-    top: 11px; /* (58px toolbar height - 36px button) / 2 */
+    position: absolute;
+    top: 50%;
     left: 10px;
+    transform: translateY(-50%);
     z-index: 600;
     width: 36px;
     height: 36px;
