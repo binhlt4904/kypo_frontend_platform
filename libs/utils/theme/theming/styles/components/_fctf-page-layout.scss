@@ -2,7 +2,7 @@
 // Applies to all list/overview pages (portal-content structure)
 
 :root {
-    --fctf-bg-main: #fcfcfc;
+    --fctf-bg-main: #ffffff;
     --fctf-bg-card: #ffffff;
     --fctf-bg-section-header: #f8f9fa;
     --fctf-accent: #ff6b35;
@@ -81,8 +81,8 @@
     .filter-input {
         flex: 1;
         min-width: 120px;
-        height: 32px;
-        padding: 0 10px;
+        height: 40px;
+        padding: 0 8px;
         border: 1px solid var(--fctf-border-dark);
         border-radius: 4px;
         background: #ffffff;
@@ -116,8 +116,8 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        height: 32px;
-        padding: 0 16px;
+        height: 40px;
+        padding: 0 14px;
         background: var(--fctf-accent);
         color: #ffffff;
         border: none;
@@ -147,8 +147,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
         background: #ffffff;
         border: 1px solid var(--fctf-border-dark);
         border-radius: 4px;
