@@ -4,11 +4,10 @@ import {
     EventEmitter,
     Input,
     Output,
+    signal,
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { PortalAgendaContainer } from '../../../model/portal-agenda-container';
-import { PortalAgendaDescriptionComponent } from './portal-agenda-description/portal-agenda-description.component';
-import { PortalAgendaLinkComponent } from './portal-agenda-link/portal-agenda-link.component';
 import { ValidPath } from '@crczp/routing-commons';
 
 @Component({
@@ -16,7 +15,7 @@ import { ValidPath } from '@crczp/routing-commons';
     templateUrl: './portal-agenda-container.component.html',
     styleUrls: ['./portal-agenda-container.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [PortalAgendaDescriptionComponent, PortalAgendaLinkComponent, MatIcon],
+    imports: [MatIcon],
 })
 export class PortalAgendaContainerComponent {
     @Input() portalAgendaContainer: PortalAgendaContainer;
@@ -25,6 +24,8 @@ export class PortalAgendaContainerComponent {
 
     @Output() navigation: EventEmitter<ValidPath> = new EventEmitter();
     @Output() setElevation: EventEmitter<string> = new EventEmitter();
+
+    openMenu = signal('');
 
     elevate(event: string): void {
         this.setElevation.emit(event);

@@ -1,29 +1,47 @@
 @if (portalAgendaContainer.displayed) {
-    <div class="pve-section">
-        <div class="pve-section-header">
-            <mat-icon class="section-icon">{{ portalAgendaContainer.icon }}</mat-icon>
-            <span class="section-label">{{ portalAgendaContainer.label }}</span>
-            <span class="section-count">{{ portalAgendaContainer.agendas.length }} item(s)</span>
+    <div class="qa-section">
+        <div class="qa-section-header">
+            <mat-icon class="qa-section-icon">{{ portalAgendaContainer.icon }}</mat-icon>
+            <span class="qa-section-label">{{ portalAgendaContainer.label }}</span>
         </div>
-        <div class="pve-section-body">
-            @for (agendaPortalLink of portalAgendaContainer.agendas; track agendaPortalLink; let i = $index) {
-                <div class="pve-row" [class.pve-row-alt]="i % 2 === 1">
-                    <div class="pve-row-icon-cell">
-                        <crczp-portal-agenda-link
-                            [portalAgendaLink]="agendaPortalLink"
-                            [elevation]="elevation"
-                            (navigate)="navigate($event)"
-                            (elevate)="elevate($event)"/>
-                    </div>
-                    <div class="pve-row-desc-cell">
-                        <crczp-portal-agenda-description
-                            [label]="agendaPortalLink.label"
-                            [description]="agendaPortalLink.description"
-                            [disabled]="agendaPortalLink.disabled"
-                            [elevation]="elevation"
-                            (elevate)="elevate($event)"/>
-                    </div>
-                </div>
+        <div class="qa-cards-grid">
+            @for (agenda of portalAgendaContainer.agendas; track agenda) {
+                @if (!agenda.disabled) {
+                    @if (agenda.menu) {
+                        <div class="qa-card qa-card--menu"
+                             (mouseenter)="openMenu.set(agenda.label)"
+                             (mouseleave)="openMenu.set('')">
+                            <div class="qa-card-icon-box">
+                                <mat-icon class="qa-card-icon">{{ agenda.icon }}</mat-icon>
+                            </div>
+                            <div class="qa-card-body">
+                                <span class="qa-card-title">{{ agenda.label }}</span>
+                                <span class="qa-card-desc">{{ agenda.description }}</span>
+                            </div>
+                            <mat-icon class="qa-card-chevron">expand_more</mat-icon>
+                            @if (openMenu() === agenda.label) {
+                                <div class="qa-card-dropdown">
+                                    @for (item of agenda.menu; track item) {
+                                        <button class="qa-dropdown-item" (click)="navigate(item.path)">
+                                            <mat-icon class="qa-dropdown-icon">{{ item.icon }}</mat-icon>
+                                            <span>{{ item.label }}</span>
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <div class="qa-card" (click)="navigate(agenda.path)">
+                            <div class="qa-card-icon-box">
+                                <mat-icon class="qa-card-icon">{{ agenda.icon }}</mat-icon>
+                            </div>
+                            <div class="qa-card-body">
+                                <span class="qa-card-title">{{ agenda.label }}</span>
+                                <span class="qa-card-desc">{{ agenda.description }}</span>
+                            </div>
+                        </div>
+                    }
+                }
             }
         </div>
     </div>
