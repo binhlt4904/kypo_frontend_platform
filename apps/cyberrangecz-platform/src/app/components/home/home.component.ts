@@ -1,4 +1,13 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    DestroyRef,
+    ElementRef,
+    inject,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { SentinelAuthService, UserRole } from '@sentinel/auth';
 import { AgendaPortalLink } from '../../model/agenda-portal-link';
@@ -10,19 +19,14 @@ import { PortalAgendaContainerComponent } from './portal-agenda-container/portal
 import { ValidPath } from '@crczp/routing-commons';
 import { catchError, of } from 'rxjs';
 import { OffsetPaginationEvent } from '@sentinel/common/pagination';
-
 import { LinearRunApi, LinearTrainingDefinitionApi, LinearTrainingInstanceApi, TrainingApiModule } from '@crczp/training-api';
+import { AdaptiveTrainingDefinitionApi } from '@crczp/training-api';
 import { PoolApi, ResourcesApi, SandboxApiModule } from '@crczp/sandbox-api';
-import { GroupApi, UserApi, MicroserviceApi, UserAndGroupApiModule } from '@crczp/user-and-group-api';
+import { GroupApi, UserApi, UserAndGroupApiModule } from '@crczp/user-and-group-api';
+import { TrainingRunStateEnum } from '@crczp/training-model';
+import { Chart, registerables } from 'chart.js';
 
-export interface ResourceStats {
-    trainingRuns: number | string;
-    definitions: number | string;
-    pools: number | string;
-    instances: number | string;
-    groups: number | string;
-    users: number | string;
-}
+Chart.register(...registerables);
 
 export interface HardwareStats {
     cpuUsed: number | string;
@@ -33,13 +37,10 @@ export interface HardwareStats {
     maxSandboxes: number | string;
     cpuPercentage: number;
     ramPercentage: number;
+    sandboxPercentage: number;
     ramUnits?: string;
 }
 
-/**
- * Main component of homepage (portal) page. Portal page is a main crossroad of possible sub pages. Only those matching with user
- * role are accessible.
- */
 @Component({
     selector: 'crczp-home',
     templateUrl: './home.component.html',
@@ -48,43 +49,56 @@ export interface HardwareStats {
         PortalAgendaContainerComponent,
         TrainingApiModule,
         SandboxApiModule,
-        UserAndGroupApiModule
-    ]
+        UserAndGroupApiModule,
+    ],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+    @ViewChild('donutCanvas') donutCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('barCanvas') barCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('runsCanvas') runsCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('statusCanvas') statusCanvas!: ElementRef<HTMLCanvasElement>;
+
     elevated: string;
     roles: UserRole[];
-    isAdmin: boolean = false;
+    isAdmin = false;
     portalAgendaContainers: PortalAgendaContainer[] = [];
 
-    stats: ResourceStats = {
-        trainingRuns: '-',
-        definitions: '-',
-        pools: '-',
-        instances: '-',
-        groups: '-',
-        users: '-'
-    };
+    totalRuns = 0;
+    runningRuns = 0;
+    finishedRuns = 0;
+    archivedRuns = 0;
+    linearDefs = 0;
+    adaptiveDefs = 0;
+    totalPools = 0;
+    totalInstances = 0;
+    totalGroups = 0;
+    totalUsers = 0;
 
     hardwareStats: HardwareStats = {
         cpuUsed: '-', cpuTotal: '-',
         ramUsed: '-', ramTotal: '-',
         activeSandboxes: '-', maxSandboxes: '-',
-        cpuPercentage: 0, ramPercentage: 0, ramUnits: 'GB'
+        cpuPercentage: 0, ramPercentage: 0, sandboxPercentage: 0,
+        ramUnits: 'GB',
     };
 
-    private runApi = inject(LinearRunApi);
-    private definitionApi = inject(LinearTrainingDefinitionApi);
-    private instanceApi = inject(LinearTrainingInstanceApi);
-    private poolApi = inject(PoolApi);
-    private resourcesApi = inject(ResourcesApi);
-    private groupApi = inject(GroupApi);
-    private userApi = inject(UserApi);
+    private donutChart!: Chart;
+    private barChart!: Chart;
+    private runsChart!: Chart;
+    private statusChart!: Chart;
+    private chartsBuilt = false;
 
-    destroyRef = inject(DestroyRef);
-
-    private authService = inject(SentinelAuthService);
-    private router = inject(Router);
+    private readonly runApi = inject(LinearRunApi);
+    private readonly definitionApi = inject(LinearTrainingDefinitionApi);
+    private readonly adaptiveDefApi = inject(AdaptiveTrainingDefinitionApi);
+    private readonly instanceApi = inject(LinearTrainingInstanceApi);
+    private readonly poolApi = inject(PoolApi);
+    private readonly resourcesApi = inject(ResourcesApi);
+    private readonly groupApi = inject(GroupApi);
+    private readonly userApi = inject(UserApi);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly authService = inject(SentinelAuthService);
+    private readonly router = inject(Router);
 
     static createExpandedControlButtons(path: ValidPath[]): AgendaMenuItem[] {
         return [
@@ -98,153 +112,251 @@ export class HomeComponent implements OnInit {
         this.isAdmin = RoleResolver.isUserAndGroupAdmin(this.roles);
         this.initRoutes();
         this.subscribeUserChange();
-        this.fetchStats();
+        if (this.isAdmin) this.fetchAll();
     }
 
-    /**
-     * Navigates to specified route
-     * @param route route to which should router navigate
-     */
-    navigateToRoute(route: ValidPath): void {
-        this.router.navigate([route]);
+    ngAfterViewInit(): void {
+        if (this.isAdmin && !this.chartsBuilt) this.buildCharts();
     }
 
-    setElevation(buttonName: string): void {
-        this.elevated = buttonName;
+    ngOnDestroy(): void {
+        [this.donutChart, this.barChart, this.runsChart, this.statusChart]
+            .forEach(c => c?.destroy());
+    }
+
+    navigateToRoute(route: ValidPath): void { this.router.navigate([route]); }
+    setElevation(buttonName: string): void { this.elevated = buttonName; }
+
+    formatRam(val: number | string, units = 'GB'): string {
+        if (val === '-') return '-';
+        return Number(val).toFixed(1) + ' ' + units;
+    }
+
+    private fetchAll(): void {
+        const pg1 = { page: 0, size: 1, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
+        const pg1000 = { page: 0, size: 1000, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
+
+        if (this.runApi) {
+            this.runApi.getAll(pg1000).pipe(catchError(() => of(null)))
+                .subscribe(res => {
+                    if (!res) return;
+                    this.totalRuns = res.pagination.totalElements;
+                    this.runningRuns = res.elements.filter(r => r.state === TrainingRunStateEnum.RUNNING).length;
+                    this.finishedRuns = res.elements.filter(r => r.state === TrainingRunStateEnum.FINISHED).length;
+                    this.archivedRuns = res.elements.filter(r => r.state === TrainingRunStateEnum.ARCHIVED).length;
+                    this.updateChart('status');
+                    this.updateChart('runs');
+                });
+        }
+
+        if (this.definitionApi) {
+            this.definitionApi.getAll(pg1).pipe(catchError(() => of(null)))
+                .subscribe(res => {
+                    if (res) { this.linearDefs = res.pagination.totalElements; this.updateChart('bar'); }
+                });
+        }
+
+        if (this.adaptiveDefApi) {
+            this.adaptiveDefApi.getAll(pg1).pipe(catchError(() => of(null)))
+                .subscribe(res => {
+                    if (res) { this.adaptiveDefs = res.pagination.totalElements; this.updateChart('bar'); }
+                });
+        }
+
+        if (this.instanceApi) {
+            this.instanceApi.getAll(pg1).pipe(catchError(() => of(null)))
+                .subscribe(res => { if (res) this.totalInstances = res.pagination.totalElements; });
+        }
+
+        if (this.groupApi) {
+            this.groupApi.getAll(pg1).pipe(catchError(() => of(null)))
+                .subscribe(res => { if (res) this.totalGroups = res.pagination.totalElements; });
+        }
+
+        if (this.userApi) {
+            this.userApi.getAll(pg1).pipe(catchError(() => of(null)))
+                .subscribe(res => { if (res) this.totalUsers = res.pagination.totalElements; });
+        }
+
+        if (this.poolApi) {
+            this.poolApi.getPools(pg1000).pipe(catchError(() => of(null)))
+                .subscribe(res => {
+                    if (!res) return;
+                    this.totalPools = res.pagination.totalElements;
+                    let used = 0, max = 0;
+                    res.elements.forEach((p: any) => { used += p.usedSize || 0; max += p.maxSize || 0; });
+                    this.hardwareStats.activeSandboxes = used;
+                    this.hardwareStats.maxSandboxes = max;
+                    this.hardwareStats.sandboxPercentage = max > 0 ? Math.round(used / max * 100) : 0;
+                    this.updateChart('donut');
+                });
+        }
+
+        if (this.resourcesApi) {
+            this.resourcesApi.getResources().pipe(catchError(() => of(null)))
+                .subscribe(res => {
+                    if (!res?.quotas) return;
+                    const q = res.quotas;
+                    this.hardwareStats.cpuUsed = q.vcpu?.inUse ?? 0;
+                    this.hardwareStats.cpuTotal = q.vcpu?.limit ?? 0;
+                    this.hardwareStats.ramUsed = q.ram?.inUse ?? 0;
+                    this.hardwareStats.ramTotal = q.ram?.limit ?? 0;
+                    this.hardwareStats.ramUnits = 'GB';
+                    const cpuT = Number(this.hardwareStats.cpuTotal);
+                    const ramT = Number(this.hardwareStats.ramTotal);
+                    this.hardwareStats.cpuPercentage = cpuT > 0 ? Math.round(Number(this.hardwareStats.cpuUsed) / cpuT * 100) : 0;
+                    this.hardwareStats.ramPercentage = ramT > 0 ? Math.round(Number(this.hardwareStats.ramUsed) / ramT * 100) : 0;
+                    this.updateChart('donut');
+                });
+        }
+    }
+
+    private buildCharts(): void {
+        if (this.chartsBuilt) return;
+        this.chartsBuilt = true;
+
+        const ACC = '#e55a00';
+        const BLUE = '#185fa5';
+        const GRN = '#1d7a4a';
+        const GRAY = '#e8e5e0';
+        const TEXT = '#888';
+
+        Chart.defaults.font.family = "'Space Grotesk', system-ui, sans-serif";
+        Chart.defaults.font.size = 11;
+        Chart.defaults.color = TEXT;
+
+        if (this.donutCanvas) {
+            this.donutChart = new Chart(this.donutCanvas.nativeElement, {
+                type: 'doughnut',
+                data: {
+                    labels: ['CPU', 'RAM', 'Sandbox'],
+                    datasets: [{ data: [0, 0, 0], backgroundColor: [ACC, BLUE, '#b06a00'], borderWidth: 0, hoverOffset: 4 }],
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true, cutout: '68%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: c => ' ' + c.label + ': ' + c.parsed + '%' } },
+                    },
+                },
+            });
+        }
+
+        if (this.barCanvas) {
+            this.barChart = new Chart(this.barCanvas.nativeElement, {
+                type: 'bar',
+                data: {
+                    labels: ['Linear', 'Adaptive'],
+                    datasets: [{ label: 'Definitions', data: [0, 0], backgroundColor: [ACC, BLUE], borderRadius: 3, borderSkipped: false }],
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#f5f5f5' }, min: 0, ticks: { stepSize: 1 } },
+                    },
+                },
+            });
+        }
+
+        if (this.runsCanvas) {
+            this.runsChart = new Chart(this.runsCanvas.nativeElement, {
+                type: 'bar',
+                data: {
+                    labels: ['Running', 'Finished', 'Archived'],
+                    datasets: [{ label: 'Runs', data: [0, 0, 0], backgroundColor: [ACC, GRN, GRAY], borderRadius: 3, borderSkipped: false }],
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#f5f5f5' }, min: 0, ticks: { stepSize: 1 } },
+                        y: { grid: { display: false } },
+                    },
+                },
+            });
+        }
+
+        if (this.statusCanvas) {
+            this.statusChart = new Chart(this.statusCanvas.nativeElement, {
+                type: 'pie',
+                data: {
+                    labels: ['Running', 'Finished', 'Archived'],
+                    datasets: [{ data: [0, 0, 0], backgroundColor: [ACC, GRN, GRAY], borderWidth: 0, hoverOffset: 4 }],
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, borderRadius: 2, padding: 10, font: { size: 10 } } },
+                    },
+                },
+            });
+        }
+    }
+
+    private updateChart(which: 'donut' | 'bar' | 'runs' | 'status'): void {
+        if (!this.chartsBuilt) return;
+        if (which === 'donut' && this.donutChart) {
+            this.donutChart.data.datasets[0].data = [
+                this.hardwareStats.cpuPercentage,
+                this.hardwareStats.ramPercentage,
+                this.hardwareStats.sandboxPercentage,
+            ];
+            this.donutChart.update();
+        }
+        if (which === 'bar' && this.barChart) {
+            this.barChart.data.datasets[0].data = [this.linearDefs, this.adaptiveDefs];
+            this.barChart.update();
+        }
+        if (which === 'runs' && this.runsChart) {
+            this.runsChart.data.datasets[0].data = [this.runningRuns, this.finishedRuns, this.archivedRuns];
+            this.runsChart.update();
+        }
+        if (which === 'status' && this.statusChart) {
+            this.statusChart.data.datasets[0].data = [this.runningRuns, this.finishedRuns, this.archivedRuns];
+            this.statusChart.update();
+        }
     }
 
     private initRoutes() {
         this.portalAgendaContainers = [
-            {
-                agendas: this.createParticipateButtons(),
-                label: 'Participate',
-                displayed: RoleResolver.isTrainingTrainee(this.roles),
-                children: [],
-                icon: 'play_circle',
-            },
-            {
-                agendas: this.createDesignButtons(),
-                label: 'Design',
-                displayed:
-                    RoleResolver.isTrainingDesigner(this.roles) ||
-                    RoleResolver.isSandboxDesigner(this.roles),
-                children: [],
-                icon: 'design_services',
-            },
-            {
-                agendas: this.createOrganizeButtons(),
-                label: 'Organize',
-                displayed:
-                    RoleResolver.isTrainingOrganizer(this.roles) ||
-                    RoleResolver.isSandboxOrganizer(this.roles),
-                children: [],
-                icon: 'event',
-            },
-            {
-                agendas: this.createManageButtons(),
-                label: 'Manage',
-                displayed: RoleResolver.isUserAndGroupAdmin(this.roles),
-                children: [],
-                icon: 'manage_accounts',
-            },
+            { agendas: this.createParticipateButtons(), label: 'Participate', displayed: RoleResolver.isTrainingTrainee(this.roles), children: [], icon: 'play_circle' },
+            { agendas: this.createDesignButtons(), label: 'Design', displayed: RoleResolver.isTrainingDesigner(this.roles) || RoleResolver.isSandboxDesigner(this.roles), children: [], icon: 'design_services' },
+            { agendas: this.createOrganizeButtons(), label: 'Organize', displayed: RoleResolver.isTrainingOrganizer(this.roles) || RoleResolver.isSandboxOrganizer(this.roles), children: [], icon: 'event' },
+            { agendas: this.createManageButtons(), label: 'Manage', displayed: RoleResolver.isUserAndGroupAdmin(this.roles), children: [], icon: 'manage_accounts' },
         ];
     }
 
     private createParticipateButtons() {
-        return [
-            new AgendaPortalLink(
-                'Training Run',
-                !RoleResolver.isTrainingTrainee(this.roles),
-                'run',
-                'Training Run lets you start or resume a training session or view the results of a completed training.',
-                'games',
-            ),
-        ];
+        return [new AgendaPortalLink('Training Run', !RoleResolver.isTrainingTrainee(this.roles), 'run', 'Start or resume a training session or view results.', 'games')];
     }
 
     private createDesignButtons(): AgendaPortalLink[] {
         return [
-            new AgendaPortalLink(
-                'Sandbox Definition',
-                !RoleResolver.isSandboxDesigner(this.roles),
-                'sandbox-definition',
-                'In the Sandbox Definition agenda, you can manage sandbox definitions—descriptions of virtual networks and computers that can be instantiated in isolated sandboxes.',
-                'event_note',
-            ),
-            new AgendaPortalLink(
-                'Training Definition',
-                !RoleResolver.isTrainingDesigner(this.roles),
-                'linear-definition',
-                'Training Definition is the blueprint for trainings. You can manage existing trainings and design new ones.',
-                'assignment',
-                HomeComponent.createExpandedControlButtons([
-                    'adaptive-definition',
-                    'linear-definition',
-                ]),
-            ),
+            new AgendaPortalLink('Sandbox Definition', !RoleResolver.isSandboxDesigner(this.roles), 'sandbox-definition', 'Manage sandbox definitions.', 'event_note'),
+            new AgendaPortalLink('Training Definition', !RoleResolver.isTrainingDesigner(this.roles), 'linear-definition', 'Blueprint for trainings.', 'assignment',
+                HomeComponent.createExpandedControlButtons(['adaptive-definition', 'linear-definition'])),
         ];
     }
 
     private createOrganizeButtons() {
         return [
-            new AgendaPortalLink(
-                'Pool',
-                !RoleResolver.isSandboxOrganizer(this.roles),
-                'pool',
-                'As an instructor, you can create pools of sandboxes—the basic organizational units for instantiating sandbox definitions.',
-                'subscriptions',
-            ),
-            new AgendaPortalLink(
-                'Images',
-                !RoleResolver.isSandboxOrganizer(this.roles),
-                'sandbox-image',
-                'In the Images agenda, you can view available cloud images.',
-                'donut_large',
-            ),
-            new AgendaPortalLink(
-                'Training Instance',
-                !RoleResolver.isTrainingOrganizer(this.roles),
-                'linear-instance',
-                'You can create training instances required for organizing hands-on training sessions.',
-                'event',
-                HomeComponent.createExpandedControlButtons([
-                    'adaptive-instance',
-                    'linear-instance',
-                ]),
-            ),
+            new AgendaPortalLink('Pool', !RoleResolver.isSandboxOrganizer(this.roles), 'pool', 'Create pools of sandboxes.', 'subscriptions'),
+            new AgendaPortalLink('Images', !RoleResolver.isSandboxOrganizer(this.roles), 'sandbox-image', 'View available cloud images.', 'donut_large'),
+            new AgendaPortalLink('Training Instance', !RoleResolver.isTrainingOrganizer(this.roles), 'linear-instance', 'Create training instances.', 'event',
+                HomeComponent.createExpandedControlButtons(['adaptive-instance', 'linear-instance'])),
         ];
     }
 
     private createManageButtons() {
-            const disabled = !RoleResolver.isUserAndGroupAdmin(this.roles);
-            return [
-                new AgendaPortalLink(
-                    'Groups',
-                    disabled,
-                    'group',
-                    'In Groups, you can manage groups and grant access rights to their members.',
-                    'group',
-                ),
-                new AgendaPortalLink(
-                    'Users',
-                    disabled,
-                    'user',
-                    'The Users agenda lets you assign users to existing groups.',
-                    'person',
-                ),
-                new AgendaPortalLink(
-                    'Microservice',
-                    disabled,
-                    'microservice',
-                    'You can also manage the microservices that provide the CyberRangeᶜᶻ Platform\'s functionality. Make sure you understand the implications before making any changes.',
-                    'account_tree',
-                ),
-            ];
-        }
-
-
-    private createPlatformToolsButtons() {
-        return [];
+        const d = !RoleResolver.isUserAndGroupAdmin(this.roles);
+        return [
+            new AgendaPortalLink('Groups', d, 'group', 'Manage groups and access rights.', 'group'),
+            new AgendaPortalLink('Users', d, 'user', 'Assign users to groups.', 'person'),
+            new AgendaPortalLink('Microservice', d, 'microservice', 'Manage platform microservices.', 'account_tree'),
+        ];
     }
 
     private subscribeUserChange() {
@@ -255,88 +367,5 @@ export class HomeComponent implements OnInit {
                 this.isAdmin = RoleResolver.isUserAndGroupAdmin(this.roles);
                 this.initRoutes();
             });
-    }
-
-    private fetchStats() {
-        if (!this.isAdmin) return;
-
-        // Fetch only 1 element to efficiently retrieve total counts via pagination headers
-        const pagination = { page: 0, size: 1, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
-
-        if (this.runApi) {
-            this.runApi.getAll(pagination).pipe(catchError(() => of(null)))
-                .subscribe(res => { if (res) this.stats.trainingRuns = res.pagination.totalElements; });
-        }
-
-        if (this.definitionApi) {
-            this.definitionApi.getAll(pagination).pipe(catchError(() => of(null)))
-                .subscribe(res => { if (res) this.stats.definitions = res.pagination.totalElements; });
-        }
-
-        if (this.instanceApi) {
-            this.instanceApi.getAll(pagination).pipe(catchError(() => of(null)))
-                .subscribe(res => { if (res) this.stats.instances = res.pagination.totalElements; });
-        }
-
-        if (this.groupApi) {
-            this.groupApi.getAll(pagination).pipe(catchError(() => of(null)))
-                .subscribe(res => { if (res) this.stats.groups = res.pagination.totalElements; });
-        }
-
-        if (this.userApi) {
-            this.userApi.getAll(pagination).pipe(catchError(() => of(null)))
-                .subscribe(res => { if (res) this.stats.users = res.pagination.totalElements; });
-        }
-
-        if (this.resourcesApi) {
-            this.resourcesApi.getResources().pipe(catchError(() => of(null)))
-                .subscribe(res => {
-                    if (res && res.quotas) {
-                        this.hardwareStats.cpuUsed = res.quotas.vcpu?.inUse || 0;
-                        this.hardwareStats.cpuTotal = res.quotas.vcpu?.limit || 0;
-                        this.hardwareStats.ramUsed = res.quotas.ram?.inUse || 0;
-                        this.hardwareStats.ramTotal = res.quotas.ram?.limit || 0;
-                        this.hardwareStats.ramUnits = res.quotas.ram?.units || 'GB';
-                        this.updatePercentages();
-                    }
-                });
-        }
-
-        if (this.poolApi) {
-            const largePagination = { page: 0, size: 1000, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
-            this.poolApi.getPools(largePagination).pipe(catchError(() => of(null)))
-                .subscribe(res => {
-                    if (res && res.elements) {
-                        this.stats.pools = res.pagination.totalElements;
-
-                        let activeSandboxes = 0;
-                        let maxSandboxes = 0;
-
-                        res.elements.forEach((pool: any) => {
-                            activeSandboxes += pool.usedSize || 0;
-                            maxSandboxes += pool.maxSize || 0;
-                        });
-
-                        this.hardwareStats.activeSandboxes = activeSandboxes;
-                        this.hardwareStats.maxSandboxes = maxSandboxes;
-                        this.updatePercentages();
-                    }
-                });
-        }
-    }
-
-    private updatePercentages() {
-        if (typeof this.hardwareStats.cpuUsed === 'number' && typeof this.hardwareStats.cpuTotal === 'number' && this.hardwareStats.cpuTotal > 0) {
-            this.hardwareStats.cpuPercentage = Math.round((this.hardwareStats.cpuUsed / this.hardwareStats.cpuTotal) * 100);
-        }
-        if (typeof this.hardwareStats.ramUsed === 'number' && typeof this.hardwareStats.ramTotal === 'number' && this.hardwareStats.ramTotal > 0) {
-            this.hardwareStats.ramPercentage = Math.round((this.hardwareStats.ramUsed / this.hardwareStats.ramTotal) * 100);
-        }
-    }
-
-    formatRam(ramVal: number | string, units = 'GB'): string {
-        if (ramVal === '-') return '-';
-        const num = Number(ramVal);
-        return num.toFixed(1) + ' ' + units;
     }
 }
