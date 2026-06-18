@@ -35,7 +35,7 @@ main {
 .sidebar-toggle-btn {
     position: fixed;
     top: 11px; /* (58px toolbar height - 36px button) / 2 */
-    left: calc(var(--sidebar-btn-left, 220px) + 10px);
+    left: 10px;
     z-index: 600;
     width: 36px;
     height: 36px;
@@ -47,7 +47,7 @@ main {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: left 0.25s ease, background 0.15s, border-color 0.15s;
+    transition: background 0.15s, border-color 0.15s;
 
     &:hover {
         background: rgba(255, 255, 255, 0.28) !important;
