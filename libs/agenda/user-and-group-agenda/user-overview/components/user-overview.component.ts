@@ -75,7 +75,7 @@ export class UserOverviewComponent implements OnInit {
         this.userService
             .getAll(
                 event.pagination as OffsetPaginationEvent<UserSort>,
-                event.filter,
+                event.filter ?? this.filterText,
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();

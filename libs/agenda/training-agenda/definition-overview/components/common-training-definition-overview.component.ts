@@ -76,7 +76,7 @@ export class CommonTrainingDefinitionOverviewComponent implements OnInit {
         this.trainingDefinitionService
             .getAll(
                 PaginationMapper.toOffsetPaginationEvent(loadEvent.pagination),
-                loadEvent.filter,
+                loadEvent.filter ?? this.filterText,
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();

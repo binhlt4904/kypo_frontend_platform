@@ -69,11 +69,10 @@ export class ImagesPageComponent implements OnInit {
 
     onTableLoadEvent(loadEvent: TableLoadEvent<VmImageSort>): void {
         this.paginationService.savePageSize(loadEvent.pagination.size);
-        this.lastFilter = loadEvent.filter;
         this.getAvailableImages(
             PaginationMapper.toOffsetPaginationEvent(loadEvent.pagination),
             true,
-            loadEvent.filter,
+            this.filterText || undefined,
         );
     }
 

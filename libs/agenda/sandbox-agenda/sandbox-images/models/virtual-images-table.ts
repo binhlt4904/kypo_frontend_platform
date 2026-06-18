@@ -36,8 +36,7 @@ export class VirtualImagesTable extends ExpandableSentinelTable<
         const expand = new RowExpand(VMImageDetailComponent, null);
         super(rows, columns, expand);
         this.pagination = resource.pagination;
-        this.filterable = true;
-        this.filterLabel = 'Filter by name';
+        this.filterable = false;
     }
 
     private static createRow(image: VirtualImage): Row<VMImagesRowAdapter> {

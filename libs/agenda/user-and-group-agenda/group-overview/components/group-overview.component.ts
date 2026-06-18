@@ -74,7 +74,7 @@ export class GroupOverviewComponent implements OnInit {
         this.groupService
             .getAll(
                 PaginationMapper.toOffsetPaginationEvent(event.pagination),
-                event.filter,
+                event.filter ?? this.filterText,
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();

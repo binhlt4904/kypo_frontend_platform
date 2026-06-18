@@ -37,8 +37,7 @@ export class GroupTable extends SentinelTable<GroupRowAdapter, string> {
         ];
         super(rows, columns);
         this.pagination = resource.pagination;
-        this.filterable = true;
-        this.filterLabel = 'Filter by name';
+        this.filterable = false;
         this.selectable = true;
     }
 

@@ -87,7 +87,7 @@ export class MicroserviceOverviewComponent implements OnInit {
         this.microserviceService
             .getAll(
                 event.pagination as OffsetPaginationEvent<MicroserviceSort>,
-                event.filter,
+                event.filter ?? this.filterText,
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();

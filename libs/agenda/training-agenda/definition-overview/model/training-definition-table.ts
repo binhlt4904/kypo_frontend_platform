@@ -46,8 +46,7 @@ export class TrainingDefinitionTable extends SentinelTable<
         );
         super(rows, columns);
         this.pagination = resource.pagination;
-        this.filterLabel = 'Filter by title';
-        this.filterable = true;
+        this.filterable = false;
         this.selectable = false;
     }
 

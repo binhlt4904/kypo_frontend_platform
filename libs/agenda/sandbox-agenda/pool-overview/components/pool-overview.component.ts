@@ -102,7 +102,7 @@ export class PoolOverviewComponent implements OnInit {
     onLoadEvent(loadEvent: TableLoadEvent<PoolSort>): void {
         this.paginationService.savePageSize(loadEvent.pagination.size);
         this.abstractPoolService
-            .getAll(PaginationMapper.toOffsetPaginationEvent(loadEvent.pagination), loadEvent.filter)
+            .getAll(PaginationMapper.toOffsetPaginationEvent(loadEvent.pagination), loadEvent.filter ?? this.filterText)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
     }

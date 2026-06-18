@@ -68,7 +68,7 @@ export class SandboxDefinitionOverviewComponent implements OnInit {
     onLoadEvent(event: TableLoadEvent<SandboxDefinitionSort>): void {
         this.paginationService.savePageSize(event.pagination.size);
         this.sandboxDefinitionService
-            .getAll(PaginationMapper.toOffsetPaginationEvent(event.pagination), event.filter)
+            .getAll(PaginationMapper.toOffsetPaginationEvent(event.pagination), event.filter ?? this.filterText)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
     }

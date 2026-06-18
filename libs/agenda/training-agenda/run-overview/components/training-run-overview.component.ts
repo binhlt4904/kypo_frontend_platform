@@ -91,7 +91,7 @@ export class TrainingRunOverviewComponent implements OnInit {
         this.trainingRunOverviewService
             .getAll(
                 PaginationMapper.toOffsetPaginationEvent(loadEvent.pagination),
-                loadEvent.filter,
+                loadEvent.filter ?? this.filterText,
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
