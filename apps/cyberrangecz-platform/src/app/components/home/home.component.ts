@@ -387,22 +387,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private createParticipateButtons() {
-        return [new AgendaPortalLink('Training Run', !RoleResolver.isTrainingTrainee(this.roles), 'run', 'Start or resume a training session or view results.', 'games')];
+        return [new AgendaPortalLink('Training run', !RoleResolver.isTrainingTrainee(this.roles), 'run', 'Start or resume a training session, or view results of completed trainings.', 'games')];
     }
 
     private createDesignButtons(): AgendaPortalLink[] {
         return [
-            new AgendaPortalLink('Sandbox Definition', !RoleResolver.isSandboxDesigner(this.roles),  'sandbox-definition', 'Manage sandbox definitions.', 'event_note'),
-            new AgendaPortalLink('Training Definition', !RoleResolver.isTrainingDesigner(this.roles), 'linear-definition',  'Blueprint for trainings.', 'assignment',
+            new AgendaPortalLink('Sandbox definition', !RoleResolver.isSandboxDesigner(this.roles),  'sandbox-definition', 'Manage sandbox definitions — virtual networks and computers for isolated environments.', 'event_note'),
+            new AgendaPortalLink('Training definition', !RoleResolver.isTrainingDesigner(this.roles), 'linear-definition',  'Blueprint for trainings. Manage existing ones or design new scenarios.', 'assignment',
                 HomeComponent.createExpandedControlButtons(['adaptive-definition', 'linear-definition'])),
         ];
     }
 
     private createOrganizeButtons() {
         return [
-            new AgendaPortalLink('Pool',              !RoleResolver.isSandboxOrganizer(this.roles),  'pool',            'Create pools of sandboxes.',    'subscriptions'),
-            new AgendaPortalLink('Images',            !RoleResolver.isSandboxOrganizer(this.roles),  'sandbox-image',   'View available cloud images.',   'donut_large'),
-            new AgendaPortalLink('Training Instance', !RoleResolver.isTrainingOrganizer(this.roles), 'linear-instance', 'Create training instances.', 'event',
+            new AgendaPortalLink('Pool',              !RoleResolver.isSandboxOrganizer(this.roles),  'pool',            'Create and manage pools of sandboxes for instantiating sandbox definitions.',    'subscriptions'),
+            new AgendaPortalLink('Images',            !RoleResolver.isSandboxOrganizer(this.roles),  'sandbox-image',   'View available cloud images for sandbox environments.',   'donut_large'),
+            new AgendaPortalLink('Training instance', !RoleResolver.isTrainingOrganizer(this.roles), 'linear-instance', 'Create training instances for organizing hands-on sessions.', 'event',
                 HomeComponent.createExpandedControlButtons(['adaptive-instance', 'linear-instance'])),
         ];
     }
@@ -410,9 +410,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private createManageButtons() {
         const d = !RoleResolver.isUserAndGroupAdmin(this.roles);
         return [
-            new AgendaPortalLink('Groups',       d, 'group',        'Manage groups and access rights.', 'group'),
-            new AgendaPortalLink('Users',        d, 'user',         'Assign users to groups.',          'person'),
-            new AgendaPortalLink('Microservice', d, 'microservice', 'Manage platform microservices.',   'account_tree'),
+            new AgendaPortalLink('Groups',       d, 'group',        'Manage groups and grant access rights to members.', 'group'),
+            new AgendaPortalLink('Users',        d, 'user',         'Assign users to existing groups and manage accounts.',          'person'),
+            new AgendaPortalLink('Microservice', d, 'microservice', 'Manage microservices providing platform functionality.',   'account_tree'),
         ];
     }
 
