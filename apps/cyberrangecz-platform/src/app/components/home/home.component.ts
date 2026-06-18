@@ -53,26 +53,36 @@ export interface HardwareStats {
     ],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
-    @ViewChild('donutCanvas') donutCanvas!: ElementRef<HTMLCanvasElement>;
-    @ViewChild('barCanvas') barCanvas!: ElementRef<HTMLCanvasElement>;
-    @ViewChild('runsCanvas') runsCanvas!: ElementRef<HTMLCanvasElement>;
-    @ViewChild('statusCanvas') statusCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('activityCanvas') activityCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('poolCanvas')     poolCanvas!:     ElementRef<HTMLCanvasElement>;
+    @ViewChild('barCanvas')      barCanvas!:      ElementRef<HTMLCanvasElement>;
+    @ViewChild('donutCanvas')    donutCanvas!:    ElementRef<HTMLCanvasElement>;
 
     elevated: string;
     roles: UserRole[];
     isAdmin = false;
     portalAgendaContainers: PortalAgendaContainer[] = [];
 
-    totalRuns = 0;
-    runningRuns = 0;
-    finishedRuns = 0;
-    archivedRuns = 0;
-    linearDefs = 0;
-    adaptiveDefs = 0;
-    totalPools = 0;
+    totalRuns      = 0;
+    runningRuns    = 0;
+    finishedRuns   = 0;
+    archivedRuns   = 0;
+    linearDefs     = 0;
+    adaptiveDefs   = 0;
+    totalPools     = 0;
     totalInstances = 0;
-    totalGroups = 0;
-    totalUsers = 0;
+    totalGroups    = 0;
+    totalUsers     = 0;
+
+    poolLabels: string[] = [];
+    poolUsed:   number[] = [];
+    poolMax:    number[] = [];
+
+    quotaUsed:   number[] = [0, 0, 0];
+    quotaLimits: number[] = [0, 0, 0];
+
+    activityLabels: string[] = [];
+    activityData:   number[] = [];
 
     hardwareStats: HardwareStats = {
         cpuUsed: '-', cpuTotal: '-',
@@ -82,33 +92,33 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         ramUnits: 'GB',
     };
 
-    private donutChart!: Chart;
-    private barChart!: Chart;
-    private runsChart!: Chart;
-    private statusChart!: Chart;
+    private activityChart!: Chart;
+    private poolChart!:     Chart;
+    private barChart!:      Chart;
+    private quotaChart!:    Chart;
     private chartsBuilt = false;
 
-    private readonly runApi = inject(LinearRunApi);
-    private readonly definitionApi = inject(LinearTrainingDefinitionApi);
+    private readonly runApi         = inject(LinearRunApi);
+    private readonly definitionApi  = inject(LinearTrainingDefinitionApi);
     private readonly adaptiveDefApi = inject(AdaptiveTrainingDefinitionApi);
-    private readonly instanceApi = inject(LinearTrainingInstanceApi);
-    private readonly poolApi = inject(PoolApi);
-    private readonly resourcesApi = inject(ResourcesApi);
-    private readonly groupApi = inject(GroupApi);
-    private readonly userApi = inject(UserApi);
-    private readonly destroyRef = inject(DestroyRef);
-    private readonly authService = inject(SentinelAuthService);
-    private readonly router = inject(Router);
+    private readonly instanceApi    = inject(LinearTrainingInstanceApi);
+    private readonly poolApi        = inject(PoolApi);
+    private readonly resourcesApi   = inject(ResourcesApi);
+    private readonly groupApi       = inject(GroupApi);
+    private readonly userApi        = inject(UserApi);
+    private readonly destroyRef     = inject(DestroyRef);
+    private readonly authService    = inject(SentinelAuthService);
+    private readonly router         = inject(Router);
 
     static createExpandedControlButtons(path: ValidPath[]): AgendaMenuItem[] {
         return [
-            new AgendaMenuItem('timeline', 'Adaptive', path[0]),
-            new AgendaMenuItem('videogame_asset', 'Linear', path[1]),
+            new AgendaMenuItem('timeline',        'Adaptive', path[0]),
+            new AgendaMenuItem('videogame_asset', 'Linear',   path[1]),
         ];
     }
 
     ngOnInit(): void {
-        this.roles = this.authService.getRoles();
+        this.roles   = this.authService.getRoles();
         this.isAdmin = RoleResolver.isUserAndGroupAdmin(this.roles);
         this.initRoutes();
         this.subscribeUserChange();
@@ -120,12 +130,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        [this.donutChart, this.barChart, this.runsChart, this.statusChart]
+        [this.activityChart, this.poolChart, this.barChart, this.quotaChart]
             .forEach(c => c?.destroy());
     }
 
     navigateToRoute(route: ValidPath): void { this.router.navigate([route]); }
-    setElevation(buttonName: string): void { this.elevated = buttonName; }
+    setElevation(buttonName: string): void  { this.elevated = buttonName; }
 
     formatRam(val: number | string, units = 'GB'): string {
         if (val === '-') return '-';
@@ -133,19 +143,31 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private fetchAll(): void {
-        const pg1 = { page: 0, size: 1, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
+        const pg1    = { page: 0, size: 1,    sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
         const pg1000 = { page: 0, size: 1000, sortDir: 'asc', sortBy: '' } as unknown as OffsetPaginationEvent<any>;
 
         if (this.runApi) {
             this.runApi.getAll(pg1000).pipe(catchError(() => of(null)))
                 .subscribe(res => {
                     if (!res) return;
-                    this.totalRuns = res.pagination.totalElements;
-                    this.runningRuns = res.elements.filter(r => r.state === TrainingRunStateEnum.RUNNING).length;
+                    this.totalRuns    = res.pagination.totalElements;
+                    this.runningRuns  = res.elements.filter(r => r.state === TrainingRunStateEnum.RUNNING).length;
                     this.finishedRuns = res.elements.filter(r => r.state === TrainingRunStateEnum.FINISHED).length;
                     this.archivedRuns = res.elements.filter(r => r.state === TrainingRunStateEnum.ARCHIVED).length;
-                    this.updateChart('status');
-                    this.updateChart('runs');
+
+                    const today = new Date();
+                    const labels: string[] = [];
+                    const counts: number[] = [];
+                    for (let i = 6; i >= 0; i--) {
+                        const d = new Date(today);
+                        d.setDate(today.getDate() - i);
+                        labels.push(d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }));
+                        const ds = d.toDateString();
+                        counts.push(res.elements.filter(r => r.startTime && new Date(r.startTime).toDateString() === ds).length);
+                    }
+                    this.activityLabels = labels;
+                    this.activityData   = counts;
+                    this.updateChart('activity');
                 });
         }
 
@@ -184,11 +206,24 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                     if (!res) return;
                     this.totalPools = res.pagination.totalElements;
                     let used = 0, max = 0;
-                    res.elements.forEach((p: any) => { used += p.usedSize || 0; max += p.maxSize || 0; });
-                    this.hardwareStats.activeSandboxes = used;
-                    this.hardwareStats.maxSandboxes = max;
+                    const labels: string[] = [];
+                    const usedArr: number[] = [];
+                    const maxArr: number[] = [];
+                    res.elements.forEach((p: any, i: number) => {
+                        used += p.usedSize || 0;
+                        max  += p.maxSize  || 0;
+                        const name = p.definition?.title || p.comment || ('Pool ' + (i + 1));
+                        labels.push(name.length > 14 ? name.slice(0, 12) + '…' : name);
+                        usedArr.push(p.usedSize || 0);
+                        maxArr.push(p.maxSize   || 0);
+                    });
+                    this.hardwareStats.activeSandboxes   = used;
+                    this.hardwareStats.maxSandboxes      = max;
                     this.hardwareStats.sandboxPercentage = max > 0 ? Math.round(used / max * 100) : 0;
-                    this.updateChart('donut');
+                    this.poolLabels = labels;
+                    this.poolUsed   = usedArr;
+                    this.poolMax    = maxArr;
+                    this.updateChart('pool');
                 });
         }
 
@@ -197,16 +232,20 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 .subscribe(res => {
                     if (!res?.quotas) return;
                     const q = res.quotas;
-                    this.hardwareStats.cpuUsed = q.vcpu?.inUse ?? 0;
-                    this.hardwareStats.cpuTotal = q.vcpu?.limit ?? 0;
-                    this.hardwareStats.ramUsed = q.ram?.inUse ?? 0;
-                    this.hardwareStats.ramTotal = q.ram?.limit ?? 0;
-                    this.hardwareStats.ramUnits = 'GB';
+                    this.hardwareStats.cpuUsed  = q.vcpu?.inUse  ?? 0;
+                    this.hardwareStats.cpuTotal  = q.vcpu?.limit  ?? 0;
+                    this.hardwareStats.ramUsed   = q.ram?.inUse   ?? 0;
+                    this.hardwareStats.ramTotal  = q.ram?.limit   ?? 0;
+                    this.hardwareStats.ramUnits  = 'GB';
                     const cpuT = Number(this.hardwareStats.cpuTotal);
                     const ramT = Number(this.hardwareStats.ramTotal);
                     this.hardwareStats.cpuPercentage = cpuT > 0 ? Math.round(Number(this.hardwareStats.cpuUsed) / cpuT * 100) : 0;
                     this.hardwareStats.ramPercentage = ramT > 0 ? Math.round(Number(this.hardwareStats.ramUsed) / ramT * 100) : 0;
-                    this.updateChart('donut');
+
+                    const pct = (quota: any) => quota?.limit > 0 ? Math.round(quota.inUse / quota.limit * 100) : 0;
+                    this.quotaUsed   = [pct(q.instances), pct(q.network), pct(q.port)];
+                    this.quotaLimits = [q.instances?.limit ?? 0, q.network?.limit ?? 0, q.port?.limit ?? 0];
+                    this.updateChart('quota');
                 });
         }
     }
@@ -215,33 +254,69 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.chartsBuilt) return;
         this.chartsBuilt = true;
 
-        const ACC = '#e55a00';
+        const ACC  = '#e55a00';
         const BLUE = '#185fa5';
-        const GRN = '#1d7a4a';
-        const GRAY = '#e8e5e0';
+        const GRN  = '#1d7a4a';
+        const WRN  = '#b06a00';
+        const GRAY = '#e0ddd8';
         const TEXT = '#888';
 
         Chart.defaults.font.family = "'Space Grotesk', system-ui, sans-serif";
-        Chart.defaults.font.size = 11;
-        Chart.defaults.color = TEXT;
+        Chart.defaults.font.size   = 11;
+        Chart.defaults.color       = TEXT;
 
-        if (this.donutCanvas) {
-            this.donutChart = new Chart(this.donutCanvas.nativeElement, {
-                type: 'doughnut',
+        /* Line — run activity last 7 days */
+        if (this.activityCanvas) {
+            this.activityChart = new Chart(this.activityCanvas.nativeElement, {
+                type: 'line',
                 data: {
-                    labels: ['CPU', 'RAM', 'Sandbox'],
-                    datasets: [{ data: [0, 0, 0], backgroundColor: [ACC, BLUE, '#b06a00'], borderWidth: 0, hoverOffset: 4 }],
+                    labels: this.activityLabels,
+                    datasets: [{
+                        label: 'Runs started',
+                        data: this.activityData,
+                        borderColor: ACC,
+                        backgroundColor: 'rgba(229,90,0,0.07)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: ACC,
+                        tension: 0.35,
+                        fill: true,
+                    }],
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: true, cutout: '68%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: c => ' ' + c.label + ': ' + c.parsed + '%' } },
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#f5f5f5' } },
+                        y: { grid: { color: '#f5f5f5' }, min: 0, ticks: { stepSize: 1 } },
                     },
                 },
             });
         }
 
+        /* Grouped bar — pool capacity */
+        if (this.poolCanvas) {
+            this.poolChart = new Chart(this.poolCanvas.nativeElement, {
+                type: 'bar',
+                data: {
+                    labels: this.poolLabels,
+                    datasets: [
+                        { label: 'Used',     data: this.poolUsed, backgroundColor: ACC,  borderRadius: 3, borderSkipped: false },
+                        { label: 'Capacity', data: this.poolMax,  backgroundColor: GRAY, borderRadius: 3, borderSkipped: false },
+                    ],
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 10, font: { size: 10 } } } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#f5f5f5' }, min: 0, ticks: { stepSize: 1 } },
+                    },
+                },
+            });
+        }
+
+        /* Bar — definitions by type */
         if (this.barCanvas) {
             this.barChart = new Chart(this.barCanvas.nativeElement, {
                 type: 'bar',
@@ -260,72 +335,54 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             });
         }
 
-        if (this.runsCanvas) {
-            this.runsChart = new Chart(this.runsCanvas.nativeElement, {
-                type: 'bar',
+        /* Donut — quota breakdown (instances / networks / ports) */
+        if (this.donutCanvas) {
+            this.quotaChart = new Chart(this.donutCanvas.nativeElement, {
+                type: 'doughnut',
                 data: {
-                    labels: ['Running', 'Finished', 'Archived'],
-                    datasets: [{ label: 'Runs', data: [0, 0, 0], backgroundColor: [ACC, GRN, GRAY], borderRadius: 3, borderSkipped: false }],
+                    labels: ['Instances', 'Networks', 'Ports'],
+                    datasets: [{ data: [0, 0, 0], backgroundColor: [BLUE, GRN, WRN], borderWidth: 0, hoverOffset: 4 }],
                 },
                 options: {
-                    indexAxis: 'y',
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { color: '#f5f5f5' }, min: 0, ticks: { stepSize: 1 } },
-                        y: { grid: { display: false } },
-                    },
-                },
-            });
-        }
-
-        if (this.statusCanvas) {
-            this.statusChart = new Chart(this.statusCanvas.nativeElement, {
-                type: 'pie',
-                data: {
-                    labels: ['Running', 'Finished', 'Archived'],
-                    datasets: [{ data: [0, 0, 0], backgroundColor: [ACC, GRN, GRAY], borderWidth: 0, hoverOffset: 4 }],
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: true,
+                    responsive: true, maintainAspectRatio: true, cutout: '68%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, borderRadius: 2, padding: 10, font: { size: 10 } } },
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: c => ' ' + c.label + ': ' + c.parsed + '%' } },
                     },
                 },
             });
         }
     }
 
-    private updateChart(which: 'donut' | 'bar' | 'runs' | 'status'): void {
+    private updateChart(which: 'activity' | 'pool' | 'bar' | 'quota'): void {
         if (!this.chartsBuilt) return;
-        if (which === 'donut' && this.donutChart) {
-            this.donutChart.data.datasets[0].data = [
-                this.hardwareStats.cpuPercentage,
-                this.hardwareStats.ramPercentage,
-                this.hardwareStats.sandboxPercentage,
-            ];
-            this.donutChart.update();
+        if (which === 'activity' && this.activityChart) {
+            this.activityChart.data.labels = this.activityLabels;
+            this.activityChart.data.datasets[0].data = this.activityData;
+            this.activityChart.update();
+        }
+        if (which === 'pool' && this.poolChart) {
+            this.poolChart.data.labels = this.poolLabels;
+            this.poolChart.data.datasets[0].data = this.poolUsed;
+            this.poolChart.data.datasets[1].data = this.poolMax;
+            this.poolChart.update();
         }
         if (which === 'bar' && this.barChart) {
             this.barChart.data.datasets[0].data = [this.linearDefs, this.adaptiveDefs];
             this.barChart.update();
         }
-        if (which === 'runs' && this.runsChart) {
-            this.runsChart.data.datasets[0].data = [this.runningRuns, this.finishedRuns, this.archivedRuns];
-            this.runsChart.update();
-        }
-        if (which === 'status' && this.statusChart) {
-            this.statusChart.data.datasets[0].data = [this.runningRuns, this.finishedRuns, this.archivedRuns];
-            this.statusChart.update();
+        if (which === 'quota' && this.quotaChart) {
+            this.quotaChart.data.datasets[0].data = this.quotaUsed;
+            this.quotaChart.update();
         }
     }
 
     private initRoutes() {
         this.portalAgendaContainers = [
-            { agendas: this.createParticipateButtons(), label: 'Participate', displayed: RoleResolver.isTrainingTrainee(this.roles), children: [], icon: 'play_circle' },
-            { agendas: this.createDesignButtons(), label: 'Design', displayed: RoleResolver.isTrainingDesigner(this.roles) || RoleResolver.isSandboxDesigner(this.roles), children: [], icon: 'design_services' },
-            { agendas: this.createOrganizeButtons(), label: 'Organize', displayed: RoleResolver.isTrainingOrganizer(this.roles) || RoleResolver.isSandboxOrganizer(this.roles), children: [], icon: 'event' },
-            { agendas: this.createManageButtons(), label: 'Manage', displayed: RoleResolver.isUserAndGroupAdmin(this.roles), children: [], icon: 'manage_accounts' },
+            { agendas: this.createParticipateButtons(), label: 'Participate', displayed: RoleResolver.isTrainingTrainee(this.roles),    children: [], icon: 'play_circle' },
+            { agendas: this.createDesignButtons(),      label: 'Design',      displayed: RoleResolver.isTrainingDesigner(this.roles) || RoleResolver.isSandboxDesigner(this.roles),   children: [], icon: 'design_services' },
+            { agendas: this.createOrganizeButtons(),    label: 'Organize',    displayed: RoleResolver.isTrainingOrganizer(this.roles) || RoleResolver.isSandboxOrganizer(this.roles), children: [], icon: 'event' },
+            { agendas: this.createManageButtons(),      label: 'Manage',      displayed: RoleResolver.isUserAndGroupAdmin(this.roles), children: [], icon: 'manage_accounts' },
         ];
     }
 
@@ -335,16 +392,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private createDesignButtons(): AgendaPortalLink[] {
         return [
-            new AgendaPortalLink('Sandbox Definition', !RoleResolver.isSandboxDesigner(this.roles), 'sandbox-definition', 'Manage sandbox definitions.', 'event_note'),
-            new AgendaPortalLink('Training Definition', !RoleResolver.isTrainingDesigner(this.roles), 'linear-definition', 'Blueprint for trainings.', 'assignment',
+            new AgendaPortalLink('Sandbox Definition', !RoleResolver.isSandboxDesigner(this.roles),  'sandbox-definition', 'Manage sandbox definitions.', 'event_note'),
+            new AgendaPortalLink('Training Definition', !RoleResolver.isTrainingDesigner(this.roles), 'linear-definition',  'Blueprint for trainings.', 'assignment',
                 HomeComponent.createExpandedControlButtons(['adaptive-definition', 'linear-definition'])),
         ];
     }
 
     private createOrganizeButtons() {
         return [
-            new AgendaPortalLink('Pool', !RoleResolver.isSandboxOrganizer(this.roles), 'pool', 'Create pools of sandboxes.', 'subscriptions'),
-            new AgendaPortalLink('Images', !RoleResolver.isSandboxOrganizer(this.roles), 'sandbox-image', 'View available cloud images.', 'donut_large'),
+            new AgendaPortalLink('Pool',              !RoleResolver.isSandboxOrganizer(this.roles),  'pool',            'Create pools of sandboxes.',    'subscriptions'),
+            new AgendaPortalLink('Images',            !RoleResolver.isSandboxOrganizer(this.roles),  'sandbox-image',   'View available cloud images.',   'donut_large'),
             new AgendaPortalLink('Training Instance', !RoleResolver.isTrainingOrganizer(this.roles), 'linear-instance', 'Create training instances.', 'event',
                 HomeComponent.createExpandedControlButtons(['adaptive-instance', 'linear-instance'])),
         ];
@@ -353,9 +410,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private createManageButtons() {
         const d = !RoleResolver.isUserAndGroupAdmin(this.roles);
         return [
-            new AgendaPortalLink('Groups', d, 'group', 'Manage groups and access rights.', 'group'),
-            new AgendaPortalLink('Users', d, 'user', 'Assign users to groups.', 'person'),
-            new AgendaPortalLink('Microservice', d, 'microservice', 'Manage platform microservices.', 'account_tree'),
+            new AgendaPortalLink('Groups',       d, 'group',        'Manage groups and access rights.', 'group'),
+            new AgendaPortalLink('Users',        d, 'user',         'Assign users to groups.',          'person'),
+            new AgendaPortalLink('Microservice', d, 'microservice', 'Manage platform microservices.',   'account_tree'),
         ];
     }
 
@@ -363,7 +420,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.authService.activeUser$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
-                this.roles = this.authService.getRoles();
+                this.roles   = this.authService.getRoles();
                 this.isAdmin = RoleResolver.isUserAndGroupAdmin(this.roles);
                 this.initRoutes();
             });
