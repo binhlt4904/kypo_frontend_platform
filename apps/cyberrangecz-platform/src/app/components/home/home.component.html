@@ -1,136 +1,110 @@
 <div class="dash-root">
-    @if (isAdmin) {
+@if (isAdmin) {
 
-    <div class="metric-strip">
-        <div class="mc">
-            <div class="mc-lbl">Training runs</div>
-            <div class="mc-val acc">{{ totalRuns }}</div>
-            <div class="mc-bar">
-                <div class="mc-fill acc" [style.width.%]="totalRuns > 0 ? (runningRuns / totalRuns * 100) : 0"></div>
-            </div>
-            <div class="mc-sub">{{ runningRuns }} running · {{ finishedRuns }} finished</div>
-        </div>
-        <div class="mc">
-            <div class="mc-lbl">Sandboxes</div>
-            <div class="mc-val wrn">{{ hardwareStats.activeSandboxes }} / {{ hardwareStats.maxSandboxes }}</div>
-            <div class="mc-bar">
-                <div class="mc-fill wrn" [style.width.%]="hardwareStats.sandboxPercentage"></div>
-            </div>
-            <div class="mc-sub">{{ totalPools }} pools · {{ totalInstances }} instances</div>
-        </div>
-        <div class="mc">
-            <div class="mc-lbl">CPU usage</div>
-            <div class="mc-val grn">{{ hardwareStats.cpuPercentage }}%</div>
-            <div class="mc-bar">
-                <div class="mc-fill grn" [style.width.%]="hardwareStats.cpuPercentage"></div>
-            </div>
-            <div class="mc-sub">{{ hardwareStats.cpuUsed }} / {{ hardwareStats.cpuTotal }} cores</div>
-        </div>
-        <div class="mc">
-            <div class="mc-lbl">RAM usage</div>
-            <div class="mc-val blue">{{ hardwareStats.ramPercentage }}%</div>
-            <div class="mc-bar">
-                <div class="mc-fill blue" [style.width.%]="hardwareStats.ramPercentage"></div>
-            </div>
-            <div class="mc-sub">{{ formatRam(hardwareStats.ramUsed, hardwareStats.ramUnits) }} / {{
-                formatRam(hardwareStats.ramTotal, hardwareStats.ramUnits) }}</div>
-        </div>
+  <div class="metric-strip">
+    <div class="mc">
+      <div class="mc-lbl">Training runs</div>
+      <div class="mc-val acc">{{ totalRuns }}</div>
+      <div class="mc-bar"><div class="mc-fill acc" [style.width.%]="totalRuns > 0 ? (runningRuns / totalRuns * 100) : 0"></div></div>
+      <div class="mc-sub">{{ runningRuns }} running · {{ finishedRuns }} finished</div>
     </div>
+    <div class="mc">
+      <div class="mc-lbl">Sandboxes</div>
+      <div class="mc-val wrn">{{ hardwareStats.activeSandboxes }} / {{ hardwareStats.maxSandboxes }}</div>
+      <div class="mc-bar"><div class="mc-fill wrn" [style.width.%]="hardwareStats.sandboxPercentage"></div></div>
+      <div class="mc-sub">{{ totalPools }} pools · {{ totalInstances }} instances</div>
+    </div>
+    <div class="mc">
+      <div class="mc-lbl">CPU usage</div>
+      <div class="mc-val grn">{{ hardwareStats.cpuPercentage }}%</div>
+      <div class="mc-bar"><div class="mc-fill grn" [style.width.%]="hardwareStats.cpuPercentage"></div></div>
+      <div class="mc-sub">{{ hardwareStats.cpuUsed }} / {{ hardwareStats.cpuTotal }} cores</div>
+    </div>
+    <div class="mc">
+      <div class="mc-lbl">RAM usage</div>
+      <div class="mc-val blue">{{ hardwareStats.ramPercentage }}%</div>
+      <div class="mc-bar"><div class="mc-fill blue" [style.width.%]="hardwareStats.ramPercentage"></div></div>
+      <div class="mc-sub">{{ formatRam(hardwareStats.ramUsed, hardwareStats.ramUnits) }} / {{ formatRam(hardwareStats.ramTotal, hardwareStats.ramUnits) }}</div>
+    </div>
+  </div>
 
-    <div class="chart-row chart-row--2">
-        <div class="panel">
-            <div class="panel-hdr">
-                <span class="panel-hdr-title">Training runs by state</span>
-                <span class="panel-badge badge-acc">{{ totalRuns }} total</span>
-            </div>
-            <div class="panel-body panel-body--chart" style="height:140px">
-                <canvas #runsCanvas></canvas>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="panel-hdr">
-                <span class="panel-hdr-title">Run state ratio</span>
-                <span class="panel-badge badge-grn">Live</span>
-            </div>
-            <div class="panel-body panel-body--chart panel-body--center" style="height:140px">
-                <canvas #statusCanvas style="max-height:130px"></canvas>
-            </div>
-        </div>
+  <div class="chart-row chart-row--2">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-hdr-title">Run activity — last 7 days</span>
+        <span class="panel-badge badge-acc">{{ totalRuns }} total</span>
+      </div>
+      <div class="panel-body panel-body--chart" style="height:170px">
+        <canvas #activityCanvas></canvas>
+      </div>
     </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-hdr-title">Pool capacity</span>
+        <span class="panel-badge badge-wrn">{{ totalPools }} pools</span>
+      </div>
+      <div class="panel-body panel-body--chart" style="height:170px">
+        <canvas #poolCanvas></canvas>
+      </div>
+    </div>
+  </div>
 
-    <div class="chart-row chart-row--3">
-        <div class="panel">
-            <div class="panel-hdr">
-                <span class="panel-hdr-title">Definitions by type</span>
-                <span class="panel-badge badge-blue">{{ linearDefs + adaptiveDefs }} total</span>
-            </div>
-            <div class="panel-body panel-body--chart" style="height:140px">
-                <canvas #barCanvas></canvas>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="panel-hdr">
-                <span class="panel-hdr-title">Resource allocation</span>
-                <span class="panel-badge badge-grn">Live</span>
-            </div>
-            <div class="panel-body panel-body--donut" style="height:140px">
-                <canvas #donutCanvas style="max-width:120px;max-height:120px"></canvas>
-                <div class="donut-legend">
-                    <div class="dl-row"><span class="dl-dot" style="background:#e55a00"></span><span
-                            class="dl-lbl">CPU</span><span class="dl-val">{{ hardwareStats.cpuPercentage }}%</span>
-                    </div>
-                    <div class="dl-row"><span class="dl-dot" style="background:#185fa5"></span><span
-                            class="dl-lbl">RAM</span><span class="dl-val">{{ hardwareStats.ramPercentage }}%</span>
-                    </div>
-                    <div class="dl-row"><span class="dl-dot" style="background:#b06a00"></span><span
-                            class="dl-lbl">Sandbox</span><span class="dl-val">{{ hardwareStats.sandboxPercentage
-                            }}%</span></div>
-                </div>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="panel-hdr">
-                <span class="panel-hdr-title">Platform resources</span>
-            </div>
-            <div class="panel-body" style="padding:8px 14px">
-                <table class="stat-table">
-                    <tr>
-                        <td class="st-lbl"><span class="st-dot" style="background:#e55a00"></span>Definitions</td>
-                        <td class="st-val">{{ linearDefs + adaptiveDefs }}</td>
-                    </tr>
-                    <tr>
-                        <td class="st-lbl"><span class="st-dot" style="background:#185fa5"></span>Instances</td>
-                        <td class="st-val">{{ totalInstances }}</td>
-                    </tr>
-                    <tr>
-                        <td class="st-lbl"><span class="st-dot" style="background:#b06a00"></span>Pools</td>
-                        <td class="st-val">{{ totalPools }}</td>
-                    </tr>
-                    <tr>
-                        <td class="st-lbl"><span class="st-dot" style="background:#1d7a4a"></span>Groups</td>
-                        <td class="st-val">{{ totalGroups }}</td>
-                    </tr>
-                    <tr>
-                        <td class="st-lbl"><span class="st-dot" style="background:#888"></span>Users</td>
-                        <td class="st-val">{{ totalUsers }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+  <div class="chart-row chart-row--3">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-hdr-title">Definitions by type</span>
+        <span class="panel-badge badge-blue">{{ linearDefs + adaptiveDefs }} total</span>
+      </div>
+      <div class="panel-body panel-body--chart" style="height:155px">
+        <canvas #barCanvas></canvas>
+      </div>
     </div>
-    }
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-hdr-title">Quota breakdown</span>
+        <span class="panel-badge badge-grn">Live</span>
+      </div>
+      <div class="panel-body panel-body--donut" style="height:155px">
+        <canvas #donutCanvas style="max-width:110px;max-height:110px"></canvas>
+        <div class="donut-legend">
+          <div class="dl-row"><span class="dl-dot" style="background:#185fa5"></span><span class="dl-lbl">Instances</span><span class="dl-val">{{ quotaUsed[0] }}%</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:#1d7a4a"></span><span class="dl-lbl">Networks</span><span class="dl-val">{{ quotaUsed[1] }}%</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:#b06a00"></span><span class="dl-lbl">Ports</span><span class="dl-val">{{ quotaUsed[2] }}%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-hdr-title">Platform resources</span>
+      </div>
+      <div class="panel-body" style="padding:8px 14px">
+        <table class="stat-table">
+          <tr><td class="st-lbl"><span class="st-dot" style="background:#e55a00"></span>Definitions</td><td class="st-val">{{ linearDefs + adaptiveDefs }}</td></tr>
+          <tr><td class="st-lbl"><span class="st-dot" style="background:#185fa5"></span>Instances</td><td class="st-val">{{ totalInstances }}</td></tr>
+          <tr><td class="st-lbl"><span class="st-dot" style="background:#b06a00"></span>Pools</td><td class="st-val">{{ totalPools }}</td></tr>
+          <tr><td class="st-lbl"><span class="st-dot" style="background:#1d7a4a"></span>Groups</td><td class="st-val">{{ totalGroups }}</td></tr>
+          <tr><td class="st-lbl"><span class="st-dot" style="background:#888"></span>Users</td><td class="st-val">{{ totalUsers }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+}
 
-    <div class="sec-hd">
-        <span class="sec-lbl">Quick access</span>
-        <span class="sec-line"></span>
-    </div>
+<div class="sec-hd">
+  <span class="sec-lbl">Quick access</span>
+  <span class="sec-line"></span>
+</div>
 
-    <div class="portal-menu">
-        @for (c of portalAgendaContainers; track c; let last = $last) {
-        <div>
-            <crczp-portal-agenda-container [portalAgendaContainer]="c" [elevation]="elevated" [isLast]="last"
-                (navigation)="navigateToRoute($event)" (setElevation)="setElevation($event)" />
-        </div>
-        }
+<div class="portal-menu">
+  @for (c of portalAgendaContainers; track c; let last = $last) {
+    <div>
+      <crczp-portal-agenda-container
+        [portalAgendaContainer]="c"
+        [elevation]="elevated"
+        [isLast]="last"
+        (navigation)="navigateToRoute($event)"
+        (setElevation)="setElevation($event)"/>
     </div>
+  }
+</div>
 </div>
