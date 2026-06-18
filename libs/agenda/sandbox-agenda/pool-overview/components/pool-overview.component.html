@@ -8,8 +8,9 @@
 
     <div class="page-filter-card">
         <div class="filter-row">
-            <input type="text" class="filter-input" placeholder="Search by name or ID..."
-                   [value]="filterText" (input)="filterText = $any($event.target).value">
+            <input type="text" class="filter-input" placeholder="Search by title..."
+                   [value]="filterText" (input)="filterText = $any($event.target).value"
+                   (keyup.enter)="onSearchClicked()">
             <div class="filter-row-actions">
                 <button class="filter-btn-search" (click)="onSearchClicked()">
                     <span class="material-icons">search</span> Search

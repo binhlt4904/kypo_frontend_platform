@@ -8,8 +8,7 @@
 
     <div class="page-filter-card">
         <div class="filter-row">
-            <select class="filter-select"><option>All States</option><option>Unreleased</option><option>Released</option></select>
-            <input type="text" class="filter-input" placeholder="Search by name..."
+            <input type="text" class="filter-input" placeholder="Search by title..."
                 [value]="filterText"
                 (input)="filterText = $any($event.target).value"
                 (keyup.enter)="onSearchClicked()">

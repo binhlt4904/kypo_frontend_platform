@@ -82,7 +82,7 @@ export class TrainingInstanceOverviewComponent {
         this.service
             .getAll(
                 PaginationMapper.toOffsetPaginationEvent(loadEvent.pagination),
-                loadEvent.filter,
+                loadEvent.filter ?? this.filterText,
             )
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();

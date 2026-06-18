@@ -1,7 +1,7 @@
 @if (!hideSidebar()) {
 <sentinel-layout1 (login)="onLogin()" (logout)="onLogout()" [agendaContainers]="agendaContainers$ | async"
     [displayNotificationsIcon]="true" [isLoading]="loadingService.isLoading$ | async"
-    [notificationsRoute]="notificationRoute" [user]="authService.activeUser$ | async" [version]="version"
+    [notificationsRoute]="notificationRoute" [user]="authService.activeUser$ | async"
     logoSrc="./assets/logo/logo.png">
     <div role="toolbar">
         @if (authService.activeUser$ | async) {
