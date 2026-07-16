@@ -115,19 +115,27 @@ jobs:
 
             echo "===> [1] Check source theme folder on server..."
             test -f "$SRC/login/theme.properties"
+            test -f "$SRC/login/login.ftl"
             test -f "$SRC/login/resources/css/login.css"
+            test -f "$SRC/login/resources/js/login.js"
             test -f "$SRC/login/messages/messages_en.properties"
             find "$SRC" -type f | sort
 
             echo "===> [2] Create clean theme folder in Keycloak pod..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'rm -rf /opt/keycloak/themes/$THEME && mkdir -p /opt/keycloak/themes/$THEME/login/resources/css /opt/keycloak/themes/$THEME/login/messages'"
+            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'rm -rf /opt/keycloak/themes/$THEME && mkdir -p /opt/keycloak/themes/$THEME/login/resources/css /opt/keycloak/themes/$THEME/login/resources/js /opt/keycloak/themes/$THEME/login/messages'"
 
-            echo "===> [3] Copy theme.properties, CSS, and messages..."
+            echo "===> [3] Copy theme.properties, login.ftl, CSS, JS, and messages..."
             _copy_file "$SRC/login/theme.properties" \
               "/opt/keycloak/themes/$THEME/login/theme.properties"
 
+            _copy_file "$SRC/login/login.ftl" \
+              "/opt/keycloak/themes/$THEME/login/login.ftl"
+
             _copy_file "$SRC/login/resources/css/login.css" \
               "/opt/keycloak/themes/$THEME/login/resources/css/login.css"
+
+            _copy_file "$SRC/login/resources/js/login.js" \
+              "/opt/keycloak/themes/$THEME/login/resources/js/login.js"
 
             _copy_file "$SRC/login/messages/messages_en.properties" \
               "/opt/keycloak/themes/$THEME/login/messages/messages_en.properties"
