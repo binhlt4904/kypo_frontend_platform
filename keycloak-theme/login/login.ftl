@@ -36,7 +36,7 @@
                             <#else>
                                 <input tabindex="1" id="lg-user" class="${properties.kcInputClass!}" name="username"
                                        value="${(login.username!'')}" type="text" autofocus autocomplete="off"
-                                       placeholder="crczp-admin"
+                                       placeholder="your-username"
                                        aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>" />
                             </#if>
                         </div>
