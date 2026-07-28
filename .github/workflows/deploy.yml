@@ -179,3 +179,4 @@ jobs:
             _in_vm "sudo kubectl logs -n $KC_NS $KC_POD --tail=120 2>&1 || true"
 
             echo "===> Done. Login theme name: $THEME"
+            
