@@ -40,143 +40,74 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
+      - name: Deploy frontend image to Kubernetes
+        run: |
+          IMAGE="${{ needs.build.outputs.image }}"
+          echo "==> Deploying: $IMAGE"
+
+          sudo kubectl set image deployment/angular-frontend \
+            angular-frontend="$IMAGE" \
+            -n crczp
+
+          sudo kubectl rollout status deployment/angular-frontend \
+            -n crczp --timeout=120s
+
+          echo "==> Deploy thanh cong: $IMAGE"
+
       - uses: actions/checkout@v4
 
-      - name: Deploy frontend to K8s
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 5m
-          script: |
-            /home/ubuntu/frontend-platform/build-deploy.sh "${{ needs.build.outputs.image }}"
-
-      - name: Copy Keycloak theme to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "keycloak-theme/"
-          target: "/tmp/kypo-theme-ci/"
-
       - name: Deploy Keycloak theme
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 10m
-          script: |
-            set -e
+        env:
+          KC_POD: keycloak-0
+          KC_NS: crczp
+          THEME: "vuontre-login-${{ github.run_number }}-${{ github.run_attempt }}"
+          SRC: "${{ github.workspace }}/keycloak-theme"
+        run: |
+          set -e
 
-            KYPO_DIR=$(find /home -name "kypo-sp26" -type d 2>/dev/null | head -1)
-            SRC="/tmp/kypo-theme-ci/keycloak-theme"
-            KC_POD=keycloak-0
-            KC_NS=crczp
+          echo "===> [1] Kiem tra thu muc theme..."
+          test -f "$SRC/login/theme.properties"
+          test -f "$SRC/login/login.ftl"
+          test -f "$SRC/login/resources/css/login.css"
+          test -f "$SRC/login/resources/js/login.js"
+          test -f "$SRC/login/messages/messages_en.properties"
 
-            # Dùng tên theme mới, không đè lên kypo-v5/kypo-v6 có sẵn.
-            # Việc này cũng tránh cache lỗi "Failed to find LOGIN theme kypo-v6" trước đó.
-            THEME="vuontre-login-${{ github.run_number }}-${{ github.run_attempt }}"
+          echo "===> [2] Tao thu muc theme trong Keycloak pod..."
+          sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c "
+            rm -rf /opt/keycloak/themes/$THEME &&
+            mkdir -p /opt/keycloak/themes/$THEME/login/resources/css \
+                     /opt/keycloak/themes/$THEME/login/resources/js \
+                     /opt/keycloak/themes/$THEME/login/messages
+          "
 
-            _in_vm() {
-              docker run --rm \
-                -e LIBVIRT_DEFAULT_URI \
-                -v /var/run/libvirt/:/var/run/libvirt/ \
-                -v ~/.vagrant.d:/.vagrant.d \
-                -v "$KYPO_DIR":"$KYPO_DIR" \
-                -w "$KYPO_DIR" \
-                --network host \
-                vagrantlibvirt/vagrant-libvirt:latest \
-                vagrant ssh -- "$@"
-            }
+          echo "===> [3] Copy file theme vao pod..."
+          _copy_file() {
+            local src="$1" dst="$2"
+            local encoded
+            encoded=$(base64 -w0 "$src")
+            sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c "
+              printf '%s' '$encoded' | base64 -d > $dst && ls -lh $dst
+            "
+          }
 
-            _copy_file() {
-              local src="$1"
-              local dst="$2"
+          _copy_file "$SRC/login/theme.properties" "/opt/keycloak/themes/$THEME/login/theme.properties"
+          _copy_file "$SRC/login/login.ftl" "/opt/keycloak/themes/$THEME/login/login.ftl"
+          _copy_file "$SRC/login/resources/css/login.css" "/opt/keycloak/themes/$THEME/login/resources/css/login.css"
+          _copy_file "$SRC/login/resources/js/login.js" "/opt/keycloak/themes/$THEME/login/resources/js/login.js"
+          _copy_file "$SRC/login/messages/messages_en.properties" "/opt/keycloak/themes/$THEME/login/messages/messages_en.properties"
 
-              if [ ! -f "$src" ]; then
-                echo "Missing local file: $src"
-                exit 1
-              fi
+          echo "===> [4] Apply loginTheme=$THEME vao realm CRCZP..."
+          sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c "
+            /opt/keycloak/bin/kcadm.sh config credentials \
+              --server http://localhost:8080/keycloak \
+              --realm master \
+              --user \"\$KEYCLOAK_ADMIN\" \
+              --password \"\$KEYCLOAK_ADMIN_PASSWORD\" && \
+            /opt/keycloak/bin/kcadm.sh update realms/CRCZP -s loginTheme=$THEME && \
+            echo 'Theme applied:' && \
+            /opt/keycloak/bin/kcadm.sh get realms/CRCZP --fields realm,loginTheme
+          "
 
-              # IMPORTANT:
-              # Do not pipe file content into _in_vm. docker run inside _in_vm is not interactive,
-              # so stdin is lost and the copied file becomes 0 bytes.
-              # Instead, put the base64 string directly into the remote command.
-              local encoded
-              encoded=$(base64 -w0 "$src")
-
-              _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'mkdir -p $(dirname "$dst") && printf %s "$encoded" | base64 -d > "$dst" && ls -lh "$dst"'"
-            }
-
-            echo "===> [1] Check source theme folder on server..."
-            test -f "$SRC/login/theme.properties"
-            test -f "$SRC/login/login.ftl"
-            test -f "$SRC/login/resources/css/login.css"
-            test -f "$SRC/login/resources/js/login.js"
-            test -f "$SRC/login/messages/messages_en.properties"
-            find "$SRC" -type f | sort
-
-            echo "===> [2] Create clean theme folder in Keycloak pod..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'rm -rf /opt/keycloak/themes/$THEME && mkdir -p /opt/keycloak/themes/$THEME/login/resources/css /opt/keycloak/themes/$THEME/login/resources/js /opt/keycloak/themes/$THEME/login/messages'"
-
-            echo "===> [3] Copy theme.properties, login.ftl, CSS, JS, and messages..."
-            _copy_file "$SRC/login/theme.properties" \
-              "/opt/keycloak/themes/$THEME/login/theme.properties"
-
-            _copy_file "$SRC/login/login.ftl" \
-              "/opt/keycloak/themes/$THEME/login/login.ftl"
-
-            _copy_file "$SRC/login/resources/css/login.css" \
-              "/opt/keycloak/themes/$THEME/login/resources/css/login.css"
-
-            _copy_file "$SRC/login/resources/js/login.js" \
-              "/opt/keycloak/themes/$THEME/login/resources/js/login.js"
-
-            _copy_file "$SRC/login/messages/messages_en.properties" \
-              "/opt/keycloak/themes/$THEME/login/messages/messages_en.properties"
-
-            echo "===> [4] Verify theme files in pod..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'find /opt/keycloak/themes/$THEME -type f | sort && echo --- && cat /opt/keycloak/themes/$THEME/login/theme.properties && echo --- && ls -la /opt/keycloak/themes/$THEME /opt/keycloak/themes/$THEME/login'"
-
-            echo "===> [5] Apply loginTheme=$THEME to realm CRCZP..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'set +e; \
-              /opt/keycloak/bin/kcadm.sh config credentials \
-                --server http://localhost:8080/keycloak \
-                --realm master \
-                --user \"\$KEYCLOAK_ADMIN\" \
-                --password \"\$KEYCLOAK_ADMIN_PASSWORD\"; \
-              LOGIN_STATUS=\$?; \
-              echo \"kcadm login status: \$LOGIN_STATUS\"; \
-              if [ \$LOGIN_STATUS -eq 0 ]; then \
-                echo \"Applying loginTheme=$THEME to realm CRCZP\"; \
-                /opt/keycloak/bin/kcadm.sh update realms/CRCZP -s loginTheme=$THEME; \
-                APPLY_STATUS=\$?; \
-                echo \"kcadm update status: \$APPLY_STATUS\"; \
-                echo \"Current realm theme setting:\"; \
-                /opt/keycloak/bin/kcadm.sh get realms/CRCZP --fields realm,loginTheme; \
-              else \
-                echo \"Cannot login with kcadm. Theme was copied, but auto-apply was skipped.\"; \
-              fi'"
-
-            echo "===> [6] DEBUG: Theme folders in pod..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'ls -la /opt/keycloak/themes && echo --- && find /opt/keycloak/themes/$THEME -maxdepth 4 -type f -exec ls -lh {} \;'"
-
-            echo "===> [7] DEBUG: theme.properties content..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'cat /opt/keycloak/themes/$THEME/login/theme.properties'"
-
-            echo "===> [8] DEBUG: CSS file check..."
-            _in_vm "sudo kubectl exec -n $KC_NS $KC_POD -- /bin/sh -c 'ls -lh /opt/keycloak/themes/$THEME/login/resources/css/login.css && head -20 /opt/keycloak/themes/$THEME/login/resources/css/login.css'"
-
-            echo "===> [9] DEBUG: Keycloak logs related to theme/template..."
-            _in_vm "sudo kubectl logs -n $KC_NS $KC_POD --since=15m 2>&1 | grep -iE 'theme|ftl|freemarker|template|vuontre|error|exception' | tail -150 || true"
-
-            echo "===> [10] DEBUG: Last 120 Keycloak log lines..."
-            _in_vm "sudo kubectl logs -n $KC_NS $KC_POD --tail=120 2>&1 || true"
-
-            echo "===> Done. Login theme name: $THEME"
-            
+          echo "===> Done. Theme: $THEME"
