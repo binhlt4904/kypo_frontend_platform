@@ -162,6 +162,12 @@ export const DEFINED_ROUTES = {
             linear: {},
         },
     },
+    ['attack-defense']: {
+        vpn: {},
+        ['game-control']: {},
+        checker: {},
+        logs: {},
+    },
 } as const;
 
 type RoutesTree = { [key: string]: RoutesTree };
