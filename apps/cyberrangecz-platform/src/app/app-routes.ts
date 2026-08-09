@@ -216,6 +216,18 @@ export const APP_ROUTES: ValidRouterConfig<''> = [
         canActivate: [sentinelAuthGuardWithLogin],
     },
     {
+        path: 'attack-defense',
+        loadChildren: () =>
+            import('./modules/attack-defense/attack-defense-routing.module').then(
+                (m) => m.AttackDefenseRoutingModule,
+            ),
+        canActivate: [RoleGuards.uagAdminGuard],
+        data: {
+            breadcrumb: 'Attack & Defense',
+            title: 'Attack & Defense',
+        },
+    },
+    {
         path: 'login',
         component: LoginComponent,
         canActivate: [sentinelNegativeAuthGuard],

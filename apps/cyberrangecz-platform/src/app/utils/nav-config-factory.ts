@@ -101,6 +101,35 @@ export class NavConfigFactory {
                     },
                 ],
             },
+            {
+    label: 'Attack & Defense',
+    agendas: [
+        {
+            label: 'VPN',
+            path: 'attack-defense/vpn' satisfies ValidPathPrefix,
+            canActivate: () =>
+                RoleResolver.isUserAndGroupAdmin(user.roles),
+        },
+        {
+            label: 'Start / End',
+            path: 'attack-defense/game-control' satisfies ValidPathPrefix,
+            canActivate: () =>
+                RoleResolver.isUserAndGroupAdmin(user.roles),
+        },
+        {
+            label: 'Checker',
+            path: 'attack-defense/checker' satisfies ValidPathPrefix,
+            canActivate: () =>
+                RoleResolver.isUserAndGroupAdmin(user.roles),
+        },
+        {
+            label: 'Logs',
+            path: 'attack-defense/logs' satisfies ValidPathPrefix,
+            canActivate: () =>
+                RoleResolver.isUserAndGroupAdmin(user.roles),
+        },
+    ],
+},
         ];
     }
 }
